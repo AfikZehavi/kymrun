@@ -51,7 +51,7 @@ const paths = [
 const products = [
   {
     id: 1,
-    name: "גלנדרונאך 18 שנה",
+    name: "קמרון — 18 שנות בַּשְׁלָה",
     category: "ויסקי · סקוטלנד",
     price: 649,
     image: heroBottle,
@@ -59,7 +59,7 @@ const products = [
   },
   {
     id: 2,
-    name: "קברנה סוביניון רזרב",
+    name: "קמרון — קברנה רזרב",
     category: "יין אדום · נאפה",
     price: 289,
     image: wineBottle,
@@ -67,7 +67,7 @@ const products = [
   },
   {
     id: 3,
-    name: "ג'ין בוטניקל מוגבל",
+    name: "קמרון — ג'ין בוטניקל",
     category: "ג'ין · אנגליה",
     price: 219,
     image: ginBottle,
@@ -75,7 +75,7 @@ const products = [
   },
   {
     id: 4,
-    name: "מיונר 15 שנה",
+    name: "קמרון — רום מיושן",
     category: "רום · קריביים",
     price: 420,
     image: heroBottle,
@@ -103,11 +103,11 @@ function Header() {
       <div className="mx-auto flex h-16 max-w-md items-center justify-between px-5">
         <div className="flex items-center gap-2.5">
           <div className="grid size-9 place-items-center rounded-xl bg-foreground text-background">
-            <span className="font-display text-base font-bold">9</span>
+            <span className="font-display text-base font-bold">ק</span>
           </div>
           <div className="leading-none">
             <span className="font-display text-lg font-bold tracking-tight">
-              מרתף 9
+              קמרון
             </span>
             <span className="block text-[10px] tracking-widest text-muted-foreground">
               PREMIUM SPIRITS
@@ -136,7 +136,7 @@ function HeroSection() {
         <div className="relative aspect-[4/5] w-full">
           <img
             src={heroBottle}
-            alt="בקבוק וויסקי פרימיום על רקע כהה"
+            alt="בקבוק קמרון פרימיום על רקע כהה"
             width={1024}
             height={1280}
             className="h-full w-full object-cover"
@@ -149,7 +149,7 @@ function HeroSection() {
         <div className="absolute inset-x-0 bottom-0 p-5 pt-20">
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-[11px] font-medium tracking-wide text-muted-foreground backdrop-blur-sm">
             <span className="size-1.5 rounded-full bg-primary" />
-            בחירת הסומלייה
+            קמרון — בחירת הסומלייה
           </span>
           <h1 className="mt-3 font-display text-[2.5rem] font-bold leading-[1.05] text-foreground">
             בקבוק אחד
@@ -277,7 +277,9 @@ function CartBar() {
           <div className="mb-3">
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span>עוד ₪{freeShippingFrom - subtotal} למשלוח חינם</span>
-              <span className="font-mono">₪{subtotal} / ₪{freeShippingFrom}</span>
+              <span className="font-mono">
+                ₪{subtotal} / ₪{freeShippingFrom}
+              </span>
             </div>
             <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
               <div
