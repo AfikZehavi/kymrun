@@ -8,20 +8,20 @@ import ginBottle from "@/assets/gin-bottle.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "מרתף 9 — יין, וויסקי ומשקאות פרימיום" },
+      { title: "קמרון — יין, וויסקי ומשקאות פרימיום" },
       {
         name: "description",
         content:
-          "חנות אלכוהול פרימיום בישראל. יין, וויסקי, ג'ין ורום נדירים עם משלוח מהיר עד הבית. בחרו בקליק.",
+          "קמרון: יין, וויסקי, ג'ין ורום נדירים בישראל. משלוח מהיר עד הבית, בחירות פרימיום בקליק.",
       },
       {
         property: "og:title",
-        content: "מרתף 9 — יין, וויסקי ומשקאות פרימיום",
+        content: "קמרון — יין, וויסקי ומשקאות פרימיום",
       },
       {
         property: "og:description",
         content:
-          "חנות אלכוהול פרימיום בישראל. יין, וויסקי, ג'ין ורום נדירים עם משלוח מהיר עד הבית.",
+          "קמרון: יין, וויסקי, ג'ין ורום נדירים בישראל. משלוח מהיר עד הבית.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
