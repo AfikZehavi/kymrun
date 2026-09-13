@@ -160,16 +160,13 @@ function HeroSection() {
             יין, וויסקי וספיריטים פרימיום. בחר מסלול — נמליץ תוך שניות.
           </p>
 
-          <div className="mt-5 flex items-center justify-between gap-4">
-            <div>
-              <p className="text-xs text-muted-foreground">מחיר התחלתי</p>
-              <p className="font-display text-3xl font-bold text-foreground">
-                ₪219
-              </p>
-            </div>
-            <button className="rounded-2xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/15 transition-transform active:scale-[0.98]">
-              התחל לבחור
+          <div className="mt-5 flex flex-col gap-3">
+            <button className="w-full rounded-2xl bg-primary px-6 py-3.5 text-center text-base font-semibold text-primary-foreground shadow-lg shadow-primary/15 transition-transform active:scale-[0.98]">
+              בחר מתנה
             </button>
+            <p className="text-center text-xs text-muted-foreground">
+              מארז מוכן + כרטיס אישי, עד הבית תוך שעות
+            </p>
           </div>
         </div>
       </div>
