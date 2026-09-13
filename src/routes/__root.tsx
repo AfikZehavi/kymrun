@@ -78,13 +78,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "מרתף 9" },
+      { title: "קמרון" },
       {
         name: "description",
         content:
-          "חנות אלכוהול פרימיום בישראל. יין, וויסקי, ג'ין ורום נדירים עם משלוח מהיר עד הבית.",
+          "קמרון: יין, וויסקי, ג'ין ורום נדירים בישראל עם משלוח מהיר עד הבית.",
       },
-      { name: "author", content: "מרתף 9" },
+      { name: "author", content: "קמרון" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
