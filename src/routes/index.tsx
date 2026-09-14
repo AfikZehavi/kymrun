@@ -61,7 +61,7 @@ type Product = {
 const products: Product[] = [
   {
     id: 1,
-    name: "קמרון — 18 שנות בַּשְׁלָה",
+    name: "CEMRON — 18 שנות בַּשְׁלָה",
     category: "ויסקי · סקוטלנד",
     group: "whisky",
     price: 649,
@@ -71,7 +71,7 @@ const products: Product[] = [
   },
   {
     id: 2,
-    name: "קמרון — קברנה רזרב",
+    name: "CEMRON — קברנה רזרב",
     category: "יין אדום · נאפה",
     group: "wine",
     price: 289,
@@ -81,7 +81,7 @@ const products: Product[] = [
   },
   {
     id: 3,
-    name: "קמרון — ג'ין בוטניקל",
+    name: "CEMRON — ג'ין בוטניקל",
     category: "ג'ין · אנגליה",
     group: "spirits",
     price: 219,
@@ -91,7 +91,7 @@ const products: Product[] = [
   },
   {
     id: 4,
-    name: "קמרון — רום מיושן",
+    name: "CEMRON — רום מיושן",
     category: "רום · קריביים",
     group: "spirits",
     price: 420,
@@ -101,7 +101,7 @@ const products: Product[] = [
   },
   {
     id: 5,
-    name: "קמרון — שמפניה בלאן דה נואר",
+    name: "CEMRON — שמפניה בלאן דה נואר",
     category: "שמפניה · צרפת",
     group: "wine",
     price: 540,
@@ -111,7 +111,7 @@ const products: Product[] = [
   },
   {
     id: 6,
-    name: "קמרון — קוניאק XO",
+    name: "CEMRON — קוניאק XO",
     category: "קוניאק · קונייאק",
     group: "spirits",
     price: 890,
@@ -121,7 +121,7 @@ const products: Product[] = [
   },
   {
     id: 7,
-    name: "קמרון — וודקה כסופה",
+    name: "CEMRON — וודקה כסופה",
     category: "וודקה · פולין",
     group: "spirits",
     price: 199,
@@ -131,7 +131,7 @@ const products: Product[] = [
   },
   {
     id: 8,
-    name: "קמרון — מארז מורשת 20 & 30",
+    name: "CEMRON — מארז מורשת 20 & 30",
     category: "מארז מתנה · שני בקבוקים",
     group: "gift",
     price: 1290,
@@ -141,7 +141,7 @@ const products: Product[] = [
   },
   {
     id: 9,
-    name: "קמרון — מארז חגיגה",
+    name: "CEMRON — מארז חגיגה",
     category: "מארז מתנה · שמפניה וכוסות",
     group: "gift",
     price: 690,
@@ -151,7 +151,7 @@ const products: Product[] = [
   },
   {
     id: 10,
-    name: "קמרון — מארז הסומלייה",
+    name: "CEMRON — מארז הסומלייה",
     category: "מארז מתנה · יין וקינוח",
     group: "gift",
     price: 450,
@@ -161,7 +161,7 @@ const products: Product[] = [
   },
   {
     id: 11,
-    name: "קמרון — סינגל מאלט 12",
+    name: "CEMRON — סינגל מאלט 12",
     category: "ויסקי · איילה",
     group: "whisky",
     price: 389,
@@ -171,7 +171,7 @@ const products: Product[] = [
   },
   {
     id: 12,
-    name: "קמרון — שרדונה מיושן",
+    name: "CEMRON — שרדונה מיושן",
     category: "יין לבן · בורגון",
     group: "wine",
     price: 245,
