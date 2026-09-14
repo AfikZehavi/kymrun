@@ -234,6 +234,119 @@ function CartPage() {
               >
                 רוקן את הסל
               </button>
+              <div className="mt-5 rounded-2xl border border-border bg-card p-5 shadow-sm">
+                <h2 className="font-display text-lg font-semibold">
+                  פרטי המשלוח
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  נתחיל באימייל — אם כבר הזמנת אצלנו, נמלא את השאר עבורך.
+                </p>
+
+                <div className="mt-4 space-y-3">
+                  <div>
+                    <label
+                      htmlFor="email"
+                      className="mb-1.5 block text-xs font-medium text-muted-foreground"
+                    >
+                      אימייל
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="email"
+                        type="email"
+                        inputMode="email"
+                        autoComplete="email"
+                        dir="ltr"
+                        maxLength={255}
+                        value={email}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          setLookup("idle");
+                        }}
+                        onBlur={checkEmail}
+                        placeholder="you@example.com"
+                        className="w-full rounded-xl border border-border bg-background px-4 py-3 text-right text-sm outline-none transition-colors focus:border-primary"
+                      />
+                      {lookup === "loading" && (
+                        <Loader2 className="absolute left-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+                      )}
+                    </div>
+                    {lookup === "found" && (
+                      <p className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-primary">
+                        <UserCheck className="size-3.5" />
+                        טוב לראות אותך שוב — מילאנו את הפרטים שלך
+                      </p>
+                    )}
+                    {lookup === "new" && (
+                      <p className="mt-1.5 text-xs text-muted-foreground">
+                        לקוח חדש — נשמח להכיר, מלא את הפרטים למטה
+                      </p>
+                    )}
+                    {email.length > 0 && !emailValid && (
+                      <p className="mt-1.5 text-xs text-destructive">
+                        כתובת אימייל לא תקינה
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="fullName"
+                      className="mb-1.5 block text-xs font-medium text-muted-foreground"
+                    >
+                      שם מלא
+                    </label>
+                    <input
+                      id="fullName"
+                      autoComplete="name"
+                      maxLength={100}
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="ישראל ישראלי"
+                      className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="phone"
+                      className="mb-1.5 block text-xs font-medium text-muted-foreground"
+                    >
+                      טלפון
+                    </label>
+                    <input
+                      id="phone"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      dir="ltr"
+                      maxLength={30}
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="050-0000000"
+                      className="w-full rounded-xl border border-border bg-background px-4 py-3 text-right text-sm outline-none transition-colors focus:border-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="address"
+                      className="mb-1.5 block text-xs font-medium text-muted-foreground"
+                    >
+                      כתובת למשלוח
+                    </label>
+                    <input
+                      id="address"
+                      autoComplete="street-address"
+                      maxLength={255}
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="רחוב, מספר, עיר"
+                      className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
+                    />
+                  </div>
+                </div>
+              </div>
             </section>
 
             <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
