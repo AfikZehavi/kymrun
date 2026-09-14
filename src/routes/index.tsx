@@ -764,7 +764,7 @@ function HeroCopy({ onGift }: { onGift: () => void }) {
         >
           בחר מתנה
         </button>
-        <p className="text-center text-xs text-muted-foreground lg:text-right">
+        <p className="text-center text-xs text-foreground/70 md:text-right">
           כשר · משלוח עד הבית · מגיל 18
         </p>
       </div>
