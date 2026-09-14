@@ -316,11 +316,13 @@ function Home() {
               </button>
             ))}
           </div>
-        </section>
+        </Reveal>
 
-        <section id="shelf" className="mt-10 scroll-mt-20">
+        <Reveal as="section" id="shelf" className="mt-10 scroll-mt-24 lg:mt-20">
           <div className="mb-3 flex items-end justify-between">
-            <h2 className="font-display text-xl font-bold">בחירות מהמדף</h2>
+            <h2 className="font-display text-xl font-bold lg:text-3xl">
+              בחירות מהמדף
+            </h2>
             <span className="text-xs tracking-widest text-muted-foreground">
               {visible.length} פריטים
             </span>
