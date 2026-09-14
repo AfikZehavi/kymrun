@@ -27,6 +27,15 @@ export type Catalog = { categories: DbCategory[]; products: DbProduct[] };
 
 type Creds = { user: string; pass: string };
 
+const CATALOG_CACHE_MS = 5 * 60 * 1000;
+let catalogCache: { value: Catalog; expiresAt: number } | undefined;
+let catalogRequest: Promise<Catalog> | undefined;
+
+function clearCatalogCache() {
+  catalogCache = undefined;
+  catalogRequest = undefined;
+}
+
 function publicClient() {
   return createClient(
     process.env["SUPABASE_URL"]!,
@@ -43,20 +52,37 @@ function publicClient() {
 
 export const getCatalog = createServerFn({ method: "GET" }).handler(
   async (): Promise<Catalog> => {
-    const supabase = publicClient();
-    const [cats, prods] = await Promise.all([
-      supabase.from("categories").select("*").order("sort"),
-      supabase.from("products").select("*").order("sort"),
-    ]);
-    if (cats.error) throw cats.error;
-    if (prods.error) throw prods.error;
-    return {
-      categories: (cats.data ?? []) as unknown as DbCategory[],
-      products: ((prods.data ?? []) as unknown as DbProduct[]).map((p) => ({
-        ...p,
-        price: Number(p.price),
-      })),
-    };
+    if (catalogCache && catalogCache.expiresAt > Date.now()) {
+      return catalogCache.value;
+    }
+
+    if (!catalogRequest) {
+      catalogRequest = (async () => {
+        const supabase = publicClient();
+        const [cats, prods] = await Promise.all([
+          supabase.from("categories").select("id,slug,label,sort").order("sort"),
+          supabase
+            .from("products")
+            .select("id,name,subtitle,category_slug,price,discount_percent,image,abv,note,in_stock,featured,sort")
+            .order("sort"),
+        ]);
+        if (cats.error) throw cats.error;
+        if (prods.error) throw prods.error;
+        const value = {
+          categories: (cats.data ?? []) as unknown as DbCategory[],
+          products: ((prods.data ?? []) as unknown as DbProduct[]).map((p) => ({
+            ...p,
+            price: Number(p.price),
+          })),
+        };
+        catalogCache = { value, expiresAt: Date.now() + CATALOG_CACHE_MS };
+        return value;
+      })().finally(() => {
+        catalogRequest = undefined;
+      });
+    }
+
+    return catalogRequest;
   },
 );
 
@@ -82,6 +108,7 @@ export const saveProduct = createServerFn({ method: "POST" })
       const { error } = await supabase.from("products").insert(fields as never);
       if (error) throw error;
     }
+    clearCatalogCache();
     return { ok: true };
   });
 
@@ -91,6 +118,7 @@ export const deleteProduct = createServerFn({ method: "POST" })
     const supabase = await adminClient(data);
     const { error } = await supabase.from("products").delete().eq("id", data.id);
     if (error) throw error;
+    clearCatalogCache();
     return { ok: true };
   });
 
@@ -104,6 +132,7 @@ export const saveCategory = createServerFn({ method: "POST" })
         onConflict: "slug",
       });
     if (error) throw error;
+    clearCatalogCache();
     return { ok: true };
   });
 
@@ -123,5 +152,6 @@ export const deleteCategory = createServerFn({ method: "POST" })
       .delete()
       .eq("slug", data.slug);
     if (error) throw error;
+    clearCatalogCache();
     return { ok: true };
   });
