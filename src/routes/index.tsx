@@ -64,9 +64,41 @@ export const Route = createFileRoute("/")({
 });
 
 const paths = [
-  { id: "gift", label: "מתנה", description: "אריזה מוכנה וכרטיס אישי" },
-  { id: "tonight", label: "לערב", description: "מה שמתאים לארוחה שלך" },
-  { id: "collectors", label: "אספנים", description: "בקבוקים נדירים ומוגבלים" },
+  {
+    id: "gift",
+    label: "מתנה",
+    description: "אריזה מוכנה וכרטיס אישי",
+    filter: "gift",
+    toast: "הנה המארזים המוכנים למשלוח",
+  },
+  {
+    id: "shop",
+    label: "לחנות",
+    description: "כל המדף שלנו במקום אחד",
+    filter: "all",
+    toast: "כל הבקבוקים לפניך",
+  },
+  {
+    id: "winery",
+    label: "ליקב",
+    description: "יינות אדומים, לבנים ובועות",
+    filter: "wine",
+    toast: "יינות שמתאימים לארוחה",
+  },
+  {
+    id: "collectors",
+    label: "אספנים",
+    description: "ויסקי נדיר ומיושן",
+    filter: "whisky",
+    toast: "בקבוקים נדירים ומיושנים",
+  },
+  {
+    id: "secret",
+    label: "החדר הסודי",
+    description: "כמויות מוגבלות ובקבוקים ממוספרים",
+    filter: "secret",
+    toast: "פתחנו לך את הדלת לחדר הסודי",
+  },
 ];
 
 function Home() {
