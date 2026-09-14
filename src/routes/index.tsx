@@ -25,8 +25,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
-import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
+import { useQuery, queryOptions } from "@tanstack/react-query";
+
 
 import heroBottles from "@/assets/hero-bottles.jpg";
 import heroBottlesLight from "@/assets/hero-bottles-light.jpg";
@@ -65,7 +65,15 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(catalogQuery),
   component: Home,
+});
+
+const catalogQuery = queryOptions({
+  queryKey: ["catalog"],
+  queryFn: () => getCatalog(),
+  staleTime: 5 * 60 * 1000,
+  retry: 2,
 });
 
 const paths: {
@@ -130,11 +138,7 @@ function Home() {
   const { add: addToCart, count, subtotal } = useCart();
 
 
-  const fetchCatalog = useServerFn(getCatalog);
-  const { data } = useQuery({
-    queryKey: ["catalog"],
-    queryFn: () => fetchCatalog(),
-  });
+  const { data, isPending, isError, refetch } = useQuery(catalogQuery);
 
   const allProducts = useMemo<Product[]>(
     () =>
@@ -428,7 +432,7 @@ function Home() {
               טעימת יין פרטית — אצלך בבית או בעסק
             </h2>
             <p className="mt-3 max-w-[56ch] text-sm leading-relaxed text-muted-foreground lg:text-base">
-              סומלייה מגיע עם שישה יינות כשרים, כוסות מקצועיות והתאמת אוכל.
+              מומחה יין מגיע עם שישה יינות כשרים, כוסות מקצועיות והתאמת אוכל.
               תשעים דקות שמשאירות רושם — לערב זוגי, לחברים או לצוות.
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -564,7 +568,7 @@ function Reveal({
           }
         });
       },
-      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
+      { threshold: 0, rootMargin: "0px 0px -5% 0px" },
     );
     io.observe(el);
     return () => io.disconnect();
