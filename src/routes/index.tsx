@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   useEffect,
   useMemo,
@@ -37,7 +37,10 @@ import heroBottles from "@/assets/hero-bottles.jpg";
 import heroBottlesLight from "@/assets/hero-bottles-light.jpg";
 import { resolveImage } from "@/lib/images";
 import { getCatalog } from "@/lib/catalog.functions";
+import { useCart } from "@/lib/use-cart";
+import type { Product, Category, CartLine } from "@/lib/types";
 import { ThemeToggle } from "@/components/theme-toggle";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({

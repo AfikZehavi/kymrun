@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminKymrun37RouteImport } from './routes/admin-kymrun-37'
+import { Route as CartRouteImport } from './routes/cart'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const AdminKymrun37Route = AdminKymrun37RouteImport.update({
   path: '/admin-kymrun-37',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CartRoute = CartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin-kymrun-37': typeof AdminKymrun37Route
+  '/cart': typeof CartRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin-kymrun-37': typeof AdminKymrun37Route
+  '/cart': typeof CartRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin-kymrun-37': typeof AdminKymrun37Route
+  '/cart': typeof CartRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin-kymrun-37'
+  fullPaths: '/' | '/admin-kymrun-37' | '/cart'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin-kymrun-37'
-  id: '__root__' | '/' | '/admin-kymrun-37'
+  to: '/' | '/admin-kymrun-37' | '/cart'
+  id: '__root__' | '/' | '/admin-kymrun-37' | '/cart'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminKymrun37Route: typeof AdminKymrun37Route
+  CartRoute: typeof CartRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminKymrun37RouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cart': {
+      id: '/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminKymrun37Route: AdminKymrun37Route,
+  CartRoute: CartRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
