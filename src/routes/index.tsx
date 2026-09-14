@@ -64,7 +64,7 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-type Product = {
+export type Product = {
   id: number;
   name: string;
   category: string;
@@ -74,6 +74,8 @@ type Product = {
   abv: string;
   note: string;
 };
+
+const CUSTOM_PRODUCTS_KEY = "kymrun-custom-products";
 
 export const products: Product[] = [
   {
