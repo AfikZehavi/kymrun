@@ -1,13 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   ArrowRight,
   Check,
+  Loader2,
   Minus,
   Plus,
   ShoppingBag,
   Trash2,
   Truck,
+  UserCheck,
 } from "lucide-react";
 
 import {
@@ -19,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { useCart } from "@/lib/use-cart";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { lookupCustomer, saveCustomer } from "@/lib/customers.functions";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
