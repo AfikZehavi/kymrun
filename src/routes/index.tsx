@@ -262,7 +262,7 @@ function Home() {
               {paths.length} דרכים
             </span>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 pt-1 snap-x md:grid md:grid-cols-3 md:gap-5 md:overflow-visible lg:grid-cols-5">
+          <div className="flex gap-3 overflow-x-auto pb-2 pt-1 snap-x md:grid md:grid-cols-3 md:gap-5 md:overflow-visible lg:grid-cols-6">
             {paths.map((path) => (
               <button
                 key={path.id}
