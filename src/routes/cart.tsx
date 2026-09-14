@@ -24,6 +24,7 @@ import { useCart } from "@/lib/use-cart";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { lookupCustomer, saveCustomer } from "@/lib/customers.functions";
 import { useSecretGift } from "@/lib/use-secret-gift";
+import { goldDiscountFor, useGold } from "@/lib/gold";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -96,6 +97,9 @@ function CartPage() {
 
   const remaining = Math.max(FREE_SHIPPING_FROM - subtotal, 0);
   const progress = Math.min((subtotal / FREE_SHIPPING_FROM) * 100, 100);
+  const goldDiscount = goldActive ? goldDiscountFor(cart) : 0;
+  const shipping = goldActive ? 0 : remaining > 0 ? 35 : 0;
+  const total = Math.max(subtotal - goldDiscount + shipping, 0);
 
   const ready = subtotal > 0 && detailsValid && !submitting;
 
