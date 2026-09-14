@@ -94,20 +94,42 @@ function Home() {
   const [selected, setSelected] = useState<Product | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
-  const [customProducts, setCustomProducts] = useState<Product[]>([]);
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(CUSTOM_PRODUCTS_KEY);
-      if (raw) setCustomProducts(JSON.parse(raw));
-    } catch {
-      /* ignore */
-    }
-  }, []);
+  const fetchCatalog = useServerFn(getCatalog);
+  const { data } = useQuery({
+    queryKey: ["catalog"],
+    queryFn: () => fetchCatalog(),
+  });
 
-  const allProducts = useMemo(
-    () => [...products, ...customProducts],
-    [customProducts],
+  const allProducts = useMemo<Product[]>(
+    () =>
+      (data?.products ?? []).map((p) => {
+        const base = Number(p.price);
+        const discount = p.discount_percent ?? 0;
+        return {
+          id: p.id,
+          name: p.name,
+          category: p.subtitle,
+          group: p.category_slug,
+          basePrice: base,
+          price: Math.round(base * (1 - discount / 100)),
+          discount,
+          image: resolveImage(p.image),
+          abv: p.abv,
+          note: p.note,
+          inStock: p.in_stock,
+          featured: p.featured,
+        };
+      }),
+    [data],
+  );
+
+  const categories = useMemo<Category[]>(
+    () => [
+      { id: "all", label: "הכול" },
+      ...(data?.categories ?? []).map((c) => ({ id: c.slug, label: c.label })),
+    ],
+    [data],
   );
 
   const visible = useMemo(
@@ -169,7 +191,7 @@ function Home() {
     );
   }
 
-  function changeQty(id: number, delta: number) {
+  function changeQty(id: string, delta: number) {
     setCart((prev) =>
       prev
         .map((l) =>
