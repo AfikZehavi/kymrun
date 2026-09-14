@@ -458,26 +458,42 @@ function Home() {
               החדר הסודי
             </span>
             <h2 className="mt-4 font-display text-2xl font-bold leading-tight lg:text-4xl">
-              טעימת יין פרטית — אצלך בבית או בעסק
+              טריוויית הבקבוקים — ענה נכון, קבל מתנה
             </h2>
             <p className="mt-3 max-w-[56ch] text-sm leading-relaxed text-muted-foreground lg:text-base">
-              מומחה יין מגיע עם שישה יינות כשרים, כוסות מקצועיות והתאמת אוכל.
-              תשעים דקות שמשאירות רושם — לערב זוגי, לחברים או לצוות.
+              56 שאלות על שימור יין, טעמי יין ועולם הוויסקי. כל סבב מגריל 7
+              שאלות — 6 נכונות ומעלה פותחות מתנה שתצורף להזמנה שלך.
             </p>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {[
+                { t: "שימור", d: "מרתף, טמפרטורה ופקקים" },
+                { t: "יין", d: "טאנינים, ארומות והתאמות" },
+                { t: "וויסקי", d: "חביות, פיט וסינגל מאלט" },
+              ].map((c) => (
+                <div
+                  key={c.t}
+                  className="rounded-2xl border border-border bg-background/60 p-4 backdrop-blur-md"
+                >
+                  <p className="font-display text-base font-bold">{c.t}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{c.d}</p>
+                </div>
+              ))}
+            </div>
+
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link
-                to="/events"
-                hash="tasting"
+                to="/secret-room"
                 className="rounded-2xl bg-primary px-6 py-3.5 text-center text-base font-semibold text-primary-foreground transition-transform active:scale-[0.98]"
               >
-                להזמנת טעימה פרטית
+                לשחק ולזכות במתנה
               </Link>
               <Link
                 to="/events"
-                hash="request"
+                hash="tasting"
                 className="rounded-2xl border border-border bg-background px-6 py-3.5 text-center text-base font-semibold transition-colors hover:border-primary/40"
               >
-                הפקת אירוע — הצעה תוך 4 שעות
+                טעימת יין פרטית בבית או בעסק
               </Link>
             </div>
           </div>
