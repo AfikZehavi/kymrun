@@ -651,7 +651,7 @@ function Header({
 
 function HeroSection({ onGift }: { onGift: () => void }) {
   const frameRef = useRef<HTMLDivElement | null>(null);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [progress, setProgress] = useState(0);
   const [motionOk, setMotionOk] = useState(true);
 
   useEffect(() => {
@@ -660,78 +660,80 @@ function HeroSection({ onGift }: { onGift: () => void }) {
 
   useEffect(() => {
     if (!motionOk) return;
-    const onOrient = (e: DeviceOrientationEvent) => {
-      const gamma = e.gamma ?? 0;
-      const beta = e.beta ?? 0;
-      setTilt({
-        y: Math.max(-10, Math.min(10, gamma / 3)),
-        x: Math.max(-8, Math.min(8, (beta - 45) / 5)),
-      });
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const rect = frameRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const vh = window.innerHeight || 1;
+      const p = Math.max(
+        0,
+        Math.min(1, (vh - rect.top) / (vh + rect.height) - 0.35),
+      );
+      setProgress(p);
     };
-    window.addEventListener("deviceorientation", onOrient);
-    return () => window.removeEventListener("deviceorientation", onOrient);
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, [motionOk]);
 
-  function handlePointer(e: React.PointerEvent<HTMLDivElement>) {
-    if (!motionOk) return;
-    const rect = frameRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const px = (e.clientX - rect.left) / rect.width - 0.5;
-    const py = (e.clientY - rect.top) / rect.height - 0.5;
-    setTilt({ y: px * 16, x: -py * 12 });
-  }
-
-  const glare = 50 + tilt.y * 2.5;
+  const rotateY = progress * 26;
+  const rotateZ = progress * -7;
+  const rotateX = progress * 9;
+  const shift = progress * -60;
+  const glare = 50 + progress * 40;
 
   return (
-    <section className="pt-5 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12 lg:pt-12">
+    <section
+      ref={frameRef}
+      className="relative -mx-5 overflow-hidden px-5 pt-5 lg:-mx-8 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12 lg:px-8 lg:pt-12"
+      style={{ perspective: "1400px" }}
+    >
       <div
-        ref={frameRef}
-        onPointerMove={handlePointer}
-        onPointerLeave={() => setTilt({ x: 0, y: 0 })}
-        className="group relative overflow-hidden rounded-3xl bg-card ring-1 ring-border lg:order-last"
-        style={{ perspective: "1200px" }}
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 will-change-transform"
+        style={{
+          transform: `translate3d(0, ${shift}px, 0) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) scale(1.18)`,
+          transformStyle: "preserve-3d",
+        }}
       >
-        <div className="relative aspect-[4/5] w-full overflow-hidden">
-          <div
-            className="h-full w-full transition-transform duration-300 ease-out will-change-transform"
-            style={{
-              transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(1.06)`,
-              transformStyle: "preserve-3d",
-            }}
-          >
-            <img
-              src={heroBottle}
-              alt="בקבוק CEMRON פרימיום כשר על רקע כהה"
-              width={1024}
-              height={1280}
-              className="h-full w-full object-cover"
-              loading="eager"
-              decoding="async"
-            />
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0 mix-blend-screen transition-opacity duration-300"
-              style={{
-                background: `linear-gradient(${105 + tilt.y * 2}deg, transparent ${glare - 18}%, rgba(255,255,255,0.16) ${glare}%, transparent ${glare + 18}%)`,
-              }}
-            />
-          </div>
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent lg:from-background/70 lg:via-transparent" />
-        </div>
+        <img
+          src={heroBottle}
+          alt=""
+          width={1024}
+          height={1280}
+          className="h-full w-full object-cover opacity-90"
+          loading="eager"
+          decoding="async"
+        />
+        <div
+          className="absolute inset-0 mix-blend-screen"
+          style={{
+            background: `linear-gradient(${105 + progress * 30}deg, transparent ${glare - 20}%, rgba(255,255,255,0.14) ${glare}%, transparent ${glare + 20}%)`,
+          }}
+        />
+      </div>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-background via-background/75 to-background/40 lg:bg-gradient-to-l lg:from-background lg:via-background/70 lg:to-transparent"
+      />
 
-        <span className="pointer-events-none absolute top-4 right-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-background/70 px-3 py-1.5 text-[11px] font-semibold tracking-wide backdrop-blur-md">
+      <div className="relative min-h-[78vh] lg:col-start-1 lg:min-h-[70vh]">
+        <span className="pointer-events-none absolute top-2 left-0 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-background/70 px-3 py-1.5 text-[11px] font-semibold tracking-wide backdrop-blur-md">
           <ShieldCheck className="size-3.5 text-primary" />
           כשר · 100%
         </span>
-
-        <div className="absolute inset-x-0 bottom-0 p-5 pt-20 lg:hidden">
+        <div className="absolute inset-x-0 bottom-0 lg:static lg:pt-10">
           <HeroCopy onGift={onGift} />
         </div>
-      </div>
-
-      <div className="hidden lg:block">
-        <HeroCopy onGift={onGift} desktop />
       </div>
     </section>
   );
