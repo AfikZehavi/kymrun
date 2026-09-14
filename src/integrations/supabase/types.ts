@@ -14,7 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          slug: string
+          sort: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          slug: string
+          sort?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          slug?: string
+          sort?: number
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          abv: string
+          category_slug: string
+          created_at: string
+          discount_percent: number
+          featured: boolean
+          id: string
+          image: string
+          in_stock: boolean
+          name: string
+          note: string
+          price: number
+          sort: number
+          subtitle: string
+        }
+        Insert: {
+          abv?: string
+          category_slug: string
+          created_at?: string
+          discount_percent?: number
+          featured?: boolean
+          id?: string
+          image?: string
+          in_stock?: boolean
+          name: string
+          note?: string
+          price?: number
+          sort?: number
+          subtitle?: string
+        }
+        Update: {
+          abv?: string
+          category_slug?: string
+          created_at?: string
+          discount_percent?: number
+          featured?: boolean
+          id?: string
+          image?: string
+          in_stock?: boolean
+          name?: string
+          note?: string
+          price?: number
+          sort?: number
+          subtitle?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_slug_fkey"
+            columns: ["category_slug"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
