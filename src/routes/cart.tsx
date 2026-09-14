@@ -3,6 +3,7 @@ import { useState } from "react";
 import {
   ArrowRight,
   Check,
+  Crown,
   Loader2,
   Minus,
   Plus,
@@ -24,7 +25,7 @@ import { useCart } from "@/lib/use-cart";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { lookupCustomer, saveCustomer } from "@/lib/customers.functions";
 import { useSecretGift } from "@/lib/use-secret-gift";
-import { goldDiscountFor, useGold } from "@/lib/gold";
+import { GOLD_ENABLED, goldDiscountFor, useGold } from "@/lib/gold";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -443,7 +444,7 @@ function CartPage() {
                 className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-base font-semibold text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-50"
               >
                 {submitting && <Loader2 className="size-4 animate-spin" />}
-                לתשלום · ₪{subtotal + (remaining > 0 ? 35 : 0)}
+                לתשלום · ₪{total}
               </button>
 
               <p className="mt-3 text-center text-xs text-muted-foreground">
