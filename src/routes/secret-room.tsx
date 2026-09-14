@@ -86,10 +86,12 @@ function SecretRoom() {
           → חזרה לחנות
         </Link>
 
-        <span className="mt-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-card/70 px-3 py-1 text-[11px] font-semibold tracking-wide text-primary backdrop-blur-md">
-          <Sparkles className="size-3.5" />
-          החדר הסודי
-        </span>
+        <div className="mt-6">
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-card/70 px-3 py-1 text-[11px] font-semibold tracking-wide text-primary backdrop-blur-md">
+            <Sparkles className="size-3.5" />
+            החדר הסודי
+          </span>
+        </div>
 
         {stage === "intro" && (
           <Intro

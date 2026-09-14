@@ -11,6 +11,8 @@
 - [x] Israeli alcohol terms, ID on delivery, cancellation/returns in footer + /terms
 - [x] More gift sets and packaging options
 - [x] /contact page and inquiries stored in the database
+- [x] Real phone 050-4001575 sitewide + WhatsApp button in header
+- [x] Secret room trivia game (56 questions) with gift code reward shown in cart
 - [ ] Connect a payment provider (needs user decision + Pro plan)
 - [ ] Connect a custom domain
 - [ ] Product detail page
