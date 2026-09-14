@@ -22,8 +22,96 @@ export const Route = createFileRoute("/admin-kymrun-37")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: AdminPage,
+  component: AdminGate,
 });
+
+const ADMIN_USER = "adminkymrunhere22!!";
+const ADMIN_PASS = "kymrunToWin2423";
+const SESSION_KEY = "kymrun-admin-session";
+
+function AdminGate() {
+  const [authed, setAuthed] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [user, setUser] = useState("");
+  const [pass, setPass] = useState("");
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    try {
+      setAuthed(sessionStorage.getItem(SESSION_KEY) === "1");
+    } catch {
+      /* ignore */
+    }
+    setReady(true);
+  }, []);
+
+  if (!ready) return null;
+
+  if (!authed) {
+    return (
+      <div
+        dir="rtl"
+        className="grid min-h-screen place-items-center bg-background px-5 text-foreground"
+      >
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (user === ADMIN_USER && pass === ADMIN_PASS) {
+              try {
+                sessionStorage.setItem(SESSION_KEY, "1");
+              } catch {
+                /* ignore */
+              }
+              setAuthed(true);
+            } else {
+              setError(true);
+            }
+          }}
+          className="w-full max-w-sm space-y-4 rounded-3xl border border-border bg-card p-6 text-right shadow-2xl shadow-black/40"
+        >
+          <div>
+            <h1 className="font-display text-2xl font-bold tracking-[0.18em]">
+              KYMRUN
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">כניסת מנהל</p>
+          </div>
+          <input
+            value={user}
+            onChange={(e) => {
+              setUser(e.target.value);
+              setError(false);
+            }}
+            placeholder="שם משתמש"
+            autoComplete="username"
+            className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary"
+          />
+          <input
+            value={pass}
+            onChange={(e) => {
+              setPass(e.target.value);
+              setError(false);
+            }}
+            type="password"
+            placeholder="סיסמה"
+            autoComplete="current-password"
+            className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary"
+          />
+          {error && (
+            <p className="text-sm text-destructive">שם משתמש או סיסמה שגויים</p>
+          )}
+          <button
+            type="submit"
+            className="w-full rounded-2xl bg-primary py-3 text-base font-semibold text-primary-foreground active:scale-[0.98]"
+          >
+            כניסה
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  return <AdminPage />;
+}
 
 type Override = { price: number; inStock: boolean; featured: boolean };
 const STORAGE_KEY = "kymrun-admin-overrides";

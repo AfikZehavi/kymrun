@@ -261,7 +261,42 @@ function Home() {
       }
       return [...prev, { product, qty: 1 }];
     });
-    toast.success("נוסף לסל", { description: product.name });
+    toast.custom(
+      (id) => (
+        <div
+          dir="rtl"
+          className="pointer-events-auto flex w-[min(92vw,380px)] items-center gap-3 rounded-2xl border border-primary/25 bg-card/95 p-3 text-right shadow-2xl shadow-black/50 backdrop-blur-xl"
+        >
+          <img
+            src={product.image}
+            alt=""
+            className="size-14 shrink-0 rounded-xl object-cover ring-1 ring-border"
+          />
+          <div className="min-w-0 flex-1">
+            <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-primary">
+              <Check className="size-3.5" />
+              נוסף לסל
+            </p>
+            <p className="mt-0.5 truncate text-sm font-semibold">
+              {product.name}
+            </p>
+            <p className="mt-0.5 font-display text-sm font-bold text-muted-foreground">
+              ₪{product.price}
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              toast.dismiss(id);
+              setCartOpen(true);
+            }}
+            className="shrink-0 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
+          >
+            לסל
+          </button>
+        </div>
+      ),
+      { duration: 3200 },
+    );
   }
 
   function changeQty(id: number, delta: number) {
@@ -308,7 +343,7 @@ function Home() {
         onFilter={setFilter}
       />
 
-      <main className="mx-auto max-w-md px-5 pb-40 lg:max-w-6xl lg:px-8 lg:pb-28">
+      <main className="mx-auto max-w-md px-5 pb-40 md:max-w-3xl md:px-8 md:pb-32 lg:max-w-6xl lg:pb-28">
         <HeroSection onGift={() => selectPath("gift")} />
 
         <Reveal as="section" className="mt-8 lg:mt-16">
@@ -621,7 +656,7 @@ function Header({
 }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
-      <div className="mx-auto grid h-16 max-w-md grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 lg:max-w-6xl lg:px-8">
+      <div className="mx-auto grid h-16 max-w-md grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 md:h-[4.5rem] md:max-w-3xl md:px-8 lg:max-w-6xl">
         <div className="flex min-w-0 items-center gap-2.5">
           <div className="min-w-0 leading-none">
             <span className="font-display text-lg font-bold tracking-[0.18em]">
@@ -673,7 +708,7 @@ function Header({
 
 function HeroSection({ onGift }: { onGift: () => void }) {
   return (
-    <section className="relative -mx-5 min-h-[78vh] overflow-hidden lg:-mx-8 lg:min-h-[70vh]">
+    <section className="relative -mx-5 min-h-[78vh] overflow-hidden md:-mx-8 md:min-h-[62vh] lg:min-h-[70vh]">
       <img
         src={heroBottles}
         alt=""
@@ -685,7 +720,11 @@ function HeroSection({ onGift }: { onGift: () => void }) {
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent lg:bg-gradient-to-r lg:from-background/90 lg:via-background/40 lg:to-transparent"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/25 md:bg-gradient-to-r md:from-background md:via-background/75 md:to-background/20"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-background/25 md:hidden"
       />
 
       <span className="pointer-events-none absolute top-4 left-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-background/70 px-3 py-1.5 text-[11px] font-semibold tracking-wide backdrop-blur-md">
@@ -693,7 +732,7 @@ function HeroSection({ onGift }: { onGift: () => void }) {
         כשר · 100%
       </span>
 
-      <div className="relative z-10 flex min-h-[78vh] items-end px-5 pb-12 pt-24 lg:min-h-[70vh] lg:items-center lg:px-8 lg:py-12">
+      <div className="relative z-10 flex min-h-[78vh] items-end px-5 pb-12 pt-24 md:min-h-[62vh] md:items-center md:px-8 md:py-14 lg:min-h-[70vh] lg:py-12">
         <div className="w-full max-w-xl">
           <HeroCopy onGift={onGift} />
         </div>
@@ -705,27 +744,27 @@ function HeroSection({ onGift }: { onGift: () => void }) {
 function HeroCopy({ onGift }: { onGift: () => void }) {
   return (
     <div>
-      <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-[11px] font-medium tracking-wide text-muted-foreground backdrop-blur-sm">
+      <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-[11px] font-medium tracking-wide text-foreground/80 backdrop-blur-md">
         <span className="size-1.5 rounded-full bg-primary" />
         כל המשקאות אצלנו כשרים — בלי לבדוק תווית
       </span>
-      <h1 className="mt-3 font-display text-[2.5rem] font-bold leading-[1.05] lg:text-6xl">
+      <h1 className="mt-3 font-display text-[2.5rem] font-bold leading-[1.05] [text-shadow:0_2px_18px_rgba(0,0,0,0.65)] md:text-5xl lg:text-6xl">
         בקבוק אחד
         <br />
         <span className="text-primary">בדיוק בשבילך</span>
       </h1>
-      <p className="mt-3 max-w-[34ch] text-[15px] leading-relaxed text-muted-foreground lg:text-lg">
+      <p className="mt-3 max-w-[34ch] text-[15px] font-medium leading-relaxed text-foreground/85 [text-shadow:0_1px_10px_rgba(0,0,0,0.6)] md:text-base lg:text-lg">
         יין, וויסקי וספיריטים פרימיום — כולם כשרים. בחר מסלול, ונמליץ תוך שניות.
       </p>
 
-      <div className="mt-5 flex flex-col gap-3 lg:max-w-sm">
+      <div className="mt-5 flex flex-col gap-3 md:max-w-sm">
         <button
           onClick={onGift}
           className="w-full rounded-2xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/15 transition-transform hover:scale-[1.01] active:scale-[0.98]"
         >
           בחר מתנה
         </button>
-        <p className="text-center text-xs text-muted-foreground lg:text-right">
+        <p className="text-center text-xs text-foreground/70 md:text-right">
           כשר · משלוח עד הבית · מגיל 18
         </p>
       </div>
@@ -803,7 +842,7 @@ function CartBar({
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 animate-slide-in-bottom">
-      <div className="mx-auto max-w-md px-4 pb-4 lg:max-w-2xl">
+      <div className="mx-auto max-w-md px-4 pb-4 md:max-w-xl lg:max-w-2xl">
         <div className="rounded-2xl border border-border bg-card p-4 shadow-2xl shadow-black/40 backdrop-blur-xl">
           <div className="mb-3">
             <div className="flex items-center justify-between text-xs text-muted-foreground">
