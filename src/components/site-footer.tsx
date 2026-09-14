@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
+import { PHONE_DISPLAY, PHONE_TEL, WHATSAPP_URL } from "@/lib/contact";
+
 export function SiteFooter() {
   return (
     <footer className="mt-16 border-t border-border bg-card/40">
@@ -33,6 +35,21 @@ export function SiteFooter() {
           <div className="text-xs leading-relaxed text-muted-foreground">
             <p className="font-semibold text-foreground">שירות לקוחות</p>
             <p className="mt-2">א׳–ה׳ 09:00–18:00 · ו׳ 09:00–13:00</p>
+            <p className="mt-1">
+              <a href={`tel:${PHONE_TEL}`} className="hover:text-foreground">
+                {PHONE_DISPLAY}
+              </a>
+            </p>
+            <p className="mt-1">
+              <a
+                href={WHATSAPP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground"
+              >
+                וואטסאפ · {PHONE_DISPLAY}
+              </a>
+            </p>
             <p className="mt-1">service@kymrun.co.il</p>
           </div>
         </div>

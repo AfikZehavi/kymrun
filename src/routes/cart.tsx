@@ -6,6 +6,7 @@ import {
   Loader2,
   Minus,
   Plus,
+  Gift,
   ShoppingBag,
   Trash2,
   Truck,
@@ -22,6 +23,7 @@ import {
 import { useCart } from "@/lib/use-cart";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { lookupCustomer, saveCustomer } from "@/lib/customers.functions";
+import { useSecretGift } from "@/lib/use-secret-gift";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -49,6 +51,7 @@ export const Route = createFileRoute("/cart")({
 const FREE_SHIPPING_FROM = 550;
 
 function CartPage() {
+  const { gift } = useSecretGift();
   const { cart, changeQty, remove, clear, count, subtotal, hydrated } =
     useCart();
   const [orderPlaced, setOrderPlaced] = useState(false);
@@ -389,6 +392,17 @@ function CartPage() {
                   />
                 </div>
               </div>
+
+              {gift && (
+                <div className="mt-4 flex items-start gap-3 rounded-xl border border-primary/35 bg-primary/10 p-4">
+                  <Gift className="mt-0.5 size-4 shrink-0 text-primary" />
+                  <p className="text-xs leading-relaxed">
+                    זכית במתנה בחדר הסודי — קוד{" "}
+                    <span className="font-mono font-bold">{gift.code}</span>.
+                    המתנה תצורף להזמנה הזו.
+                  </p>
+                </div>
+              )}
 
               <button
                 onClick={placeOrder}
