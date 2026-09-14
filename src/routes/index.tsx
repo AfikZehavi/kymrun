@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   useEffect,
   useMemo,
@@ -9,19 +9,12 @@ import {
 import {
   ShoppingBag,
   Plus,
-  Minus,
   Check,
   Gift,
   ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import {
   Dialog,
   DialogContent,
@@ -37,7 +30,13 @@ import heroBottles from "@/assets/hero-bottles.jpg";
 import heroBottlesLight from "@/assets/hero-bottles-light.jpg";
 import { resolveImage } from "@/lib/images";
 import { getCatalog } from "@/lib/catalog.functions";
+import { useCart } from "@/lib/use-cart";
+import type { Product, Category } from "@/lib/types";
 import { ThemeToggle } from "@/components/theme-toggle";
+
+
+
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -64,37 +63,20 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-export type Product = {
-  id: string;
-  name: string;
-  category: string;
-  group: string;
-  basePrice: number;
-  price: number;
-  discount: number;
-  image: string;
-  abv: string;
-  note: string;
-  inStock: boolean;
-  featured: boolean;
-};
-
-type Category = { id: string; label: string };
-
 const paths = [
   { id: "gift", label: "מתנה", description: "אריזה מוכנה וכרטיס אישי" },
   { id: "tonight", label: "לערב", description: "מה שמתאים לארוחה שלך" },
   { id: "collectors", label: "אספנים", description: "בקבוקים נדירים ומוגבלים" },
 ];
 
-type CartLine = { product: Product; qty: number };
-
 function Home() {
-  const [cart, setCart] = useState<CartLine[]>([]);
   const [filter, setFilter] = useState<string>("all");
   const [selected, setSelected] = useState<Product | null>(null);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [orderPlaced, setOrderPlaced] = useState(false);
+
+
+  const navigate = useNavigate({ from: "/" });
+  const { add: addToCart, count, subtotal } = useCart();
+
 
   const fetchCatalog = useServerFn(getCatalog);
   const { data } = useQuery({
@@ -141,19 +123,8 @@ function Home() {
     [filter, allProducts],
   );
 
-  const count = cart.reduce((s, l) => s + l.qty, 0);
-  const subtotal = cart.reduce((s, l) => s + l.qty * l.product.price, 0);
-
-  function addToCart(product: Product) {
-    setCart((prev) => {
-      const found = prev.find((l) => l.product.id === product.id);
-      if (found) {
-        return prev.map((l) =>
-          l.product.id === product.id ? { ...l, qty: l.qty + 1 } : l,
-        );
-      }
-      return [...prev, { product, qty: 1 }];
-    });
+  function addProduct(product: Product) {
+    addToCart(product);
     toast.custom(
       (id) => (
         <div
@@ -180,27 +151,19 @@ function Home() {
           <button
             onClick={() => {
               toast.dismiss(id);
-              setCartOpen(true);
+              navigate({ to: "/cart" });
             }}
             className="shrink-0 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
           >
             לסל
           </button>
+
         </div>
       ),
       { duration: 3200 },
     );
   }
 
-  function changeQty(id: string, delta: number) {
-    setCart((prev) =>
-      prev
-        .map((l) =>
-          l.product.id === id ? { ...l, qty: Math.max(0, l.qty + delta) } : l,
-        )
-        .filter((l) => l.qty > 0),
-    );
-  }
 
   function selectPath(id: string) {
     if (id === "gift") {
@@ -218,24 +181,25 @@ function Home() {
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function checkout() {
-    if (!cart.length) {
+  function goToCart() {
+    if (count === 0) {
       toast.error("הסל ריק", { description: "הוסיפו בקבוק כדי להמשיך" });
       return;
     }
-    setCartOpen(false);
-    setOrderPlaced(true);
+    navigate({ to: "/cart" });
   }
+
 
   return (
     <div dir="rtl" className="min-h-screen bg-background text-foreground">
       <Header
         count={count}
-        onCart={() => setCartOpen(true)}
+        onCart={goToCart}
         filter={filter}
         onFilter={setFilter}
         categories={categories}
       />
+
 
       <main className="mx-auto max-w-md px-5 pb-40 md:max-w-3xl md:px-8 md:pb-32 lg:max-w-6xl lg:pb-28">
         <HeroSection onGift={() => selectPath("gift")} />
@@ -393,8 +357,8 @@ function Home() {
         <CartBar
           count={count}
           subtotal={subtotal}
-          onOpen={() => setCartOpen(true)}
-          onCheckout={checkout}
+          onOpen={goToCart}
+          onCheckout={goToCart}
         />
       )}
 
@@ -406,97 +370,6 @@ function Home() {
           setSelected(null);
         }}
       />
-
-      <Sheet open={cartOpen} onOpenChange={setCartOpen}>
-        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">
-          <SheetHeader className="text-right">
-            <SheetTitle className="font-display text-xl">הסל שלך</SheetTitle>
-          </SheetHeader>
-          <div dir="rtl" className="space-y-3 px-4 pb-6">
-            {cart.length === 0 && (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                הסל ריק עדיין — בחרו בקבוק מהמדף.
-              </p>
-            )}
-            {cart.map((line) => (
-              <div
-                key={line.product.id}
-                className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3"
-              >
-                <img
-                  src={line.product.image}
-                  alt={line.product.name}
-                  width={768}
-                  height={960}
-                  loading="lazy"
-                  className="size-16 rounded-xl object-cover"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">
-                    {line.product.name}
-                  </p>
-                  <p className="mt-1 font-display text-base font-bold">
-                    ₪{line.product.price * line.qty}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    aria-label="הפחת"
-                    onClick={() => changeQty(line.product.id, -1)}
-                    className="grid size-8 place-items-center rounded-full border border-border bg-secondary"
-                  >
-                    <Minus className="size-3.5" />
-                  </button>
-                  <span className="w-5 text-center text-sm font-semibold">
-                    {line.qty}
-                  </span>
-                  <button
-                    aria-label="הוסף"
-                    onClick={() => changeQty(line.product.id, 1)}
-                    className="grid size-8 place-items-center rounded-full border border-border bg-secondary"
-                  >
-                    <Plus className="size-3.5" />
-                  </button>
-                </div>
-              </div>
-            ))}
-
-            {cart.length > 0 && (
-              <button
-                onClick={checkout}
-                className="mt-2 w-full rounded-2xl bg-primary py-3.5 text-base font-semibold text-primary-foreground active:scale-[0.98]"
-              >
-                אישור הזמנה · ₪{subtotal}
-              </button>
-            )}
-          </div>
-        </SheetContent>
-      </Sheet>
-
-      <Dialog open={orderPlaced} onOpenChange={setOrderPlaced}>
-        <DialogContent dir="rtl" className="max-w-sm text-right">
-          <DialogHeader className="items-center text-center">
-            <div className="mb-2 grid size-14 place-items-center rounded-full bg-primary text-primary-foreground">
-              <Check className="size-7" />
-            </div>
-            <DialogTitle className="font-display text-xl">
-              ההזמנה אושרה
-            </DialogTitle>
-            <DialogDescription>
-              {count} פריטים · ₪{subtotal}. נשלח אישור והמשלוח יוצא אליך.
-            </DialogDescription>
-          </DialogHeader>
-          <button
-            onClick={() => {
-              setOrderPlaced(false);
-              setCart([]);
-            }}
-            className="mt-2 w-full rounded-2xl bg-primary py-3 text-base font-semibold text-primary-foreground"
-          >
-            מעולה
-          </button>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
