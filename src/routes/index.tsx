@@ -711,6 +711,14 @@ function HeroCopy({ onGift }: { onGift: () => void }) {
         יין, וויסקי וספיריטים פרימיום — כולם כשרים. בחר מסלול, ונמליץ תוך שניות.
       </p>
 
+      <a
+        href="#delivery"
+        className="mt-4 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-background/70 px-3.5 py-1.5 text-[11px] font-semibold backdrop-blur-md"
+      >
+        <Truck className="size-3.5 text-primary" />
+        משלוח אקספרס עד 4 שעות — בדקו אם זמין אצלכם
+      </a>
+
       <div className="mt-5 flex flex-col gap-3 md:max-w-sm">
         <button
           onClick={onGift}
@@ -718,6 +726,12 @@ function HeroCopy({ onGift }: { onGift: () => void }) {
         >
           בחר מתנה
         </button>
+        <Link
+          to="/events"
+          className="w-full rounded-2xl border border-border bg-background/70 px-6 py-3 text-center text-sm font-semibold backdrop-blur-md transition-colors hover:border-primary/40"
+        >
+          אירוע או טעימה פרטית
+        </Link>
         <p className="text-center text-xs text-foreground/70 md:text-right">
           כשר · משלוח עד הבית · מגיל 18
         </p>
