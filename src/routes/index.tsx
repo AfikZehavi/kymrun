@@ -1,6 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { ShoppingBag, Plus, Minus, Check, Gift } from "lucide-react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import {
+  ShoppingBag,
+  Plus,
+  Minus,
+  Check,
+  Gift,
+  ShieldCheck,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import {
