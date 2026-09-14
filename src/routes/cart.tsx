@@ -1,13 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   ArrowRight,
   Check,
+  Loader2,
   Minus,
   Plus,
   ShoppingBag,
   Trash2,
   Truck,
+  UserCheck,
 } from "lucide-react";
 
 import {
@@ -19,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { useCart } from "@/lib/use-cart";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { lookupCustomer, saveCustomer } from "@/lib/customers.functions";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -50,10 +53,68 @@ function CartPage() {
     useCart();
   const [orderPlaced, setOrderPlaced] = useState(false);
 
+  const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [lookup, setLookup] = useState<"idle" | "loading" | "found" | "new">(
+    "idle",
+  );
+  const [submitting, setSubmitting] = useState(false);
+
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+  const detailsValid =
+    emailValid &&
+    fullName.trim().length >= 2 &&
+    phone.trim().length >= 6 &&
+    address.trim().length >= 4;
+
+  async function checkEmail() {
+    const value = email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) {
+      setLookup("idle");
+      return;
+    }
+    setLookup("loading");
+    try {
+      const res = await lookupCustomer({ data: { email: value } });
+      if (res.exists && res.customer) {
+        setFullName(res.customer.full_name);
+        setPhone(res.customer.phone);
+        setAddress(res.customer.address);
+        setLookup("found");
+      } else {
+        setLookup("new");
+      }
+    } catch {
+      setLookup("idle");
+    }
+  }
+
   const remaining = Math.max(FREE_SHIPPING_FROM - subtotal, 0);
   const progress = Math.min((subtotal / FREE_SHIPPING_FROM) * 100, 100);
 
-  const ready = subtotal > 0;
+  const ready = subtotal > 0 && detailsValid && !submitting;
+
+  async function placeOrder() {
+    if (!ready) return;
+    setSubmitting(true);
+    try {
+      await saveCustomer({
+        data: {
+          email: email.trim().toLowerCase(),
+          full_name: fullName.trim(),
+          phone: phone.trim(),
+          address: address.trim(),
+        },
+      });
+      setOrderPlaced(true);
+    } catch {
+      setOrderPlaced(true);
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   // Avoid hydration mismatch with localStorage; render safe placeholders until hydrated.
   if (!hydrated) {
@@ -173,6 +234,119 @@ function CartPage() {
               >
                 רוקן את הסל
               </button>
+              <div className="mt-5 rounded-2xl border border-border bg-card p-5 shadow-sm">
+                <h2 className="font-display text-lg font-semibold">
+                  פרטי המשלוח
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  נתחיל באימייל — אם כבר הזמנת אצלנו, נמלא את השאר עבורך.
+                </p>
+
+                <div className="mt-4 space-y-3">
+                  <div>
+                    <label
+                      htmlFor="email"
+                      className="mb-1.5 block text-xs font-medium text-muted-foreground"
+                    >
+                      אימייל
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="email"
+                        type="email"
+                        inputMode="email"
+                        autoComplete="email"
+                        dir="ltr"
+                        maxLength={255}
+                        value={email}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          setLookup("idle");
+                        }}
+                        onBlur={checkEmail}
+                        placeholder="you@example.com"
+                        className="w-full rounded-xl border border-border bg-background px-4 py-3 text-right text-sm outline-none transition-colors focus:border-primary"
+                      />
+                      {lookup === "loading" && (
+                        <Loader2 className="absolute left-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+                      )}
+                    </div>
+                    {lookup === "found" && (
+                      <p className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-primary">
+                        <UserCheck className="size-3.5" />
+                        טוב לראות אותך שוב — מילאנו את הפרטים שלך
+                      </p>
+                    )}
+                    {lookup === "new" && (
+                      <p className="mt-1.5 text-xs text-muted-foreground">
+                        לקוח חדש — נשמח להכיר, מלא את הפרטים למטה
+                      </p>
+                    )}
+                    {email.length > 0 && !emailValid && (
+                      <p className="mt-1.5 text-xs text-destructive">
+                        כתובת אימייל לא תקינה
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="fullName"
+                      className="mb-1.5 block text-xs font-medium text-muted-foreground"
+                    >
+                      שם מלא
+                    </label>
+                    <input
+                      id="fullName"
+                      autoComplete="name"
+                      maxLength={100}
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="ישראל ישראלי"
+                      className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="phone"
+                      className="mb-1.5 block text-xs font-medium text-muted-foreground"
+                    >
+                      טלפון
+                    </label>
+                    <input
+                      id="phone"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      dir="ltr"
+                      maxLength={30}
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="050-0000000"
+                      className="w-full rounded-xl border border-border bg-background px-4 py-3 text-right text-sm outline-none transition-colors focus:border-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="address"
+                      className="mb-1.5 block text-xs font-medium text-muted-foreground"
+                    >
+                      כתובת למשלוח
+                    </label>
+                    <input
+                      id="address"
+                      autoComplete="street-address"
+                      maxLength={255}
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="רחוב, מספר, עיר"
+                      className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
+                    />
+                  </div>
+                </div>
+              </div>
             </section>
 
             <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
@@ -217,10 +391,11 @@ function CartPage() {
               </div>
 
               <button
-                onClick={() => setOrderPlaced(true)}
+                onClick={placeOrder}
                 disabled={!ready}
-                className="mt-5 w-full rounded-2xl bg-primary py-3.5 text-base font-semibold text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-50"
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-base font-semibold text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-50"
               >
+                {submitting && <Loader2 className="size-4 animate-spin" />}
                 לתשלום · ₪{subtotal + (remaining > 0 ? 35 : 0)}
               </button>
 
