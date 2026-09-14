@@ -198,11 +198,12 @@ function Home() {
     <div dir="rtl" className="min-h-screen bg-background text-foreground">
       <Header
         count={count}
-        onCart={() => setCartOpen(true)}
+        onCart={goToCart}
         filter={filter}
         onFilter={setFilter}
         categories={categories}
       />
+
 
       <main className="mx-auto max-w-md px-5 pb-40 md:max-w-3xl md:px-8 md:pb-32 lg:max-w-6xl lg:pb-28">
         <HeroSection onGift={() => selectPath("gift")} />
