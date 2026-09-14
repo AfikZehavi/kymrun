@@ -25,8 +25,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
-import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
+import { useQuery, queryOptions } from "@tanstack/react-query";
+
 
 import heroBottles from "@/assets/hero-bottles.jpg";
 import heroBottlesLight from "@/assets/hero-bottles-light.jpg";
@@ -65,7 +65,15 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(catalogQuery),
   component: Home,
+});
+
+const catalogQuery = queryOptions({
+  queryKey: ["catalog"],
+  queryFn: () => getCatalog(),
+  staleTime: 5 * 60 * 1000,
+  retry: 2,
 });
 
 const paths: {
@@ -130,11 +138,7 @@ function Home() {
   const { add: addToCart, count, subtotal } = useCart();
 
 
-  const fetchCatalog = useServerFn(getCatalog);
-  const { data } = useQuery({
-    queryKey: ["catalog"],
-    queryFn: () => fetchCatalog(),
-  });
+  const { data, isPending, isError, refetch } = useQuery(catalogQuery);
 
   const allProducts = useMemo<Product[]>(
     () =>
@@ -380,7 +384,34 @@ function Home() {
                 </div>
               </article>
             ))}
+
+            {isPending &&
+              Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={`s${i}`}
+                  className="flex flex-col rounded-2xl border border-border bg-card p-3"
+                >
+                  <div className="aspect-[4/5] w-full animate-pulse rounded-xl bg-muted" />
+                  <div className="mt-3 h-3 w-1/2 animate-pulse rounded bg-muted" />
+                  <div className="mt-2 h-4 w-3/4 animate-pulse rounded bg-muted" />
+                  <div className="mt-4 h-5 w-1/3 animate-pulse rounded bg-muted" />
+                </div>
+              ))}
           </div>
+
+          {isError && (
+            <div className="rounded-2xl border border-border bg-card p-6 text-center">
+              <p className="text-sm text-muted-foreground">
+                לא הצלחנו לטעון את המדף כרגע.
+              </p>
+              <button
+                onClick={() => refetch()}
+                className="mt-3 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
+              >
+                נסה שוב
+              </button>
+            </div>
+          )}
         </Reveal>
 
         <Reveal as="section" id="delivery" className="mt-12 scroll-mt-24 lg:mt-20">
@@ -428,7 +459,7 @@ function Home() {
               טעימת יין פרטית — אצלך בבית או בעסק
             </h2>
             <p className="mt-3 max-w-[56ch] text-sm leading-relaxed text-muted-foreground lg:text-base">
-              סומלייה מגיע עם שישה יינות כשרים, כוסות מקצועיות והתאמת אוכל.
+              מומחה יין מגיע עם שישה יינות כשרים, כוסות מקצועיות והתאמת אוכל.
               תשעים דקות שמשאירות רושם — לערב זוגי, לחברים או לצוות.
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -564,7 +595,7 @@ function Reveal({
           }
         });
       },
-      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
+      { threshold: 0, rootMargin: "0px 0px -5% 0px" },
     );
     io.observe(el);
     return () => io.disconnect();
