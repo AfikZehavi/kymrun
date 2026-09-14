@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/dialog";
 
 import heroBottle from "@/assets/hero-bottle.jpg";
+import heroBottles from "@/assets/hero-bottles.jpg";
 import wineBottle from "@/assets/wine-bottle.jpg";
 import ginBottle from "@/assets/gin-bottle.jpg";
 import champagneBottle from "@/assets/champagne-bottle.jpg";
@@ -41,20 +42,20 @@ import giftSet from "@/assets/gift-set.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "CEMRON — יין, וויסקי ומשקאות פרימיום כשרים" },
+      { title: "KYMRUN — יין, וויסקי ומשקאות פרימיום כשרים" },
       {
         name: "description",
         content:
-          "CEMRON: יין, וויסקי, ג'ין ורום פרימיום — כל המשקאות כשרים, משלוח מהיר עד הבית ובחירה בכמה קליקים.",
+          "KYMRUN: יין, וויסקי, ג'ין ורום פרימיום — כל המשקאות כשרים, משלוח מהיר עד הבית ובחירה בכמה קליקים.",
       },
       {
         property: "og:title",
-        content: "CEMRON — יין, וויסקי ומשקאות פרימיום כשרים",
+        content: "KYMRUN — יין, וויסקי ומשקאות פרימיום כשרים",
       },
       {
         property: "og:description",
         content:
-          "CEMRON: כל המשקאות כשרים. יין, וויסקי וספיריטים פרימיום עם משלוח עד הבית.",
+          "KYMRUN: כל המשקאות כשרים. יין, וויסקי וספיריטים פרימיום עם משלוח עד הבית.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -650,84 +651,29 @@ function Header({
 }
 
 function HeroSection({ onGift }: { onGift: () => void }) {
-  const frameRef = useRef<HTMLDivElement | null>(null);
-  const [progress, setProgress] = useState(0);
-  const [motionOk, setMotionOk] = useState(true);
-
-  useEffect(() => {
-    setMotionOk(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  }, []);
-
-  useEffect(() => {
-    if (!motionOk) return;
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const vh = window.innerHeight || 1;
-      const p = Math.max(0, Math.min(1, window.scrollY / (vh * 0.85)));
-      setProgress(p);
-    };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(update);
-    };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      if (raf) cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, [motionOk]);
-
-  const rotateY = progress * 55;
-  const rotateZ = progress * -14;
-  const rotateX = progress * 12;
-  const shift = progress * -90;
-  const scale = 1 - progress * 0.12;
-  const glare = 50 + progress * 40;
-
   return (
-    <section
-      ref={frameRef}
-      className="relative -mx-5 overflow-hidden px-5 pt-5 lg:-mx-8 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12 lg:px-8 lg:pt-12"
-      style={{ perspective: "1400px" }}
-    >
+    <section className="relative -mx-5 min-h-[78vh] overflow-hidden lg:-mx-8 lg:min-h-[70vh]">
+      <img
+        src={heroBottles}
+        alt=""
+        width={1920}
+        height={1080}
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
+        loading="eager"
+        decoding="async"
+      />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center will-change-transform"
-        style={{
-          transform: `translate3d(0, ${shift}px, 0) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) scale(${scale})`,
-          transformStyle: "preserve-3d",
-        }}
-      >
-        <img
-          src={heroBottle}
-          alt=""
-          width={1024}
-          height={1280}
-          className="h-[92%] w-auto object-contain opacity-70 lg:h-[85%]"
-          loading="eager"
-          decoding="async"
-        />
-        <div
-          className="absolute inset-0 mix-blend-screen"
-          style={{
-            background: `linear-gradient(${105 + progress * 30}deg, transparent ${glare - 20}%, rgba(255,255,255,0.14) ${glare}%, transparent ${glare + 20}%)`,
-          }}
-        />
-      </div>
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-background via-background/75 to-background/40 lg:bg-gradient-to-l lg:from-background lg:via-background/70 lg:to-transparent"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent lg:bg-gradient-to-r lg:from-background/90 lg:via-background/40 lg:to-transparent"
       />
 
-      <div className="relative min-h-[78vh] lg:col-start-1 lg:min-h-[70vh]">
-        <span className="pointer-events-none absolute top-2 left-0 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-background/70 px-3 py-1.5 text-[11px] font-semibold tracking-wide backdrop-blur-md">
-          <ShieldCheck className="size-3.5 text-primary" />
-          כשר · 100%
-        </span>
-        <div className="absolute inset-x-0 bottom-0 lg:static lg:pt-10">
+      <span className="pointer-events-none absolute top-4 left-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-background/70 px-3 py-1.5 text-[11px] font-semibold tracking-wide backdrop-blur-md">
+        <ShieldCheck className="size-3.5 text-primary" />
+        כשר · 100%
+      </span>
+
+      <div className="relative z-10 flex min-h-[78vh] items-end px-5 pb-12 pt-24 lg:min-h-[70vh] lg:items-center lg:px-8 lg:py-12">
+        <div className="w-full max-w-xl">
           <HeroCopy onGift={onGift} />
         </div>
       </div>
