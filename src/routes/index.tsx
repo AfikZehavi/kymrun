@@ -656,7 +656,7 @@ function Header({
 }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
-      <div className="mx-auto grid h-16 max-w-md grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 lg:max-w-6xl lg:px-8">
+      <div className="mx-auto grid h-16 max-w-md grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 md:h-[4.5rem] md:max-w-3xl md:px-8 lg:max-w-6xl">
         <div className="flex min-w-0 items-center gap-2.5">
           <div className="min-w-0 leading-none">
             <span className="font-display text-lg font-bold tracking-[0.18em]">
