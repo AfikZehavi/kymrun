@@ -77,7 +77,7 @@ export type Product = {
   featured?: boolean;
 };
 
-const CUSTOM_PRODUCTS_KEY = "kymrun-custom-products";
+export const CUSTOM_PRODUCTS_KEY = "kymrun-custom-products";
 
 export const products: Product[] = [
   {
