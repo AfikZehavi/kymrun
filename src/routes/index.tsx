@@ -30,14 +30,13 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
-import heroBottle from "@/assets/hero-bottle.jpg";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+
 import heroBottles from "@/assets/hero-bottles.jpg";
-import wineBottle from "@/assets/wine-bottle.jpg";
-import ginBottle from "@/assets/gin-bottle.jpg";
-import champagneBottle from "@/assets/champagne-bottle.jpg";
-import cognacBottle from "@/assets/cognac-bottle.jpg";
-import vodkaBottle from "@/assets/vodka-bottle.jpg";
-import giftSet from "@/assets/gift-set.jpg";
+import { resolveImage } from "@/lib/images";
+import { getCatalog } from "@/lib/catalog.functions";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -65,150 +64,21 @@ export const Route = createFileRoute("/")({
 });
 
 export type Product = {
-  id: number;
+  id: string;
   name: string;
   category: string;
-  group: "gift" | "whisky" | "wine" | "spirits";
+  group: string;
+  basePrice: number;
   price: number;
+  discount: number;
   image: string;
   abv: string;
   note: string;
-  inStock?: boolean;
-  featured?: boolean;
+  inStock: boolean;
+  featured: boolean;
 };
 
-export const CUSTOM_PRODUCTS_KEY = "kymrun-custom-products";
-
-export const products: Product[] = [
-  {
-    id: 1,
-    name: "CEMRON — 18 שנות בַּשְׁלָה",
-    category: "ויסקי · סקוטלנד",
-    group: "whisky",
-    price: 649,
-    image: heroBottle,
-    abv: "46%",
-    note: "וניל, דבש כהה וסיומת עשן עדינה. חבית שרי ראשונה.",
-  },
-  {
-    id: 2,
-    name: "CEMRON — קברנה רזרב",
-    category: "יין אדום · נאפה",
-    group: "wine",
-    price: 289,
-    image: wineBottle,
-    abv: "14.5%",
-    note: "פירות יער כהים, ארז וטאנינים קטיפתיים. מצוין עם בשר.",
-  },
-  {
-    id: 3,
-    name: "CEMRON — ג'ין בוטניקל",
-    category: "ג'ין · אנגליה",
-    group: "spirits",
-    price: 219,
-    image: ginBottle,
-    abv: "43%",
-    note: "מחט ערער, הדרים ופלפל ורוד. מושלם לג'ין טוניק.",
-  },
-  {
-    id: 4,
-    name: "CEMRON — רום מיושן",
-    category: "רום · קריביים",
-    group: "spirits",
-    price: 420,
-    image: heroBottle,
-    abv: "40%",
-    note: "קרמל, בננה קלויה וקינמון. יישון 12 שנים.",
-  },
-  {
-    id: 5,
-    name: "CEMRON — שמפניה בלאן דה נואר",
-    category: "שמפניה · צרפת",
-    group: "wine",
-    price: 540,
-    image: champagneBottle,
-    abv: "12.5%",
-    note: "בועות דקיקות, בריוש ותפוח ירוק. לרגעים גדולים.",
-  },
-  {
-    id: 6,
-    name: "CEMRON — קוניאק XO",
-    category: "קוניאק · קונייאק",
-    group: "spirits",
-    price: 890,
-    image: cognacBottle,
-    abv: "40%",
-    note: "משמש מיובש, אגוזים ועץ אלון עתיק. יישון ארוך.",
-  },
-  {
-    id: 7,
-    name: "CEMRON — וודקה כסופה",
-    category: "וודקה · פולין",
-    group: "spirits",
-    price: 199,
-    image: vodkaBottle,
-    abv: "40%",
-    note: "זיקוק חמש פעמים, נקייה וקרירה במיוחד.",
-  },
-  {
-    id: 8,
-    name: "CEMRON — מארז מורשת 20 & 30",
-    category: "מארז מתנה · שני בקבוקים",
-    group: "gift",
-    price: 1290,
-    image: giftSet,
-    abv: "43%",
-    note: "שני וויסקי מיושנים בקופסת סאטן שחורה עם כרטיס אישי.",
-  },
-  {
-    id: 9,
-    name: "CEMRON — מארז חגיגה",
-    category: "מארז מתנה · שמפניה וכוסות",
-    group: "gift",
-    price: 690,
-    image: champagneBottle,
-    abv: "12.5%",
-    note: "שמפניה פרימיום, שתי כוסות קריסטל ואריזת מתנה.",
-  },
-  {
-    id: 10,
-    name: "CEMRON — מארז ערב זוגי",
-    category: "מארז מתנה · יין וקינוח",
-    group: "gift",
-    price: 450,
-    image: wineBottle,
-    abv: "14%",
-    note: "קברנה רזרב, שוקולד מריר ופותחן מעוצב.",
-  },
-  {
-    id: 11,
-    name: "CEMRON — סינגל מאלט 12",
-    category: "ויסקי · איילה",
-    group: "whisky",
-    price: 389,
-    image: heroBottle,
-    abv: "43%",
-    note: "כבול ימי, מלח ופלפל. קלאסיקה מעושנת.",
-  },
-  {
-    id: 12,
-    name: "CEMRON — שרדונה מיושן",
-    category: "יין לבן · בורגון",
-    group: "wine",
-    price: 245,
-    image: wineBottle,
-    abv: "13%",
-    note: "חמאה, אגס ומינרליות. מוגש מצונן.",
-  },
-];
-
-const categories = [
-  { id: "all", label: "הכול" },
-  { id: "gift", label: "מתנות" },
-  { id: "whisky", label: "ויסקי" },
-  { id: "wine", label: "יין" },
-  { id: "spirits", label: "ספיריטים" },
-] as const;
+type Category = { id: string; label: string };
 
 const paths = [
   { id: "gift", label: "מתנה", description: "אריזה מוכנה וכרטיס אישי" },
@@ -224,20 +94,42 @@ function Home() {
   const [selected, setSelected] = useState<Product | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
-  const [customProducts, setCustomProducts] = useState<Product[]>([]);
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(CUSTOM_PRODUCTS_KEY);
-      if (raw) setCustomProducts(JSON.parse(raw));
-    } catch {
-      /* ignore */
-    }
-  }, []);
+  const fetchCatalog = useServerFn(getCatalog);
+  const { data } = useQuery({
+    queryKey: ["catalog"],
+    queryFn: () => fetchCatalog(),
+  });
 
-  const allProducts = useMemo(
-    () => [...products, ...customProducts],
-    [customProducts],
+  const allProducts = useMemo<Product[]>(
+    () =>
+      (data?.products ?? []).map((p) => {
+        const base = Number(p.price);
+        const discount = p.discount_percent ?? 0;
+        return {
+          id: p.id,
+          name: p.name,
+          category: p.subtitle,
+          group: p.category_slug,
+          basePrice: base,
+          price: Math.round(base * (1 - discount / 100)),
+          discount,
+          image: resolveImage(p.image),
+          abv: p.abv,
+          note: p.note,
+          inStock: p.in_stock,
+          featured: p.featured,
+        };
+      }),
+    [data],
+  );
+
+  const categories = useMemo<Category[]>(
+    () => [
+      { id: "all", label: "הכול" },
+      ...(data?.categories ?? []).map((c) => ({ id: c.slug, label: c.label })),
+    ],
+    [data],
   );
 
   const visible = useMemo(
@@ -299,7 +191,7 @@ function Home() {
     );
   }
 
-  function changeQty(id: number, delta: number) {
+  function changeQty(id: string, delta: number) {
     setCart((prev) =>
       prev
         .map((l) =>
@@ -341,6 +233,7 @@ function Home() {
         onCart={() => setCartOpen(true)}
         filter={filter}
         onFilter={setFilter}
+        categories={categories}
       />
 
       <main className="mx-auto max-w-md px-5 pb-40 md:max-w-3xl md:px-8 md:pb-32 lg:max-w-6xl lg:pb-28">
@@ -447,13 +340,26 @@ function Home() {
                 </button>
 
                 <div className="mt-auto flex items-center justify-between gap-2 pt-3">
-                  <span className="font-display text-lg font-bold">
-                    ₪{product.price}
+                  <span className="flex flex-wrap items-baseline gap-1.5">
+                    <span className="font-display text-lg font-bold">
+                      ₪{product.price}
+                    </span>
+                    {product.discount > 0 && (
+                      <>
+                        <span className="text-xs text-muted-foreground line-through">
+                          ₪{product.basePrice}
+                        </span>
+                        <span className="rounded-md bg-accent px-1.5 py-0.5 text-[10px] font-bold text-accent-foreground">
+                          -{product.discount}%
+                        </span>
+                      </>
+                    )}
                   </span>
                   <button
                     onClick={() => addToCart(product)}
+                    disabled={!product.inStock}
                     aria-label={`הוסף ${product.name} לסל`}
-                    className="grid size-9 place-items-center rounded-full border border-border bg-secondary text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+                    className="grid size-9 place-items-center rounded-full border border-border bg-secondary text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground disabled:opacity-40"
                   >
                     <Plus className="size-4" />
                   </button>
@@ -648,11 +554,13 @@ function Header({
   onCart,
   filter,
   onFilter,
+  categories,
 }: {
   count: number;
   onCart: () => void;
   filter: string;
   onFilter: (id: string) => void;
+  categories: Category[];
 }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
@@ -689,18 +597,21 @@ function Header({
           </nav>
         </div>
 
-        <button
-          onClick={onCart}
-          aria-label="עגלת קניות"
-          className="relative grid size-11 shrink-0 place-items-center rounded-full border border-border bg-card transition-transform active:scale-95"
-        >
-          <ShoppingBag className="size-5" />
-          {count > 0 && (
-            <span className="absolute -top-1 -left-1 grid size-5 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-              {count}
-            </span>
-          )}
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          <ThemeToggle />
+          <button
+            onClick={onCart}
+            aria-label="עגלת קניות"
+            className="relative grid size-11 shrink-0 place-items-center rounded-full border border-border bg-card transition-transform active:scale-95"
+          >
+            <ShoppingBag className="size-5" />
+            {count > 0 && (
+              <span className="absolute -top-1 -left-1 grid size-5 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                {count}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
     </header>
   );
