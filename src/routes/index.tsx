@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   useEffect,
   useMemo,
@@ -9,7 +9,6 @@ import {
 import {
   ShoppingBag,
   Plus,
-  Minus,
   Check,
   Gift,
   ShieldCheck,
@@ -38,8 +37,9 @@ import heroBottlesLight from "@/assets/hero-bottles-light.jpg";
 import { resolveImage } from "@/lib/images";
 import { getCatalog } from "@/lib/catalog.functions";
 import { useCart } from "@/lib/use-cart";
-import type { Product, Category, CartLine } from "@/lib/types";
+import type { Product, Category } from "@/lib/types";
 import { ThemeToggle } from "@/components/theme-toggle";
+
 
 
 export const Route = createFileRoute("/")({
