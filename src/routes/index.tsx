@@ -155,12 +155,13 @@ function Home() {
           <button
             onClick={() => {
               toast.dismiss(id);
-              setCartOpen(true);
+              navigate({ to: "/cart" });
             }}
             className="shrink-0 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
           >
             לסל
           </button>
+
         </div>
       ),
       { duration: 3200 },
