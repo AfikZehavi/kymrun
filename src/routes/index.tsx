@@ -739,13 +739,7 @@ function HeroSection({ onGift }: { onGift: () => void }) {
   );
 }
 
-function HeroCopy({
-  onGift,
-  desktop = false,
-}: {
-  onGift: () => void;
-  desktop?: boolean;
-}) {
+function HeroCopy({ onGift }: { onGift: () => void }) {
   return (
     <div>
       <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-[11px] font-medium tracking-wide text-muted-foreground backdrop-blur-sm">
