@@ -628,6 +628,18 @@ function Header({
                 {c.label}
               </button>
             ))}
+            <Link
+              to="/events"
+              className="rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              אירועים
+            </Link>
+            <Link
+              to="/contact"
+              className="rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              יצירת קשר
+            </Link>
           </nav>
         </div>
 
