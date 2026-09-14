@@ -14,6 +14,7 @@ import { Route as AdminKymrun37RouteImport } from './routes/admin-kymrun-37'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as EventsRouteImport } from './routes/events'
+import { Route as GoldRouteImport } from './routes/gold'
 import { Route as SecretRoomRouteImport } from './routes/secret-room'
 import { Route as ShippingRouteImport } from './routes/shipping'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -43,6 +44,11 @@ const EventsRoute = EventsRouteImport.update({
   path: '/events',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GoldRoute = GoldRouteImport.update({
+  id: '/gold',
+  path: '/gold',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SecretRoomRoute = SecretRoomRouteImport.update({
   id: '/secret-room',
   path: '/secret-room',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
+  '/gold': typeof GoldRoute
   '/secret-room': typeof SecretRoomRoute
   '/shipping': typeof ShippingRoute
   '/terms': typeof TermsRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
+  '/gold': typeof GoldRoute
   '/secret-room': typeof SecretRoomRoute
   '/shipping': typeof ShippingRoute
   '/terms': typeof TermsRoute
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
+  '/gold': typeof GoldRoute
   '/secret-room': typeof SecretRoomRoute
   '/shipping': typeof ShippingRoute
   '/terms': typeof TermsRoute
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/contact'
     | '/events'
+    | '/gold'
     | '/secret-room'
     | '/shipping'
     | '/terms'
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/contact'
     | '/events'
+    | '/gold'
     | '/secret-room'
     | '/shipping'
     | '/terms'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/contact'
     | '/events'
+    | '/gold'
     | '/secret-room'
     | '/shipping'
     | '/terms'
@@ -129,6 +141,7 @@ export interface RootRouteChildren {
   CartRoute: typeof CartRoute
   ContactRoute: typeof ContactRoute
   EventsRoute: typeof EventsRoute
+  GoldRoute: typeof GoldRoute
   SecretRoomRoute: typeof SecretRoomRoute
   ShippingRoute: typeof ShippingRoute
   TermsRoute: typeof TermsRoute
@@ -171,6 +184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/gold': {
+      id: '/gold'
+      path: '/gold'
+      fullPath: '/gold'
+      preLoaderRoute: typeof GoldRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/secret-room': {
       id: '/secret-room'
       path: '/secret-room'
@@ -201,6 +221,7 @@ const rootRouteChildren: RootRouteChildren = {
   CartRoute: CartRoute,
   ContactRoute: ContactRoute,
   EventsRoute: EventsRoute,
+  GoldRoute: GoldRoute,
   SecretRoomRoute: SecretRoomRoute,
   ShippingRoute: ShippingRoute,
   TermsRoute: TermsRoute,

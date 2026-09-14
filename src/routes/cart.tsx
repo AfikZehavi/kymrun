@@ -3,6 +3,7 @@ import { useState } from "react";
 import {
   ArrowRight,
   Check,
+  Crown,
   Loader2,
   Minus,
   Plus,
@@ -24,6 +25,7 @@ import { useCart } from "@/lib/use-cart";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { lookupCustomer, saveCustomer } from "@/lib/customers.functions";
 import { useSecretGift } from "@/lib/use-secret-gift";
+import { GOLD_ENABLED, goldDiscountFor, useGold } from "@/lib/gold";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -52,6 +54,7 @@ const FREE_SHIPPING_FROM = 550;
 
 function CartPage() {
   const { gift } = useSecretGift();
+  const { active: goldActive, member: goldMember } = useGold();
   const { cart, changeQty, remove, clear, count, subtotal, hydrated } =
     useCart();
   const [orderPlaced, setOrderPlaced] = useState(false);
@@ -96,6 +99,9 @@ function CartPage() {
 
   const remaining = Math.max(FREE_SHIPPING_FROM - subtotal, 0);
   const progress = Math.min((subtotal / FREE_SHIPPING_FROM) * 100, 100);
+  const goldDiscount = goldActive ? goldDiscountFor(cart) : 0;
+  const shipping = goldActive ? 0 : remaining > 0 ? 35 : 0;
+  const total = Math.max(subtotal - goldDiscount + shipping, 0);
 
   const ready = subtotal > 0 && detailsValid && !submitting;
 
@@ -362,36 +368,64 @@ function CartPage() {
                   <span className="text-muted-foreground">סכום ביניים</span>
                   <span className="font-display font-semibold">₪{subtotal}</span>
                 </div>
+                {goldDiscount > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">
+                      הנחת GOLD (15%)
+                    </span>
+                    <span className="font-display font-semibold text-amber-500 dark:text-amber-300">
+                      −₪{goldDiscount}
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">משלוח</span>
                   <span className="font-display font-semibold">
-                    {remaining > 0 ? "₪35" : "חינם"}
+                    {shipping > 0 ? `₪${shipping}` : "חינם"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between border-t border-border pt-3 text-base font-bold">
                   <span>סה"כ לתשלום</span>
-                  <span className="font-display">
-                    ₪{subtotal + (remaining > 0 ? 35 : 0)}
-                  </span>
+                  <span className="font-display">₪{total}</span>
                 </div>
               </div>
 
-              <div className="mt-5 rounded-xl bg-muted/60 p-4">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Truck className="size-4" />
-                  {remaining > 0 ? (
-                    <span>עוד ₪{remaining} למשלוח חינם</span>
-                  ) : (
-                    <span>משלוח חינם — מגיע אליך</span>
+              {goldActive ? (
+                <div className="mt-5 flex items-start gap-3 rounded-xl border border-amber-400/35 bg-amber-400/10 p-4">
+                  <Crown className="mt-0.5 size-4 shrink-0 text-amber-500 dark:text-amber-300" />
+                  <p className="text-xs leading-relaxed">
+                    חברות KYMRUN GOLD פעילה
+                    {goldMember?.name ? ` · ${goldMember.name}` : ""} — משלוח
+                    חינם ו-15% על משקאות ייחודיים.
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-5 rounded-xl bg-muted/60 p-4">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Truck className="size-4" />
+                    {remaining > 0 ? (
+                      <span>עוד ₪{remaining} למשלוח חינם</span>
+                    ) : (
+                      <span>משלוח חינם — מגיע אליך</span>
+                    )}
+                  </div>
+                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  {GOLD_ENABLED && (
+                    <Link
+                      to="/gold"
+                      className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 hover:underline dark:text-amber-300"
+                    >
+                      <Crown className="size-3.5" />
+                      חברי GOLD לא משלמים על משלוח — להצטרפות
+                    </Link>
                   )}
                 </div>
-                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-primary transition-all"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-              </div>
+              )}
 
               {gift && (
                 <div className="mt-4 flex items-start gap-3 rounded-xl border border-primary/35 bg-primary/10 p-4">
@@ -410,7 +444,7 @@ function CartPage() {
                 className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-base font-semibold text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-50"
               >
                 {submitting && <Loader2 className="size-4 animate-spin" />}
-                לתשלום · ₪{subtotal + (remaining > 0 ? 35 : 0)}
+                לתשלום · ₪{total}
               </button>
 
               <p className="mt-3 text-center text-xs text-muted-foreground">
