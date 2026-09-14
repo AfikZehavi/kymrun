@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import {
   useEffect,
   useMemo,
@@ -12,6 +12,8 @@ import {
   Check,
   Gift,
   ShieldCheck,
+  Truck,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -30,9 +32,12 @@ import heroBottles from "@/assets/hero-bottles.jpg";
 import heroBottlesLight from "@/assets/hero-bottles-light.jpg";
 import { resolveImage } from "@/lib/images";
 import { getCatalog } from "@/lib/catalog.functions";
+import { deliverySpeeds } from "@/lib/delivery";
 import { useCart } from "@/lib/use-cart";
 import type { Product, Category } from "@/lib/types";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { SiteFooter } from "@/components/site-footer";
+import { ZoneChecker } from "@/components/zone-checker";
 
 
 
