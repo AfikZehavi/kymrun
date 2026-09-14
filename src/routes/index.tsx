@@ -39,6 +39,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { WhatsappButton } from "@/components/whatsapp-button";
 import { SiteFooter } from "@/components/site-footer";
 import { ZoneChecker } from "@/components/zone-checker";
+import { GoldBand } from "@/components/gold-band";
 
 
 
@@ -497,6 +498,10 @@ function Home() {
               </Link>
             </div>
           </div>
+        </Reveal>
+
+        <Reveal as="section" className="mt-12 lg:mt-20">
+          <GoldBand />
         </Reveal>
 
         <Reveal as="section" className="mt-12 lg:mt-20">
