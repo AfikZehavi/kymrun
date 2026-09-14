@@ -10,33 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminKymrun37RouteImport } from './routes/admin-kymrun-37'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminKymrun37Route = AdminKymrun37RouteImport.update({
+  id: '/admin-kymrun-37',
+  path: '/admin-kymrun-37',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin-kymrun-37': typeof AdminKymrun37Route
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin-kymrun-37': typeof AdminKymrun37Route
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin-kymrun-37': typeof AdminKymrun37Route
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/admin-kymrun-37'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/admin-kymrun-37'
+  id: '__root__' | '/' | '/admin-kymrun-37'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminKymrun37Route: typeof AdminKymrun37Route
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +58,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin-kymrun-37': {
+      id: '/admin-kymrun-37'
+      path: '/admin-kymrun-37'
+      fullPath: '/admin-kymrun-37'
+      preLoaderRoute: typeof AdminKymrun37RouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminKymrun37Route: AdminKymrun37Route,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
