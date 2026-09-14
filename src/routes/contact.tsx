@@ -3,6 +3,7 @@ import { Mail, MessageCircle, Phone } from "lucide-react";
 
 import { InquiryForm } from "@/components/inquiry-form";
 import { SiteFooter } from "@/components/site-footer";
+import { PHONE_DISPLAY, PHONE_TEL, WHATSAPP_URL } from "@/lib/contact";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -43,18 +44,36 @@ function ContactPage() {
 
         <div className="mt-8 grid gap-3 md:grid-cols-3">
           {[
-            { icon: Phone, t: "טלפון", d: "03-000-0000" },
-            { icon: MessageCircle, t: "וואטסאפ", d: "052-000-0000" },
-            { icon: Mail, t: "אימייל", d: "service@kymrun.co.il" },
+            {
+              icon: Phone,
+              t: "טלפון",
+              d: PHONE_DISPLAY,
+              href: `tel:${PHONE_TEL}`,
+            },
+            {
+              icon: MessageCircle,
+              t: "וואטסאפ",
+              d: PHONE_DISPLAY,
+              href: WHATSAPP_URL,
+            },
+            {
+              icon: Mail,
+              t: "אימייל",
+              d: "service@kymrun.co.il",
+              href: "mailto:service@kymrun.co.il",
+            },
           ].map((c) => (
-            <div
+            <a
               key={c.t}
-              className="rounded-2xl border border-border bg-card p-5"
+              href={c.href}
+              target={c.href.startsWith("http") ? "_blank" : undefined}
+              rel="noopener noreferrer"
+              className="rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary/40"
             >
               <c.icon className="size-5 text-primary" />
               <p className="mt-3 text-sm font-semibold">{c.t}</p>
               <p className="mt-1 text-sm text-muted-foreground">{c.d}</p>
-            </div>
+            </a>
           ))}
         </div>
 
@@ -63,7 +82,7 @@ function ContactPage() {
         </div>
 
         <p className="mt-4 text-xs text-muted-foreground">
-          פרטי הקשר לדוגמה — שלחו לנו את המספרים והכתובת האמיתיים ונעדכן.
+          מעדיפים לדבר? {PHONE_DISPLAY} — טלפון או וואטסאפ.
         </p>
       </div>
 
