@@ -663,13 +663,8 @@ function HeroSection({ onGift }: { onGift: () => void }) {
     let raf = 0;
     const update = () => {
       raf = 0;
-      const rect = frameRef.current?.getBoundingClientRect();
-      if (!rect) return;
       const vh = window.innerHeight || 1;
-      const p = Math.max(
-        0,
-        Math.min(1, (vh - rect.top) / (vh + rect.height) - 0.35),
-      );
+      const p = Math.max(0, Math.min(1, window.scrollY / (vh * 0.85)));
       setProgress(p);
     };
     const onScroll = () => {
