@@ -74,7 +74,7 @@ type Product = {
   note: string;
 };
 
-const products: Product[] = [
+export const products: Product[] = [
   {
     id: 1,
     name: "CEMRON — 18 שנות בַּשְׁלָה",
@@ -601,12 +601,9 @@ function Header({
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
       <div className="mx-auto grid h-16 max-w-md grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 lg:max-w-6xl lg:px-8">
         <div className="flex min-w-0 items-center gap-2.5">
-          <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-foreground text-background">
-            <span className="font-display text-base font-bold">C</span>
-          </div>
           <div className="min-w-0 leading-none">
             <span className="font-display text-lg font-bold tracking-[0.18em]">
-              CEMRON
+              KYMRUN
             </span>
             <span className="block text-[10px] tracking-widest text-muted-foreground">
               משקאות פרימיום · כשר
