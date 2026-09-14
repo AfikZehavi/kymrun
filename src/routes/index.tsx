@@ -167,7 +167,7 @@ const products: Product[] = [
   },
   {
     id: 10,
-    name: "CEMRON — מארז הסומלייה",
+    name: "CEMRON — מארז ערב זוגי",
     category: "מארז מתנה · יין וקינוח",
     group: "gift",
     price: 450,
