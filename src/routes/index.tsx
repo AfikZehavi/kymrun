@@ -602,7 +602,7 @@ function Header({
           <button
             onClick={onCart}
             aria-label="עגלת קניות"
-            className="relative grid size-11 shrink-0 place-items-center rounded-full border border-border bg-card transition-transform active:scale-95"
+            className="relative grid size-11 shrink-0 place-items-center rounded-full border border-border bg-muted text-foreground transition-transform active:scale-95 dark:bg-card"
           >
             <ShoppingBag className="size-5" />
             {count > 0 && (
