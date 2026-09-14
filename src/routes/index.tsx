@@ -361,7 +361,7 @@ function Home() {
         <CartBar
           count={count}
           subtotal={subtotal}
-          onOpen={() => setCartOpen(true)}
+          onOpen={goToCart}
           onCheckout={goToCart}
         />
       )}
@@ -374,25 +374,6 @@ function Home() {
           setSelected(null);
         }}
       />
-
-      <Sheet open={cartOpen} onOpenChange={setCartOpen}>
-        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">
-          <SheetHeader className="text-right">
-            <SheetTitle className="font-display text-xl">הסל שלך</SheetTitle>
-          </SheetHeader>
-          <div dir="rtl" className="px-4 pb-6 pt-2 text-center">
-            <p className="py-4 text-sm text-muted-foreground">
-              עברו לעגלת התשלום לסקירה מלאה ושינוי כמויות.
-            </p>
-            <button
-              onClick={goToCart}
-              className="w-full rounded-2xl bg-primary py-3.5 text-base font-semibold text-primary-foreground active:scale-[0.98]"
-            >
-              לעגלת התשלום · ₪{subtotal}
-            </button>
-          </div>
-        </SheetContent>
-      </Sheet>
     </div>
   );
 }
