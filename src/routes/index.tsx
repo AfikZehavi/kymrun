@@ -67,30 +67,12 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-export type Product = {
-  id: string;
-  name: string;
-  category: string;
-  group: string;
-  basePrice: number;
-  price: number;
-  discount: number;
-  image: string;
-  abv: string;
-  note: string;
-  inStock: boolean;
-  featured: boolean;
-};
-
-type Category = { id: string; label: string };
-
 const paths = [
   { id: "gift", label: "מתנה", description: "אריזה מוכנה וכרטיס אישי" },
   { id: "tonight", label: "לערב", description: "מה שמתאים לארוחה שלך" },
   { id: "collectors", label: "אספנים", description: "בקבוקים נדירים ומוגבלים" },
 ];
 
-type CartLine = { product: Product; qty: number };
 
 function Home() {
   const [cart, setCart] = useState<CartLine[]>([]);
