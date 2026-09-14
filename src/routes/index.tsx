@@ -540,7 +540,7 @@ function HeroCopy({ onGift }: { onGift: () => void }) {
     <div>
       <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-[11px] font-medium tracking-wide text-foreground/80 backdrop-blur-md">
         <span className="size-1.5 rounded-full bg-primary" />
-        כל המשקאות אצלנו כשרים — בלי לבדוק תווית
+        כל המשקאות אצלנו כשרים — איכות ללא פשרות
       </span>
       <h1 className="mt-3 font-display text-[2.5rem] font-bold leading-[1.05] dark:[text-shadow:0_2px_18px_rgba(0,0,0,0.65)] md:text-5xl lg:text-6xl">
         כי הטעם הנכון
