@@ -95,9 +95,17 @@ const paths = [
   {
     id: "secret",
     label: "החדר הסודי",
-    description: "כמויות מוגבלות ובקבוקים ממוספרים",
+    description: "בקבוקים ממוספרים וטעימות יין פרטיות",
     filter: "secret",
     toast: "פתחנו לך את הדלת לחדר הסודי",
+  },
+  {
+    id: "events",
+    label: "אירועים",
+    description: "בר לאירוע, מתנות לעובדים והצעת מחיר תוך 4 שעות",
+    filter: "all",
+    toast: "ספרו לנו על האירוע",
+    to: "/events" as const,
   },
 ];
 
