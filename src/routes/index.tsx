@@ -232,13 +232,13 @@ function Home() {
         <Reveal as="section" className="mt-8 lg:mt-16">
           <div className="mb-3 flex items-end justify-between">
             <h2 className="font-display text-xl font-bold lg:text-3xl">
-              מה היום שלך?
+              בחר מה שהכי תרצה היום
             </h2>
             <span className="text-xs tracking-widest text-muted-foreground">
-              3 דרכים
+              {paths.length} דרכים
             </span>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 pt-1 snap-x md:grid md:grid-cols-3 md:gap-5 md:overflow-visible">
+          <div className="flex gap-3 overflow-x-auto pb-2 pt-1 snap-x md:grid md:grid-cols-3 md:gap-5 md:overflow-visible lg:grid-cols-5">
             {paths.map((path) => (
               <button
                 key={path.id}
