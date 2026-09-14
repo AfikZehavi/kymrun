@@ -12,6 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminKymrun37RouteImport } from './routes/admin-kymrun-37'
 import { Route as CartRouteImport } from './routes/cart'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as EventsRouteImport } from './routes/events'
+import { Route as ShippingRouteImport } from './routes/shipping'
+import { Route as TermsRouteImport } from './routes/terms'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +32,93 @@ const CartRoute = CartRouteImport.update({
   path: '/cart',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsRoute = EventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShippingRoute = ShippingRouteImport.update({
+  id: '/shipping',
+  path: '/shipping',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin-kymrun-37': typeof AdminKymrun37Route
   '/cart': typeof CartRoute
+  '/contact': typeof ContactRoute
+  '/events': typeof EventsRoute
+  '/shipping': typeof ShippingRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin-kymrun-37': typeof AdminKymrun37Route
   '/cart': typeof CartRoute
+  '/contact': typeof ContactRoute
+  '/events': typeof EventsRoute
+  '/shipping': typeof ShippingRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin-kymrun-37': typeof AdminKymrun37Route
   '/cart': typeof CartRoute
+  '/contact': typeof ContactRoute
+  '/events': typeof EventsRoute
+  '/shipping': typeof ShippingRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin-kymrun-37' | '/cart'
+  fullPaths:
+    | '/'
+    | '/admin-kymrun-37'
+    | '/cart'
+    | '/contact'
+    | '/events'
+    | '/shipping'
+    | '/terms'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin-kymrun-37' | '/cart'
-  id: '__root__' | '/' | '/admin-kymrun-37' | '/cart'
+  to:
+    | '/'
+    | '/admin-kymrun-37'
+    | '/cart'
+    | '/contact'
+    | '/events'
+    | '/shipping'
+    | '/terms'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin-kymrun-37'
+    | '/cart'
+    | '/contact'
+    | '/events'
+    | '/shipping'
+    | '/terms'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminKymrun37Route: typeof AdminKymrun37Route
   CartRoute: typeof CartRoute
+  ContactRoute: typeof ContactRoute
+  EventsRoute: typeof EventsRoute
+  ShippingRoute: typeof ShippingRoute
+  TermsRoute: typeof TermsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +144,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CartRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shipping': {
+      id: '/shipping'
+      path: '/shipping'
+      fullPath: '/shipping'
+      preLoaderRoute: typeof ShippingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +179,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminKymrun37Route: AdminKymrun37Route,
   CartRoute: CartRoute,
+  ContactRoute: ContactRoute,
+  EventsRoute: EventsRoute,
+  ShippingRoute: ShippingRoute,
+  TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

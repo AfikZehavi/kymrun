@@ -68,6 +68,54 @@ export type Database = {
         }
         Relationships: []
       }
+      inquiries: {
+        Row: {
+          budget: string
+          city: string
+          created_at: string
+          email: string
+          event_date: string
+          full_name: string
+          guests: number
+          id: string
+          kind: string
+          message: string
+          phone: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          budget?: string
+          city?: string
+          created_at?: string
+          email?: string
+          event_date?: string
+          full_name?: string
+          guests?: number
+          id?: string
+          kind?: string
+          message?: string
+          phone?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          budget?: string
+          city?: string
+          created_at?: string
+          email?: string
+          event_date?: string
+          full_name?: string
+          guests?: number
+          id?: string
+          kind?: string
+          message?: string
+          phone?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           abv: string
