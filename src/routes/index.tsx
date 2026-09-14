@@ -626,7 +626,16 @@ function HeroSection({ onGift }: { onGift: () => void }) {
         alt=""
         width={1920}
         height={1080}
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
+        className="pointer-events-none absolute inset-0 hidden h-full w-full object-cover object-center dark:block"
+        loading="eager"
+        decoding="async"
+      />
+      <img
+        src={heroBottlesLight}
+        alt=""
+        width={1792}
+        height={1024}
+        className="pointer-events-none absolute inset-0 block h-full w-full object-cover object-center dark:hidden"
         loading="eager"
         decoding="async"
       />
