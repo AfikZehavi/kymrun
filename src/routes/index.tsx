@@ -75,11 +75,12 @@ const paths = [
 
 
 function Home() {
-  const [cart, setCart] = useState<CartLine[]>([]);
   const [filter, setFilter] = useState<string>("all");
   const [selected, setSelected] = useState<Product | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
-  const [orderPlaced, setOrderPlaced] = useState(false);
+
+  const navigate = useNavigate({ from: "/" });
+  const { add: addToCart, changeQty, count, subtotal } = useCart();
 
   const fetchCatalog = useServerFn(getCatalog);
   const { data } = useQuery({
@@ -126,19 +127,8 @@ function Home() {
     [filter, allProducts],
   );
 
-  const count = cart.reduce((s, l) => s + l.qty, 0);
-  const subtotal = cart.reduce((s, l) => s + l.qty * l.product.price, 0);
-
-  function addToCart(product: Product) {
-    setCart((prev) => {
-      const found = prev.find((l) => l.product.id === product.id);
-      if (found) {
-        return prev.map((l) =>
-          l.product.id === product.id ? { ...l, qty: l.qty + 1 } : l,
-        );
-      }
-      return [...prev, { product, qty: 1 }];
-    });
+  function addProduct(product: Product) {
+    addToCart(product);
     toast.custom(
       (id) => (
         <div
@@ -177,15 +167,6 @@ function Home() {
     );
   }
 
-  function changeQty(id: string, delta: number) {
-    setCart((prev) =>
-      prev
-        .map((l) =>
-          l.product.id === id ? { ...l, qty: Math.max(0, l.qty + delta) } : l,
-        )
-        .filter((l) => l.qty > 0),
-    );
-  }
 
   function selectPath(id: string) {
     if (id === "gift") {
