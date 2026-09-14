@@ -360,7 +360,7 @@ function Home() {
           count={count}
           subtotal={subtotal}
           onOpen={() => setCartOpen(true)}
-          onCheckout={checkout}
+          onCheckout={goToCart}
         />
       )}
 
@@ -378,91 +378,19 @@ function Home() {
           <SheetHeader className="text-right">
             <SheetTitle className="font-display text-xl">הסל שלך</SheetTitle>
           </SheetHeader>
-          <div dir="rtl" className="space-y-3 px-4 pb-6">
-            {cart.length === 0 && (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                הסל ריק עדיין — בחרו בקבוק מהמדף.
-              </p>
-            )}
-            {cart.map((line) => (
-              <div
-                key={line.product.id}
-                className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3"
-              >
-                <img
-                  src={line.product.image}
-                  alt={line.product.name}
-                  width={768}
-                  height={960}
-                  loading="lazy"
-                  className="size-16 rounded-xl object-cover"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">
-                    {line.product.name}
-                  </p>
-                  <p className="mt-1 font-display text-base font-bold">
-                    ₪{line.product.price * line.qty}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    aria-label="הפחת"
-                    onClick={() => changeQty(line.product.id, -1)}
-                    className="grid size-8 place-items-center rounded-full border border-border bg-secondary"
-                  >
-                    <Minus className="size-3.5" />
-                  </button>
-                  <span className="w-5 text-center text-sm font-semibold">
-                    {line.qty}
-                  </span>
-                  <button
-                    aria-label="הוסף"
-                    onClick={() => changeQty(line.product.id, 1)}
-                    className="grid size-8 place-items-center rounded-full border border-border bg-secondary"
-                  >
-                    <Plus className="size-3.5" />
-                  </button>
-                </div>
-              </div>
-            ))}
-
-            {cart.length > 0 && (
-              <button
-                onClick={checkout}
-                className="mt-2 w-full rounded-2xl bg-primary py-3.5 text-base font-semibold text-primary-foreground active:scale-[0.98]"
-              >
-                אישור הזמנה · ₪{subtotal}
-              </button>
-            )}
+          <div dir="rtl" className="px-4 pb-6 pt-2 text-center">
+            <p className="py-4 text-sm text-muted-foreground">
+              עברו לעגלת התשלום לסקירה מלאה ושינוי כמויות.
+            </p>
+            <button
+              onClick={goToCart}
+              className="w-full rounded-2xl bg-primary py-3.5 text-base font-semibold text-primary-foreground active:scale-[0.98]"
+            >
+              לעגלת התשלום · ₪{subtotal}
+            </button>
           </div>
         </SheetContent>
       </Sheet>
-
-      <Dialog open={orderPlaced} onOpenChange={setOrderPlaced}>
-        <DialogContent dir="rtl" className="max-w-sm text-right">
-          <DialogHeader className="items-center text-center">
-            <div className="mb-2 grid size-14 place-items-center rounded-full bg-primary text-primary-foreground">
-              <Check className="size-7" />
-            </div>
-            <DialogTitle className="font-display text-xl">
-              ההזמנה אושרה
-            </DialogTitle>
-            <DialogDescription>
-              {count} פריטים · ₪{subtotal}. נשלח אישור והמשלוח יוצא אליך.
-            </DialogDescription>
-          </DialogHeader>
-          <button
-            onClick={() => {
-              setOrderPlaced(false);
-              setCart([]);
-            }}
-            className="mt-2 w-full rounded-2xl bg-primary py-3 text-base font-semibold text-primary-foreground"
-          >
-            מעולה
-          </button>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
