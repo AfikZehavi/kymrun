@@ -391,10 +391,11 @@ function CartPage() {
               </div>
 
               <button
-                onClick={() => setOrderPlaced(true)}
+                onClick={placeOrder}
                 disabled={!ready}
-                className="mt-5 w-full rounded-2xl bg-primary py-3.5 text-base font-semibold text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-50"
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-base font-semibold text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-50"
               >
+                {submitting && <Loader2 className="size-4 animate-spin" />}
                 לתשלום · ₪{subtotal + (remaining > 0 ? 35 : 0)}
               </button>
 
