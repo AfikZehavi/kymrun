@@ -663,13 +663,8 @@ function HeroSection({ onGift }: { onGift: () => void }) {
     let raf = 0;
     const update = () => {
       raf = 0;
-      const rect = frameRef.current?.getBoundingClientRect();
-      if (!rect) return;
       const vh = window.innerHeight || 1;
-      const p = Math.max(
-        0,
-        Math.min(1, (vh - rect.top) / (vh + rect.height) - 0.35),
-      );
+      const p = Math.max(0, Math.min(1, window.scrollY / (vh * 0.85)));
       setProgress(p);
     };
     const onScroll = () => {
@@ -685,10 +680,11 @@ function HeroSection({ onGift }: { onGift: () => void }) {
     };
   }, [motionOk]);
 
-  const rotateY = progress * 26;
-  const rotateZ = progress * -7;
-  const rotateX = progress * 9;
-  const shift = progress * -60;
+  const rotateY = progress * 55;
+  const rotateZ = progress * -14;
+  const rotateX = progress * 12;
+  const shift = progress * -90;
+  const scale = 1 - progress * 0.12;
   const glare = 50 + progress * 40;
 
   return (
@@ -699,9 +695,9 @@ function HeroSection({ onGift }: { onGift: () => void }) {
     >
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 will-change-transform"
+        className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center will-change-transform"
         style={{
-          transform: `translate3d(0, ${shift}px, 0) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) scale(1.18)`,
+          transform: `translate3d(0, ${shift}px, 0) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) scale(${scale})`,
           transformStyle: "preserve-3d",
         }}
       >
@@ -710,7 +706,7 @@ function HeroSection({ onGift }: { onGift: () => void }) {
           alt=""
           width={1024}
           height={1280}
-          className="h-full w-full object-cover opacity-90"
+          className="h-[92%] w-auto object-contain opacity-70 lg:h-[85%]"
           loading="eager"
           decoding="async"
         />
