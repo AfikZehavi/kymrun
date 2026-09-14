@@ -36,6 +36,7 @@ import { deliverySpeeds } from "@/lib/delivery";
 import { useCart } from "@/lib/use-cart";
 import type { Product, Category } from "@/lib/types";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { WhatsappButton } from "@/components/whatsapp-button";
 import { SiteFooter } from "@/components/site-footer";
 import { ZoneChecker } from "@/components/zone-checker";
 
@@ -676,6 +677,7 @@ function Header({
 
         <div className="flex shrink-0 items-center gap-2">
           <ThemeToggle />
+          <WhatsappButton />
           <button
             onClick={onCart}
             aria-label="עגלת קניות"
