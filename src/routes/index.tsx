@@ -83,7 +83,7 @@ const paths: {
   description: string;
   filter: string;
   toast: string;
-  to?: "/events";
+  to?: "/events" | "/secret-room";
 }[] = [
   {
     id: "gift",
@@ -116,9 +116,10 @@ const paths: {
   {
     id: "secret",
     label: "החדר הסודי",
-    description: "בקבוקים ממוספרים וטעימות יין פרטיות",
+    description: "טריוויית יין ווויסקי — עונים נכון, מקבלים מתנה",
     filter: "secret",
     toast: "פתחנו לך את הדלת לחדר הסודי",
+    to: "/secret-room" as const,
   },
   {
     id: "events",
