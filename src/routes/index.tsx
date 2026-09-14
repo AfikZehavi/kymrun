@@ -69,11 +69,10 @@ const paths = [
   { id: "collectors", label: "אספנים", description: "בקבוקים נדירים ומוגבלים" },
 ];
 
-
 function Home() {
   const [filter, setFilter] = useState<string>("all");
   const [selected, setSelected] = useState<Product | null>(null);
-  const [cartOpen, setCartOpen] = useState(false);
+
 
   const navigate = useNavigate({ from: "/" });
   const { add: addToCart, changeQty, count, subtotal } = useCart();
