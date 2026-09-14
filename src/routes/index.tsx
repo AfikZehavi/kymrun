@@ -708,7 +708,7 @@ function Header({
 
 function HeroSection({ onGift }: { onGift: () => void }) {
   return (
-    <section className="relative -mx-5 min-h-[78vh] overflow-hidden lg:-mx-8 lg:min-h-[70vh]">
+    <section className="relative -mx-5 min-h-[78vh] overflow-hidden md:-mx-8 md:min-h-[62vh] lg:min-h-[70vh]">
       <img
         src={heroBottles}
         alt=""
@@ -720,7 +720,11 @@ function HeroSection({ onGift }: { onGift: () => void }) {
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent lg:bg-gradient-to-r lg:from-background/90 lg:via-background/40 lg:to-transparent"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/25 md:bg-gradient-to-r md:from-background md:via-background/75 md:to-background/20"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-background/25 md:hidden"
       />
 
       <span className="pointer-events-none absolute top-4 left-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-background/70 px-3 py-1.5 text-[11px] font-semibold tracking-wide backdrop-blur-md">
@@ -728,7 +732,7 @@ function HeroSection({ onGift }: { onGift: () => void }) {
         כשר · 100%
       </span>
 
-      <div className="relative z-10 flex min-h-[78vh] items-end px-5 pb-12 pt-24 lg:min-h-[70vh] lg:items-center lg:px-8 lg:py-12">
+      <div className="relative z-10 flex min-h-[78vh] items-end px-5 pb-12 pt-24 md:min-h-[62vh] md:items-center md:px-8 md:py-14 lg:min-h-[70vh] lg:py-12">
         <div className="w-full max-w-xl">
           <HeroCopy onGift={onGift} />
         </div>
@@ -740,20 +744,20 @@ function HeroSection({ onGift }: { onGift: () => void }) {
 function HeroCopy({ onGift }: { onGift: () => void }) {
   return (
     <div>
-      <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-[11px] font-medium tracking-wide text-muted-foreground backdrop-blur-sm">
+      <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-[11px] font-medium tracking-wide text-foreground/80 backdrop-blur-md">
         <span className="size-1.5 rounded-full bg-primary" />
         כל המשקאות אצלנו כשרים — בלי לבדוק תווית
       </span>
-      <h1 className="mt-3 font-display text-[2.5rem] font-bold leading-[1.05] lg:text-6xl">
+      <h1 className="mt-3 font-display text-[2.5rem] font-bold leading-[1.05] [text-shadow:0_2px_18px_rgba(0,0,0,0.65)] md:text-5xl lg:text-6xl">
         בקבוק אחד
         <br />
         <span className="text-primary">בדיוק בשבילך</span>
       </h1>
-      <p className="mt-3 max-w-[34ch] text-[15px] leading-relaxed text-muted-foreground lg:text-lg">
+      <p className="mt-3 max-w-[34ch] text-[15px] font-medium leading-relaxed text-foreground/85 [text-shadow:0_1px_10px_rgba(0,0,0,0.6)] md:text-base lg:text-lg">
         יין, וויסקי וספיריטים פרימיום — כולם כשרים. בחר מסלול, ונמליץ תוך שניות.
       </p>
 
-      <div className="mt-5 flex flex-col gap-3 lg:max-w-sm">
+      <div className="mt-5 flex flex-col gap-3 md:max-w-sm">
         <button
           onClick={onGift}
           className="w-full rounded-2xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/15 transition-transform hover:scale-[1.01] active:scale-[0.98]"
