@@ -198,16 +198,9 @@ function Home() {
 
 
   function selectPath(id: string) {
-    if (id === "gift") {
-      setFilter("gift");
-      toast("מסלול מתנה", { description: "הנה המארזים המוכנים למשלוח" });
-    } else if (id === "tonight") {
-      setFilter("wine");
-      toast("לערב", { description: "יינות שמתאימים לארוחה" });
-    } else {
-      setFilter("whisky");
-      toast("אספנים", { description: "בקבוקים נדירים ומיושנים" });
-    }
+    const path = paths.find((p) => p.id === id) ?? paths[0];
+    setFilter(path.filter);
+    toast(path.label, { description: path.toast });
     document
       .getElementById("shelf")
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
