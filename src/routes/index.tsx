@@ -73,6 +73,8 @@ export type Product = {
   image: string;
   abv: string;
   note: string;
+  inStock?: boolean;
+  featured?: boolean;
 };
 
 const CUSTOM_PRODUCTS_KEY = "kymrun-custom-products";
