@@ -30,14 +30,13 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
-import heroBottle from "@/assets/hero-bottle.jpg";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+
 import heroBottles from "@/assets/hero-bottles.jpg";
-import wineBottle from "@/assets/wine-bottle.jpg";
-import ginBottle from "@/assets/gin-bottle.jpg";
-import champagneBottle from "@/assets/champagne-bottle.jpg";
-import cognacBottle from "@/assets/cognac-bottle.jpg";
-import vodkaBottle from "@/assets/vodka-bottle.jpg";
-import giftSet from "@/assets/gift-set.jpg";
+import { resolveImage } from "@/lib/images";
+import { getCatalog } from "@/lib/catalog.functions";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -65,150 +64,21 @@ export const Route = createFileRoute("/")({
 });
 
 export type Product = {
-  id: number;
+  id: string;
   name: string;
   category: string;
-  group: "gift" | "whisky" | "wine" | "spirits";
+  group: string;
+  basePrice: number;
   price: number;
+  discount: number;
   image: string;
   abv: string;
   note: string;
-  inStock?: boolean;
-  featured?: boolean;
+  inStock: boolean;
+  featured: boolean;
 };
 
-export const CUSTOM_PRODUCTS_KEY = "kymrun-custom-products";
-
-export const products: Product[] = [
-  {
-    id: 1,
-    name: "CEMRON — 18 שנות בַּשְׁלָה",
-    category: "ויסקי · סקוטלנד",
-    group: "whisky",
-    price: 649,
-    image: heroBottle,
-    abv: "46%",
-    note: "וניל, דבש כהה וסיומת עשן עדינה. חבית שרי ראשונה.",
-  },
-  {
-    id: 2,
-    name: "CEMRON — קברנה רזרב",
-    category: "יין אדום · נאפה",
-    group: "wine",
-    price: 289,
-    image: wineBottle,
-    abv: "14.5%",
-    note: "פירות יער כהים, ארז וטאנינים קטיפתיים. מצוין עם בשר.",
-  },
-  {
-    id: 3,
-    name: "CEMRON — ג'ין בוטניקל",
-    category: "ג'ין · אנגליה",
-    group: "spirits",
-    price: 219,
-    image: ginBottle,
-    abv: "43%",
-    note: "מחט ערער, הדרים ופלפל ורוד. מושלם לג'ין טוניק.",
-  },
-  {
-    id: 4,
-    name: "CEMRON — רום מיושן",
-    category: "רום · קריביים",
-    group: "spirits",
-    price: 420,
-    image: heroBottle,
-    abv: "40%",
-    note: "קרמל, בננה קלויה וקינמון. יישון 12 שנים.",
-  },
-  {
-    id: 5,
-    name: "CEMRON — שמפניה בלאן דה נואר",
-    category: "שמפניה · צרפת",
-    group: "wine",
-    price: 540,
-    image: champagneBottle,
-    abv: "12.5%",
-    note: "בועות דקיקות, בריוש ותפוח ירוק. לרגעים גדולים.",
-  },
-  {
-    id: 6,
-    name: "CEMRON — קוניאק XO",
-    category: "קוניאק · קונייאק",
-    group: "spirits",
-    price: 890,
-    image: cognacBottle,
-    abv: "40%",
-    note: "משמש מיובש, אגוזים ועץ אלון עתיק. יישון ארוך.",
-  },
-  {
-    id: 7,
-    name: "CEMRON — וודקה כסופה",
-    category: "וודקה · פולין",
-    group: "spirits",
-    price: 199,
-    image: vodkaBottle,
-    abv: "40%",
-    note: "זיקוק חמש פעמים, נקייה וקרירה במיוחד.",
-  },
-  {
-    id: 8,
-    name: "CEMRON — מארז מורשת 20 & 30",
-    category: "מארז מתנה · שני בקבוקים",
-    group: "gift",
-    price: 1290,
-    image: giftSet,
-    abv: "43%",
-    note: "שני וויסקי מיושנים בקופסת סאטן שחורה עם כרטיס אישי.",
-  },
-  {
-    id: 9,
-    name: "CEMRON — מארז חגיגה",
-    category: "מארז מתנה · שמפניה וכוסות",
-    group: "gift",
-    price: 690,
-    image: champagneBottle,
-    abv: "12.5%",
-    note: "שמפניה פרימיום, שתי כוסות קריסטל ואריזת מתנה.",
-  },
-  {
-    id: 10,
-    name: "CEMRON — מארז ערב זוגי",
-    category: "מארז מתנה · יין וקינוח",
-    group: "gift",
-    price: 450,
-    image: wineBottle,
-    abv: "14%",
-    note: "קברנה רזרב, שוקולד מריר ופותחן מעוצב.",
-  },
-  {
-    id: 11,
-    name: "CEMRON — סינגל מאלט 12",
-    category: "ויסקי · איילה",
-    group: "whisky",
-    price: 389,
-    image: heroBottle,
-    abv: "43%",
-    note: "כבול ימי, מלח ופלפל. קלאסיקה מעושנת.",
-  },
-  {
-    id: 12,
-    name: "CEMRON — שרדונה מיושן",
-    category: "יין לבן · בורגון",
-    group: "wine",
-    price: 245,
-    image: wineBottle,
-    abv: "13%",
-    note: "חמאה, אגס ומינרליות. מוגש מצונן.",
-  },
-];
-
-const categories = [
-  { id: "all", label: "הכול" },
-  { id: "gift", label: "מתנות" },
-  { id: "whisky", label: "ויסקי" },
-  { id: "wine", label: "יין" },
-  { id: "spirits", label: "ספיריטים" },
-] as const;
+type Category = { id: string; label: string };
 
 const paths = [
   { id: "gift", label: "מתנה", description: "אריזה מוכנה וכרטיס אישי" },
