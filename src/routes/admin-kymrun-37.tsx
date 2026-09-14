@@ -1,14 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Plus, Trash2, Upload } from "lucide-react";
 
 import {
-  products as baseProducts,
-  type Product,
-  CUSTOM_PRODUCTS_KEY,
-} from "./index";
-import placeholder from "@/assets/hero-bottle.jpg";
+  getCatalog,
+  saveProduct,
+  deleteProduct,
+  saveCategory,
+  deleteCategory,
+  type DbProduct,
+} from "@/lib/catalog.functions";
+import { resolveImage } from "@/lib/images";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const Route = createFileRoute("/admin-kymrun-37")({
   head: () => ({
@@ -25,20 +31,23 @@ export const Route = createFileRoute("/admin-kymrun-37")({
   component: AdminGate,
 });
 
-const ADMIN_USER = "adminkymrunhere22!!";
-const ADMIN_PASS = "kymrunToWin2423";
 const SESSION_KEY = "kymrun-admin-session";
 
+type Creds = { user: string; pass: string };
+
 function AdminGate() {
-  const [authed, setAuthed] = useState(false);
+  const [creds, setCreds] = useState<Creds | null>(null);
   const [ready, setReady] = useState(false);
   const [user, setUser] = useState("");
   const [pass, setPass] = useState("");
   const [error, setError] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const check = useServerFn(saveCategory);
 
   useEffect(() => {
     try {
-      setAuthed(sessionStorage.getItem(SESSION_KEY) === "1");
+      const raw = sessionStorage.getItem(SESSION_KEY);
+      if (raw) setCreds(JSON.parse(raw));
     } catch {
       /* ignore */
     }
@@ -46,214 +55,227 @@ function AdminGate() {
   }, []);
 
   if (!ready) return null;
+  if (creds) return <AdminPage creds={creds} />;
 
-  if (!authed) {
-    return (
-      <div
-        dir="rtl"
-        className="grid min-h-screen place-items-center bg-background px-5 text-foreground"
+  return (
+    <div
+      dir="rtl"
+      className="grid min-h-screen place-items-center bg-background px-5 text-foreground"
+    >
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setChecking(true);
+          const candidate = { user, pass };
+          try {
+            // Credentials are verified on the server.
+            await check({
+              data: { ...candidate, slug: "gift", label: "מתנות" },
+            });
+            sessionStorage.setItem(SESSION_KEY, JSON.stringify(candidate));
+            setCreds(candidate);
+          } catch {
+            setError(true);
+          } finally {
+            setChecking(false);
+          }
+        }}
+        className="w-full max-w-sm space-y-4 rounded-3xl border border-border bg-card p-6 text-right shadow-2xl shadow-black/40"
       >
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (user === ADMIN_USER && pass === ADMIN_PASS) {
-              try {
-                sessionStorage.setItem(SESSION_KEY, "1");
-              } catch {
-                /* ignore */
-              }
-              setAuthed(true);
-            } else {
-              setError(true);
-            }
+        <div>
+          <h1 className="font-display text-2xl font-bold tracking-[0.18em]">
+            KYMRUN
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">כניסת מנהל</p>
+        </div>
+        <input
+          value={user}
+          onChange={(e) => {
+            setUser(e.target.value);
+            setError(false);
           }}
-          className="w-full max-w-sm space-y-4 rounded-3xl border border-border bg-card p-6 text-right shadow-2xl shadow-black/40"
+          placeholder="שם משתמש"
+          autoComplete="username"
+          className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary"
+        />
+        <input
+          value={pass}
+          onChange={(e) => {
+            setPass(e.target.value);
+            setError(false);
+          }}
+          type="password"
+          placeholder="סיסמה"
+          autoComplete="current-password"
+          className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary"
+        />
+        {error && (
+          <p className="text-sm text-destructive">שם משתמש או סיסמה שגויים</p>
+        )}
+        <button
+          type="submit"
+          disabled={checking}
+          className="w-full rounded-2xl bg-primary py-3 text-base font-semibold text-primary-foreground active:scale-[0.98] disabled:opacity-60"
         >
-          <div>
-            <h1 className="font-display text-2xl font-bold tracking-[0.18em]">
-              KYMRUN
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">כניסת מנהל</p>
-          </div>
-          <input
-            value={user}
-            onChange={(e) => {
-              setUser(e.target.value);
-              setError(false);
-            }}
-            placeholder="שם משתמש"
-            autoComplete="username"
-            className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary"
-          />
-          <input
-            value={pass}
-            onChange={(e) => {
-              setPass(e.target.value);
-              setError(false);
-            }}
-            type="password"
-            placeholder="סיסמה"
-            autoComplete="current-password"
-            className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary"
-          />
-          {error && (
-            <p className="text-sm text-destructive">שם משתמש או סיסמה שגויים</p>
-          )}
-          <button
-            type="submit"
-            className="w-full rounded-2xl bg-primary py-3 text-base font-semibold text-primary-foreground active:scale-[0.98]"
-          >
-            כניסה
-          </button>
-        </form>
-      </div>
-    );
-  }
-
-  return <AdminPage />;
+          {checking ? "בודק..." : "כניסה"}
+        </button>
+      </form>
+    </div>
+  );
 }
-
-type Override = { price: number; inStock: boolean; featured: boolean };
-const STORAGE_KEY = "kymrun-admin-overrides";
-
-const groupOptions: { id: Product["group"]; label: string }[] = [
-  { id: "gift", label: "מתנה" },
-  { id: "whisky", label: "ויסקי" },
-  { id: "wine", label: "יין" },
-  { id: "spirits", label: "ספיריטים" },
-];
 
 const emptyForm = {
   name: "",
-  category: "",
-  group: "wine" as Product["group"],
+  subtitle: "",
+  category_slug: "",
   price: "",
-  inStock: true,
+  discount_percent: "0",
+  abv: "",
+  note: "",
+  in_stock: true,
   imageUrl: "",
   imageFile: "",
 };
 
-function AdminPage() {
-  const [overrides, setOverrides] = useState<Record<number, Override>>({});
-  const [customProducts, setCustomProducts] = useState<Product[]>([]);
+function AdminPage({ creds }: { creds: Creds }) {
+  const qc = useQueryClient();
+  const fetchCatalog = useServerFn(getCatalog);
+  const doSaveProduct = useServerFn(saveProduct);
+  const doDeleteProduct = useServerFn(deleteProduct);
+  const doSaveCategory = useServerFn(saveCategory);
+  const doDeleteCategory = useServerFn(deleteCategory);
+
+  const { data } = useQuery({
+    queryKey: ["catalog"],
+    queryFn: () => fetchCatalog(),
+  });
+
+  const products = useMemo(() => data?.products ?? [], [data]);
+  const cats = useMemo(() => data?.categories ?? [], [data]);
+
   const [query, setQuery] = useState("");
-  const [loaded, setLoaded] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ ...emptyForm });
+  const [catLabel, setCatLabel] = useState("");
   const fileRef = useRef<HTMLInputElement | null>(null);
 
-  useEffect(() => {
-    try {
-      const rawOvr = localStorage.getItem(STORAGE_KEY);
-      if (rawOvr) setOverrides(JSON.parse(rawOvr));
-    } catch {
-      /* ignore */
-    }
-    try {
-      const rawProd = localStorage.getItem(CUSTOM_PRODUCTS_KEY);
-      if (rawProd) setCustomProducts(JSON.parse(rawProd));
-    } catch {
-      /* ignore */
-    }
-    setLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    if (!loaded) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides));
-  }, [overrides, loaded]);
-
-  useEffect(() => {
-    if (!loaded) return;
-    localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(customProducts));
-  }, [customProducts, loaded]);
-
-  const baseIds = useMemo(
-    () => new Set(baseProducts.map((p) => p.id)),
-    [],
-  );
+  function refresh() {
+    qc.invalidateQueries({ queryKey: ["catalog"] });
+  }
 
   const rows = useMemo(() => {
-    const baseRows = baseProducts.map((p) => ({
-      ...p,
-      ...(overrides[p.id] ?? { price: p.price, inStock: true, featured: false }),
-    }));
-    const all = [...baseRows, ...customProducts];
-    if (!query.trim()) return all;
+    if (!query.trim()) return products;
     const q = query.trim();
-    return all.filter((p) => p.name.includes(q) || p.category.includes(q));
-  }, [overrides, customProducts, query]);
-
-  function patch(id: number, next: Partial<Override>) {
-    setOverrides((prev) => {
-      const base = baseProducts.find((p) => p.id === id)!;
-      const current = prev[id] ?? {
-        price: base.price,
-        inStock: true,
-        featured: false,
-      };
-      return { ...prev, [id]: { ...current, ...next } };
-    });
-  }
-
-  function updateCustom(id: number, next: Partial<Product>) {
-    setCustomProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, ...next } : p)),
+    return products.filter(
+      (p) => p.name.includes(q) || p.subtitle.includes(q),
     );
+  }, [products, query]);
+
+  async function patch(p: DbProduct, next: Partial<DbProduct>) {
+    try {
+      await doSaveProduct({
+        data: { ...creds, product: { id: p.id, ...next } },
+      });
+      refresh();
+    } catch {
+      toast.error("השמירה נכשלה");
+    }
   }
 
-  function deleteCustom(id: number) {
-    setCustomProducts((prev) => prev.filter((p) => p.id !== id));
-    toast.success("המוצר נמחק");
+  async function removeProduct(id: string) {
+    try {
+      await doDeleteProduct({ data: { ...creds, id } });
+      refresh();
+      toast.success("המוצר נמחק");
+    } catch {
+      toast.error("המחיקה נכשלה");
+    }
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 1024 * 1024 * 2) {
-      toast.error("התמונה גדולה מדי", { description: "נא לבחור קובץ עד 2MB" });
+    if (file.size > 1024 * 300) {
+      toast.error("התמונה גדולה מדי", { description: "נא לבחור קובץ עד 300KB" });
       return;
     }
     const reader = new FileReader();
-    reader.onload = () => {
-      setForm((f) => ({ ...f, imageFile: String(reader.result) }));
-    };
+    reader.onload = () => setForm((f) => ({ ...f, imageFile: String(reader.result) }));
     reader.readAsDataURL(file);
   }
 
-  function addProduct(e: React.FormEvent) {
+  async function addProduct(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.name.trim() || !form.category.trim()) {
-      toast.error("חסרים שדות", { description: "נא למלא שם וקטגוריה" });
+    const slug = form.category_slug || cats[0]?.slug;
+    if (!form.name.trim() || !slug) {
+      toast.error("חסרים שדות", { description: "נא למלא שם ולבחור קטגוריה" });
       return;
     }
-    const price = Number(form.price) || 0;
-    const newProduct: Product = {
-      id: -(Date.now()),
-      name: form.name.trim(),
-      category: form.category.trim(),
-      group: form.group,
-      price,
-      image: form.imageFile || form.imageUrl.trim() || placeholder,
-      abv: "—%",
-      note: "",
-      inStock: form.inStock,
-      featured: false,
-    };
-    setCustomProducts((prev) => [newProduct, ...prev]);
-    setForm({ ...emptyForm });
-    if (fileRef.current) fileRef.current.value = "";
-    setShowForm(false);
-    toast.success("המוצר נוסף", { description: newProduct.name });
+    try {
+      await doSaveProduct({
+        data: {
+          ...creds,
+          product: {
+            name: form.name.trim(),
+            subtitle: form.subtitle.trim(),
+            category_slug: slug,
+            price: Number(form.price) || 0,
+            discount_percent: Math.min(
+              95,
+              Math.max(0, Number(form.discount_percent) || 0),
+            ),
+            image: form.imageFile || form.imageUrl.trim() || "hero-bottle",
+            abv: form.abv.trim(),
+            note: form.note.trim(),
+            in_stock: form.in_stock,
+            sort: 1,
+          },
+        },
+      });
+      setForm({ ...emptyForm });
+      if (fileRef.current) fileRef.current.value = "";
+      setShowForm(false);
+      refresh();
+      toast.success("המוצר נוסף");
+    } catch {
+      toast.error("ההוספה נכשלה");
+    }
   }
 
-  const active = rows.filter((r) => r.inStock !== false).length;
+  async function addCategory(e: React.FormEvent) {
+    e.preventDefault();
+    const label = catLabel.trim();
+    if (!label) return;
+    const slug = `cat-${Date.now().toString(36)}`;
+    try {
+      await doSaveCategory({ data: { ...creds, slug, label } });
+      setCatLabel("");
+      refresh();
+      toast.success("הקטגוריה נוספה", { description: label });
+    } catch {
+      toast.error("ההוספה נכשלה");
+    }
+  }
+
+  async function removeCategory(slug: string) {
+    try {
+      await doDeleteCategory({ data: { ...creds, slug } });
+      refresh();
+      toast.success("הקטגוריה נמחקה");
+    } catch {
+      toast.error("לא ניתן למחוק", {
+        description: "יש מוצרים שמשויכים לקטגוריה הזו",
+      });
+    }
+  }
+
+  const active = rows.filter((r) => r.in_stock).length;
   const avg = rows.length
-    ? Math.round(rows.reduce((s, r) => s + r.price, 0) / rows.length)
+    ? Math.round(rows.reduce((s, r) => s + Number(r.price), 0) / rows.length)
     : 0;
 
   return (
-    <div dir="rtl" className="min-h-screen bg-background px-5 py-8 lg:px-10">
+    <div dir="rtl" className="min-h-screen bg-background px-5 py-8 text-foreground lg:px-10">
       <div className="mx-auto max-w-5xl">
         <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
           <div className="min-w-0">
@@ -261,19 +283,10 @@ function AdminPage() {
               KYMRUN · ניהול
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              עמוד פנימי. שינויים נשמרים בדפדפן הזה בלבד.
+              השינויים נשמרים במסד הנתונים ומופיעים באתר לכולם.
             </p>
           </div>
-          <button
-            onClick={() => {
-              setOverrides({});
-              setCustomProducts([]);
-              toast.success("אופס לערכי ברירת המחדל");
-            }}
-            className="shrink-0 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary"
-          >
-            איפוס
-          </button>
+          <ThemeToggle />
         </header>
 
         <div className="mt-6 grid grid-cols-3 gap-3">
@@ -287,12 +300,45 @@ function AdminPage() {
               className="rounded-2xl border border-border bg-card px-4 py-3"
             >
               <div className="text-xs text-muted-foreground">{s.label}</div>
-              <div className="mt-1 font-display text-xl font-bold">
-                {s.value}
-              </div>
+              <div className="mt-1 font-display text-xl font-bold">{s.value}</div>
             </div>
           ))}
         </div>
+
+        <section className="mt-6 rounded-2xl border border-border bg-card p-4">
+          <h2 className="font-display text-lg font-bold">קטגוריות</h2>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {cats.map((c) => (
+              <span
+                key={c.slug}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1.5 text-sm"
+              >
+                {c.label}
+                <button
+                  onClick={() => removeCategory(c.slug)}
+                  aria-label={`מחק ${c.label}`}
+                  className="text-destructive"
+                >
+                  <Trash2 className="size-3.5" />
+                </button>
+              </span>
+            ))}
+          </div>
+          <form onSubmit={addCategory} className="mt-4 flex gap-2">
+            <input
+              value={catLabel}
+              onChange={(e) => setCatLabel(e.target.value)}
+              placeholder="שם קטגוריה חדשה (למשל: בירה)"
+              className="flex-1 rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+            />
+            <button
+              type="submit"
+              className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+            >
+              הוסף
+            </button>
+          </form>
+        </section>
 
         <button
           onClick={() => setShowForm((v) => !v)}
@@ -308,67 +354,76 @@ function AdminPage() {
             className="mt-4 rounded-2xl border border-border bg-card p-4"
           >
             <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <label className="block text-xs text-muted-foreground">
-                  שם מוצר
-                </label>
+              <Field label="שם מוצר">
                 <input
                   value={form.name}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, name: e.target.value }))
-                  }
+                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                   placeholder="למשל: KYMRUN — רוזה ריזרב"
-                  className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+                  className={inputCls}
                 />
-              </div>
-              <div>
-                <label className="block text-xs text-muted-foreground">
-                  קטגוריה
-                </label>
+              </Field>
+              <Field label="תיאור קצר">
                 <input
-                  value={form.category}
+                  value={form.subtitle}
                   onChange={(e) =>
-                    setForm((f) => ({ ...f, category: e.target.value }))
+                    setForm((f) => ({ ...f, subtitle: e.target.value }))
                   }
                   placeholder="למשל: יין אדום · ישראל"
-                  className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+                  className={inputCls}
                 />
-              </div>
-              <div>
-                <label className="block text-xs text-muted-foreground">
-                  סוג
-                </label>
+              </Field>
+              <Field label="קטגוריה">
                 <select
-                  value={form.group}
+                  value={form.category_slug || cats[0]?.slug || ""}
                   onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      group: e.target.value as Product["group"],
-                    }))
+                    setForm((f) => ({ ...f, category_slug: e.target.value }))
                   }
-                  className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+                  className={inputCls}
                 >
-                  {groupOptions.map((g) => (
-                    <option key={g.id} value={g.id}>
-                      {g.label}
+                  {cats.map((c) => (
+                    <option key={c.slug} value={c.slug}>
+                      {c.label}
                     </option>
                   ))}
                 </select>
-              </div>
-              <div>
-                <label className="block text-xs text-muted-foreground">
-                  מחיר (₪)
-                </label>
+              </Field>
+              <Field label="מחיר (₪)">
                 <input
                   type="number"
                   value={form.price}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, price: e.target.value }))
-                  }
+                  onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
                   placeholder="0"
-                  className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+                  className={inputCls}
                 />
-              </div>
+              </Field>
+              <Field label="הנחה (%)">
+                <input
+                  type="number"
+                  value={form.discount_percent}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, discount_percent: e.target.value }))
+                  }
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="אחוז אלכוהול">
+                <input
+                  value={form.abv}
+                  onChange={(e) => setForm((f) => ({ ...f, abv: e.target.value }))}
+                  placeholder="40%"
+                  className={inputCls}
+                />
+              </Field>
+            </div>
+
+            <div className="mt-4">
+              <label className="block text-xs text-muted-foreground">תיאור</label>
+              <textarea
+                value={form.note}
+                onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))}
+                rows={2}
+                className={inputCls}
+              />
             </div>
 
             <div className="mt-4">
@@ -385,7 +440,7 @@ function AdminPage() {
                   placeholder="https://... או השאר ריק לתמונה כללית"
                   className="flex-1 rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
                 />
-                <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border bg-secondary px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary/80">
+                <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border bg-secondary px-4 py-2 text-sm font-medium hover:bg-secondary/80">
                   <Upload className="size-4" />
                   העלאת תמונה
                   <input
@@ -399,7 +454,7 @@ function AdminPage() {
               </div>
               {(form.imageUrl || form.imageFile) && (
                 <img
-                  src={form.imageFile || form.imageUrl || placeholder}
+                  src={form.imageFile || form.imageUrl}
                   alt="תצוגה מקדימה"
                   className="mt-3 h-24 w-24 rounded-xl object-cover"
                 />
@@ -409,9 +464,9 @@ function AdminPage() {
             <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
               <input
                 type="checkbox"
-                checked={form.inStock}
+                checked={form.in_stock}
                 onChange={(e) =>
-                  setForm((f) => ({ ...f, inStock: e.target.checked }))
+                  setForm((f) => ({ ...f, in_stock: e.target.checked }))
                 }
                 className="size-4 accent-primary"
               />
@@ -420,7 +475,7 @@ function AdminPage() {
 
             <button
               type="submit"
-              className="mt-4 w-full rounded-2xl bg-primary py-3 text-base font-semibold text-primary-foreground transition-transform active:scale-[0.98] md:w-auto md:px-8"
+              className="mt-4 w-full rounded-2xl bg-primary py-3 text-base font-semibold text-primary-foreground active:scale-[0.98] md:w-auto md:px-8"
             >
               שמור מוצר
             </button>
@@ -435,123 +490,112 @@ function AdminPage() {
         />
 
         <div className="mt-4 space-y-3">
-          {rows.map((p) => {
-            const isBase = baseIds.has(p.id);
-            return (
-              <div
-                key={p.id}
-                className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-4 rounded-2xl border border-border bg-card p-3"
-              >
-                <img
-                  src={p.image}
-                  alt={p.name}
-                  className="size-16 shrink-0 rounded-xl object-cover"
-                  loading="lazy"
-                />
-                <div className="min-w-0">
-                  {isBase ? (
-                    <div className="truncate text-sm font-semibold">
-                      {p.name}
-                    </div>
-                  ) : (
+          {rows.map((p) => (
+            <div
+              key={p.id}
+              className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-4 rounded-2xl border border-border bg-card p-3"
+            >
+              <img
+                src={resolveImage(p.image)}
+                alt={p.name}
+                className="size-16 shrink-0 rounded-xl object-cover"
+                loading="lazy"
+              />
+              <div className="min-w-0">
+                <div className="truncate text-sm font-semibold">{p.name}</div>
+                <div className="text-xs text-muted-foreground">
+                  {p.subtitle} · {p.abv}
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <label className="flex items-center gap-1 text-xs text-muted-foreground">
+                    מחיר
                     <input
-                      value={p.name}
-                      onChange={(e) =>
-                        updateCustom(p.id, { name: e.target.value })
+                      type="number"
+                      defaultValue={Number(p.price)}
+                      onBlur={(e) =>
+                        patch(p, { price: Number(e.target.value) || 0 })
                       }
-                      className="w-full truncate rounded-lg border border-input bg-background px-2 py-1 text-sm font-semibold outline-none focus:ring-2 focus:ring-ring"
+                      className="w-24 rounded-lg border border-input bg-background px-2 py-1 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
                     />
-                  )}
-                  {isBase ? (
-                    <div className="text-xs text-muted-foreground">
-                      {p.category} · {p.abv}
-                    </div>
-                  ) : (
-                    <div className="mt-1 flex flex-wrap items-center gap-2">
-                      <input
-                        value={p.category}
-                        onChange={(e) =>
-                          updateCustom(p.id, { category: e.target.value })
-                        }
-                        className="w-40 rounded-lg border border-input bg-background px-2 py-1 text-xs outline-none focus:ring-2 focus:ring-ring"
-                      />
-                      <select
-                        value={p.group}
-                        onChange={(e) =>
-                          updateCustom(p.id, {
-                            group: e.target.value as Product["group"],
-                          })
-                        }
-                        className="rounded-lg border border-input bg-background px-2 py-1 text-xs outline-none focus:ring-2 focus:ring-ring"
-                      >
-                        {groupOptions.map((g) => (
-                          <option key={g.id} value={g.id}>
-                            {g.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <label className="flex items-center gap-1 text-xs text-muted-foreground">
-                      מחיר
-                      <input
-                        type="number"
-                        value={p.price}
-                        onChange={(e) =>
-                          isBase
-                            ? patch(p.id, { price: Number(e.target.value) || 0 })
-                            : updateCustom(p.id, {
-                                price: Number(e.target.value) || 0,
-                              })
-                        }
-                        className="w-24 rounded-lg border border-input bg-background px-2 py-1 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
-                      />
-                    </label>
-                    <button
-                      onClick={() =>
-                        isBase
-                          ? patch(p.id, { inStock: !p.inStock })
-                          : updateCustom(p.id, { inStock: !p.inStock })
+                  </label>
+                  <label className="flex items-center gap-1 text-xs text-muted-foreground">
+                    הנחה %
+                    <input
+                      type="number"
+                      defaultValue={p.discount_percent}
+                      onBlur={(e) =>
+                        patch(p, {
+                          discount_percent: Math.min(
+                            95,
+                            Math.max(0, Number(e.target.value) || 0),
+                          ),
+                        })
                       }
-                      className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                        p.inStock
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-secondary text-muted-foreground"
-                      }`}
-                    >
-                      {p.inStock ? "במלאי" : "אזל"}
-                    </button>
-                    {isBase && (
-                      <button
-                        onClick={() =>
-                          patch(p.id, { featured: !p.featured })
-                        }
-                        className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                          p.featured
-                            ? "bg-accent text-accent-foreground"
-                            : "bg-secondary text-muted-foreground"
-                        }`}
-                      >
-                        {p.featured ? "מקודם" : "רגיל"}
-                      </button>
-                    )}
-                    {!isBase && (
-                      <button
-                        onClick={() => deleteCustom(p.id)}
-                        className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-3 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20"
-                      >
-                        <Trash2 className="size-3" />
-                        מחק
-                      </button>
-                    )}
-                  </div>
+                      className="w-20 rounded-lg border border-input bg-background px-2 py-1 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </label>
+                  <select
+                    value={p.category_slug}
+                    onChange={(e) => patch(p, { category_slug: e.target.value })}
+                    className="rounded-lg border border-input bg-background px-2 py-1 text-xs outline-none focus:ring-2 focus:ring-ring"
+                  >
+                    {cats.map((c) => (
+                      <option key={c.slug} value={c.slug}>
+                        {c.label}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={() => patch(p, { in_stock: !p.in_stock })}
+                    className={`rounded-full px-3 py-1 text-xs font-medium ${
+                      p.in_stock
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary text-muted-foreground"
+                    }`}
+                  >
+                    {p.in_stock ? "במלאי" : "אזל"}
+                  </button>
+                  <button
+                    onClick={() => patch(p, { featured: !p.featured })}
+                    className={`rounded-full px-3 py-1 text-xs font-medium ${
+                      p.featured
+                        ? "bg-accent text-accent-foreground"
+                        : "bg-secondary text-muted-foreground"
+                    }`}
+                  >
+                    {p.featured ? "מקודם" : "רגיל"}
+                  </button>
+                  <button
+                    onClick={() => removeProduct(p.id)}
+                    className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-3 py-1 text-xs font-medium text-destructive hover:bg-destructive/20"
+                  >
+                    <Trash2 className="size-3" />
+                    מחק
+                  </button>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+const inputCls =
+  "mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring";
+
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label className="block text-xs text-muted-foreground">{label}</label>
+      {children}
     </div>
   );
 }
