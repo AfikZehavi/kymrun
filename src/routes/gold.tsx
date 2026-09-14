@@ -101,7 +101,7 @@ function GoldPage() {
                 KYMRUN GOLD
               </span>
               <h1 className="mt-4 font-display text-3xl font-bold leading-tight lg:text-5xl">
-                מועדון החברים של הבית
+                מועדון החברים של קמרון
               </h1>
               <p className="mt-3 max-w-[58ch] text-sm leading-relaxed text-muted-foreground lg:text-base">
                 חברות שנתית ב-₪{GOLD_PRICE_YEAR}. משלוח חינם בכל הזמנה, בלי סכום

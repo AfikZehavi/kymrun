@@ -28,8 +28,8 @@ import {
 import { useQuery, queryOptions } from "@tanstack/react-query";
 
 
-import heroBottles from "@/assets/hero-bottles.jpg";
-import heroBottlesLight from "@/assets/hero-bottles-light.jpg";
+import heroBottles from "@/assets/hero-bottles.webp";
+import heroBottlesLight from "@/assets/hero-bottles-light.webp";
 import { resolveImage } from "@/lib/images";
 import { getCatalog } from "@/lib/catalog.functions";
 import { deliverySpeeds } from "@/lib/delivery";
@@ -74,8 +74,9 @@ export const Route = createFileRoute("/")({
 const catalogQuery = queryOptions({
   queryKey: ["catalog"],
   queryFn: () => getCatalog(),
-  staleTime: 5 * 60 * 1000,
-  retry: 2,
+  staleTime: 15 * 60 * 1000,
+  gcTime: 30 * 60 * 1000,
+  retry: 1,
 });
 
 const paths: {
@@ -600,7 +601,7 @@ function Reveal({
   id?: string;
 }) {
   const ref = useRef<HTMLElement | null>(null);
-  const [shown, setShown] = useState(false);
+  const [shown, setShown] = useState(true);
 
   useEffect(() => {
     const el = ref.current;
@@ -628,7 +629,7 @@ function Reveal({
     <Tag
       id={id}
       ref={ref as never}
-      className={`transition-all duration-700 ease-out will-change-transform ${
+      className={`content-auto transition-all duration-700 ease-out ${
         shown ? "translate-y-0 opacity-100 blur-0" : "translate-y-8 opacity-0 blur-[2px]"
       } ${className}`}
     >
@@ -728,6 +729,7 @@ function HeroSection({ onGift }: { onGift: () => void }) {
         height={1080}
         className="pointer-events-none absolute inset-0 hidden h-full w-full object-cover object-center dark:block"
         loading="eager"
+        fetchPriority="high"
         decoding="async"
       />
       <img
@@ -736,7 +738,7 @@ function HeroSection({ onGift }: { onGift: () => void }) {
         width={1792}
         height={1024}
         className="pointer-events-none absolute inset-0 block h-full w-full object-cover object-center dark:hidden"
-        loading="eager"
+        loading="lazy"
         decoding="async"
       />
       <div
