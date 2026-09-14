@@ -378,12 +378,80 @@ function Home() {
           </div>
         </Reveal>
 
+        <Reveal as="section" id="delivery" className="mt-12 scroll-mt-24 lg:mt-20">
+          <div className="mb-3 flex items-end justify-between">
+            <h2 className="font-display text-xl font-bold lg:text-3xl">
+              מתי זה יגיע אליך
+            </h2>
+            <Link
+              to="/shipping"
+              className="text-xs font-medium text-primary hover:underline"
+            >
+              כל אזורי החלוקה
+            </Link>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-3">
+            {deliverySpeeds.map((s) => (
+              <div
+                key={s.id}
+                className="rounded-2xl border border-border bg-card p-5"
+              >
+                <Truck className="size-5 text-primary" />
+                <p className="mt-3 font-display text-xl font-bold">{s.label}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{s.window}</p>
+                <p className="mt-3 text-sm font-semibold">₪{s.price}</p>
+                <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+                  {s.note}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4">
+            <ZoneChecker />
+          </div>
+        </Reveal>
+
         <Reveal as="section" className="mt-12 lg:mt-20">
-          <div className="grid gap-3 rounded-3xl border border-border bg-card p-5 md:grid-cols-3 lg:p-8">
+          <div className="overflow-hidden rounded-3xl border border-primary/25 bg-gradient-to-bl from-card via-card to-primary/10 p-6 lg:p-10">
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 px-3 py-1 text-[11px] font-semibold tracking-wide text-primary">
+              <Sparkles className="size-3.5" />
+              החדר הסודי
+            </span>
+            <h2 className="mt-4 font-display text-2xl font-bold leading-tight lg:text-4xl">
+              טעימת יין פרטית — אצלך בבית או בעסק
+            </h2>
+            <p className="mt-3 max-w-[56ch] text-sm leading-relaxed text-muted-foreground lg:text-base">
+              סומלייה מגיע עם שישה יינות כשרים, כוסות מקצועיות והתאמת אוכל.
+              תשעים דקות שמשאירות רושם — לערב זוגי, לחברים או לצוות.
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Link
+                to="/events"
+                hash="tasting"
+                className="rounded-2xl bg-primary px-6 py-3.5 text-center text-base font-semibold text-primary-foreground transition-transform active:scale-[0.98]"
+              >
+                להזמנת טעימה פרטית
+              </Link>
+              <Link
+                to="/events"
+                hash="request"
+                className="rounded-2xl border border-border bg-background px-6 py-3.5 text-center text-base font-semibold transition-colors hover:border-primary/40"
+              >
+                הפקת אירוע — הצעה תוך 4 שעות
+              </Link>
+            </div>
+          </div>
+        </Reveal>
+
+        <Reveal as="section" className="mt-12 lg:mt-20">
+          <div className="grid gap-3 rounded-3xl border border-border bg-card p-5 md:grid-cols-4 lg:p-8">
             {[
               { t: "כל המשקאות כשרים", d: "ללא יוצא מן הכלל — כל בקבוק במדף" },
+              { t: "אספקה עד 4 שעות", d: "אקספרס באזורי שירות נבחרים" },
               { t: "משלוח עד הבית", d: "חינם בהזמנה מעל ₪550" },
-              { t: "מכירה מגיל 18", d: "אימות גיל במסירה" },
+              { t: "מכירה מגיל 18", d: "הצגת תעודת זהות בפני השליח" },
             ].map((item) => (
               <div key={item.t} className="flex items-start gap-3">
                 <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" />
@@ -395,7 +463,50 @@ function Home() {
             ))}
           </div>
         </Reveal>
+
+        <Reveal as="section" className="mt-12 lg:mt-20">
+          <div className="grid gap-4 md:grid-cols-3">
+            {[
+              {
+                t: "בחירה של בן אדם",
+                d: "כל בקבוק נבחר ונטעם אצלנו לפני שהוא מגיע למדף. אין כאן מלאי אקראי.",
+              },
+              {
+                t: "אחסון מבוקר",
+                d: "טמפרטורה ולחות קבועות, אריזה ממוגנת לכל משלוח — הבקבוק מגיע כמו שיצא.",
+              },
+              {
+                t: "שירות אישי",
+                d: "לא בטוחים? נמליץ לפי האירוע, הטעם והתקציב. גם בוואטסאפ.",
+              },
+            ].map((c) => (
+              <div
+                key={c.t}
+                className="rounded-3xl border border-border bg-card p-6"
+              >
+                <p className="font-display text-lg font-bold">{c.t}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {c.d}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-border bg-card p-6">
+            <p className="text-sm text-muted-foreground">
+              שאלה על בקבוק, מתנה או משלוח?
+            </p>
+            <Link
+              to="/contact"
+              className="rounded-2xl border border-primary/40 px-5 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+            >
+              דברו איתנו
+            </Link>
+          </div>
+        </Reveal>
       </main>
+
+      <SiteFooter />
+
 
       {count > 0 && (
         <CartBar
