@@ -845,13 +845,13 @@ function CartBar({
   onOpen: () => void;
   onCheckout: () => void;
 }) {
-  const freeShippingFrom = 1200;
+  const freeShippingFrom = 550;
   const progress = Math.min((subtotal / freeShippingFrom) * 100, 100);
   const remaining = Math.max(freeShippingFrom - subtotal, 0);
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50">
-      <div className="mx-auto max-w-md px-4 pb-4">
+    <div className="fixed inset-x-0 bottom-0 z-50 animate-slide-in-bottom">
+      <div className="mx-auto max-w-md px-4 pb-4 lg:max-w-2xl">
         <div className="rounded-2xl border border-border bg-card p-4 shadow-2xl shadow-black/40 backdrop-blur-xl">
           <div className="mb-3">
             <div className="flex items-center justify-between text-xs text-muted-foreground">
