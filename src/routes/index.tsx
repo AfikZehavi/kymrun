@@ -233,6 +233,7 @@ function Home() {
         onCart={() => setCartOpen(true)}
         filter={filter}
         onFilter={setFilter}
+        categories={categories}
       />
 
       <main className="mx-auto max-w-md px-5 pb-40 md:max-w-3xl md:px-8 md:pb-32 lg:max-w-6xl lg:pb-28">
@@ -540,11 +541,13 @@ function Header({
   onCart,
   filter,
   onFilter,
+  categories,
 }: {
   count: number;
   onCart: () => void;
   filter: string;
   onFilter: (id: string) => void;
+  categories: Category[];
 }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
@@ -581,18 +584,21 @@ function Header({
           </nav>
         </div>
 
-        <button
-          onClick={onCart}
-          aria-label="עגלת קניות"
-          className="relative grid size-11 shrink-0 place-items-center rounded-full border border-border bg-card transition-transform active:scale-95"
-        >
-          <ShoppingBag className="size-5" />
-          {count > 0 && (
-            <span className="absolute -top-1 -left-1 grid size-5 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-              {count}
-            </span>
-          )}
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          <ThemeToggle />
+          <button
+            onClick={onCart}
+            aria-label="עגלת קניות"
+            className="relative grid size-11 shrink-0 place-items-center rounded-full border border-border bg-card transition-transform active:scale-95"
+          >
+            <ShoppingBag className="size-5" />
+            {count > 0 && (
+              <span className="absolute -top-1 -left-1 grid size-5 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                {count}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
     </header>
   );
