@@ -24,7 +24,7 @@ export function ThemeToggle() {
     <button
       onClick={toggle}
       aria-label={theme === "dark" ? "מצב בהיר" : "מצב כהה"}
-      className="grid size-11 place-items-center rounded-full border border-border bg-card transition-transform active:scale-95"
+      className="grid size-11 place-items-center rounded-full border border-border bg-muted text-foreground transition-transform active:scale-95 dark:bg-card"
     >
       {theme === "dark" ? (
         <Sun className="size-5" />
