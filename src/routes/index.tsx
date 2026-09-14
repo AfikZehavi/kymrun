@@ -543,9 +543,9 @@ function HeroCopy({ onGift }: { onGift: () => void }) {
         כל המשקאות אצלנו כשרים — בלי לבדוק תווית
       </span>
       <h1 className="mt-3 font-display text-[2.5rem] font-bold leading-[1.05] dark:[text-shadow:0_2px_18px_rgba(0,0,0,0.65)] md:text-5xl lg:text-6xl">
-        בקבוק אחד
+        כי הטעם הנכון
         <br />
-        <span className="text-primary">בדיוק בשבילך</span>
+        <span className="text-primary">חייב להיות ברגע הנכון</span>
       </h1>
       <p className="mt-3 max-w-[34ch] text-[15px] font-medium leading-relaxed text-foreground/85 dark:[text-shadow:0_1px_10px_rgba(0,0,0,0.6)] md:text-base lg:text-lg">
         יין, וויסקי וספיריטים פרימיום — כולם כשרים. בחר מסלול, ונמליץ תוך שניות.
