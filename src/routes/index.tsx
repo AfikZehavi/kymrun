@@ -340,13 +340,26 @@ function Home() {
                 </button>
 
                 <div className="mt-auto flex items-center justify-between gap-2 pt-3">
-                  <span className="font-display text-lg font-bold">
-                    ₪{product.price}
+                  <span className="flex flex-wrap items-baseline gap-1.5">
+                    <span className="font-display text-lg font-bold">
+                      ₪{product.price}
+                    </span>
+                    {product.discount > 0 && (
+                      <>
+                        <span className="text-xs text-muted-foreground line-through">
+                          ₪{product.basePrice}
+                        </span>
+                        <span className="rounded-md bg-accent px-1.5 py-0.5 text-[10px] font-bold text-accent-foreground">
+                          -{product.discount}%
+                        </span>
+                      </>
+                    )}
                   </span>
                   <button
                     onClick={() => addToCart(product)}
+                    disabled={!product.inStock}
                     aria-label={`הוסף ${product.name} לסל`}
-                    className="grid size-9 place-items-center rounded-full border border-border bg-secondary text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+                    className="grid size-9 place-items-center rounded-full border border-border bg-secondary text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground disabled:opacity-40"
                   >
                     <Plus className="size-4" />
                   </button>
