@@ -404,15 +404,35 @@ function Home() {
               </article>
             ))}
           </div>
-        </section>
+        </Reveal>
+
+        <Reveal as="section" className="mt-12 lg:mt-20">
+          <div className="grid gap-3 rounded-3xl border border-border bg-card p-5 md:grid-cols-3 lg:p-8">
+            {[
+              { t: "כל המשקאות כשרים", d: "ללא יוצא מן הכלל — כל בקבוק במדף" },
+              { t: "משלוח עד הבית", d: "חינם בהזמנה מעל ₪550" },
+              { t: "מכירה מגיל 18", d: "אימות גיל במסירה" },
+            ].map((item) => (
+              <div key={item.t} className="flex items-start gap-3">
+                <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold">{item.t}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{item.d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Reveal>
       </main>
 
-      <CartBar
-        count={count}
-        subtotal={subtotal}
-        onOpen={() => setCartOpen(true)}
-        onCheckout={checkout}
-      />
+      {count > 0 && (
+        <CartBar
+          count={count}
+          subtotal={subtotal}
+          onOpen={() => setCartOpen(true)}
+          onCheckout={checkout}
+        />
+      )}
 
       <ProductDialog
         product={selected}
