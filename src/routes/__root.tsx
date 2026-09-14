@@ -79,13 +79,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "קמרון" },
+      { title: "CEMRON" },
       {
         name: "description",
         content:
-          "קמרון: יין, וויסקי, ג'ין ורום נדירים בישראל עם משלוח מהיר עד הבית.",
+          "CEMRON: יין, וויסקי, ג'ין ורום פרימיום כשרים בישראל, עם משלוח מהיר עד הבית.",
       },
-      { name: "author", content: "קמרון" },
+      { name: "author", content: "CEMRON" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
