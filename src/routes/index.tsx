@@ -261,7 +261,42 @@ function Home() {
       }
       return [...prev, { product, qty: 1 }];
     });
-    toast.success("נוסף לסל", { description: product.name });
+    toast.custom(
+      (id) => (
+        <div
+          dir="rtl"
+          className="pointer-events-auto flex w-[min(92vw,380px)] items-center gap-3 rounded-2xl border border-primary/25 bg-card/95 p-3 text-right shadow-2xl shadow-black/50 backdrop-blur-xl"
+        >
+          <img
+            src={product.image}
+            alt=""
+            className="size-14 shrink-0 rounded-xl object-cover ring-1 ring-border"
+          />
+          <div className="min-w-0 flex-1">
+            <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-primary">
+              <Check className="size-3.5" />
+              נוסף לסל
+            </p>
+            <p className="mt-0.5 truncate text-sm font-semibold">
+              {product.name}
+            </p>
+            <p className="mt-0.5 font-display text-sm font-bold text-muted-foreground">
+              ₪{product.price}
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              toast.dismiss(id);
+              setCartOpen(true);
+            }}
+            className="shrink-0 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
+          >
+            לסל
+          </button>
+        </div>
+      ),
+      { duration: 3200 },
+    );
   }
 
   function changeQty(id: number, delta: number) {
