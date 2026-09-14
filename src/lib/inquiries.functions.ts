@@ -1,10 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-export type InquiryKind = "event" | "tasting" | "contact";
+export type InquiryKind = "event" | "tasting" | "contact" | "gold";
 
 const schema = z.object({
-  kind: z.enum(["event", "tasting", "contact"]),
+  kind: z.enum(["event", "tasting", "contact", "gold"]),
   full_name: z.string().trim().min(2).max(100),
   email: z.string().trim().email().max(255),
   phone: z.string().trim().min(6).max(30),
