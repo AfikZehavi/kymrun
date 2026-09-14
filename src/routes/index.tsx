@@ -63,7 +63,14 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-const paths = [
+const paths: {
+  id: string;
+  label: string;
+  description: string;
+  filter: string;
+  toast: string;
+  to?: "/events";
+}[] = [
   {
     id: "gift",
     label: "מתנה",
@@ -207,6 +214,10 @@ function Home() {
 
   function selectPath(id: string) {
     const path = paths.find((p) => p.id === id) ?? paths[0]!;
+    if (path.to) {
+      navigate({ to: path.to });
+      return;
+    }
     setFilter(path.filter);
     toast(path.label, { description: path.toast });
     document
