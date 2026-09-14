@@ -75,7 +75,8 @@ function Home() {
 
 
   const navigate = useNavigate({ from: "/" });
-  const { add: addToCart, changeQty, count, subtotal } = useCart();
+  const { add: addToCart, count, subtotal } = useCart();
+
 
   const fetchCatalog = useServerFn(getCatalog);
   const { data } = useQuery({
