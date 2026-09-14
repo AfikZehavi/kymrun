@@ -53,10 +53,68 @@ function CartPage() {
     useCart();
   const [orderPlaced, setOrderPlaced] = useState(false);
 
+  const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [lookup, setLookup] = useState<"idle" | "loading" | "found" | "new">(
+    "idle",
+  );
+  const [submitting, setSubmitting] = useState(false);
+
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+  const detailsValid =
+    emailValid &&
+    fullName.trim().length >= 2 &&
+    phone.trim().length >= 6 &&
+    address.trim().length >= 4;
+
+  async function checkEmail() {
+    const value = email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) {
+      setLookup("idle");
+      return;
+    }
+    setLookup("loading");
+    try {
+      const res = await lookupCustomer({ data: { email: value } });
+      if (res.exists && res.customer) {
+        setFullName(res.customer.full_name);
+        setPhone(res.customer.phone);
+        setAddress(res.customer.address);
+        setLookup("found");
+      } else {
+        setLookup("new");
+      }
+    } catch {
+      setLookup("idle");
+    }
+  }
+
   const remaining = Math.max(FREE_SHIPPING_FROM - subtotal, 0);
   const progress = Math.min((subtotal / FREE_SHIPPING_FROM) * 100, 100);
 
-  const ready = subtotal > 0;
+  const ready = subtotal > 0 && detailsValid && !submitting;
+
+  async function placeOrder() {
+    if (!ready) return;
+    setSubmitting(true);
+    try {
+      await saveCustomer({
+        data: {
+          email: email.trim().toLowerCase(),
+          full_name: fullName.trim(),
+          phone: phone.trim(),
+          address: address.trim(),
+        },
+      });
+      setOrderPlaced(true);
+    } catch {
+      setOrderPlaced(true);
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   // Avoid hydration mismatch with localStorage; render safe placeholders until hydrated.
   if (!hydrated) {
