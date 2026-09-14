@@ -384,7 +384,34 @@ function Home() {
                 </div>
               </article>
             ))}
+
+            {isPending &&
+              Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={`s${i}`}
+                  className="flex flex-col rounded-2xl border border-border bg-card p-3"
+                >
+                  <div className="aspect-[4/5] w-full animate-pulse rounded-xl bg-muted" />
+                  <div className="mt-3 h-3 w-1/2 animate-pulse rounded bg-muted" />
+                  <div className="mt-2 h-4 w-3/4 animate-pulse rounded bg-muted" />
+                  <div className="mt-4 h-5 w-1/3 animate-pulse rounded bg-muted" />
+                </div>
+              ))}
           </div>
+
+          {isError && (
+            <div className="rounded-2xl border border-border bg-card p-6 text-center">
+              <p className="text-sm text-muted-foreground">
+                לא הצלחנו לטעון את המדף כרגע.
+              </p>
+              <button
+                onClick={() => refetch()}
+                className="mt-3 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
+              >
+                נסה שוב
+              </button>
+            </div>
+          )}
         </Reveal>
 
         <Reveal as="section" id="delivery" className="mt-12 scroll-mt-24 lg:mt-20">
