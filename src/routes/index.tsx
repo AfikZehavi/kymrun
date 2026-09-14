@@ -537,28 +537,108 @@ function Home() {
   );
 }
 
-function Header({ count, onCart }: { count: number; onCart: () => void }) {
+function Reveal({
+  children,
+  className = "",
+  as: Tag = "div",
+  id,
+}: {
+  children: ReactNode;
+  className?: string;
+  as?: "div" | "section";
+  id?: string;
+}) {
+  const ref = useRef<HTMLElement | null>(null);
+  const [shown, setShown] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setShown(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            setShown(true);
+            io.disconnect();
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <Tag
+      id={id}
+      ref={ref as never}
+      className={`transition-all duration-700 ease-out will-change-transform ${
+        shown ? "translate-y-0 opacity-100 blur-0" : "translate-y-8 opacity-0 blur-[2px]"
+      } ${className}`}
+    >
+      {children}
+    </Tag>
+  );
+}
+
+function Header({
+  count,
+  onCart,
+  filter,
+  onFilter,
+}: {
+  count: number;
+  onCart: () => void;
+  filter: string;
+  onFilter: (id: string) => void;
+}) {
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-md items-center justify-between px-5">
-        <div className="flex items-center gap-2.5">
-          <div className="grid size-9 place-items-center rounded-xl bg-foreground text-background">
-            <span className="font-display text-base font-bold">ק</span>
+      <div className="mx-auto grid h-16 max-w-md grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 lg:max-w-6xl lg:px-8">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-foreground text-background">
+            <span className="font-display text-base font-bold">C</span>
           </div>
-          <div className="leading-none">
-            <span className="font-display text-lg font-bold tracking-tight">
-              קמרון
+          <div className="min-w-0 leading-none">
+            <span className="font-display text-lg font-bold tracking-[0.18em]">
+              CEMRON
             </span>
             <span className="block text-[10px] tracking-widest text-muted-foreground">
-              PREMIUM SPIRITS
+              משקאות פרימיום · כשר
             </span>
           </div>
+
+          <nav className="ms-8 hidden items-center gap-1 lg:flex">
+            {categories.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => {
+                  onFilter(c.id);
+                  document
+                    .getElementById("shelf")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className={`rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${
+                  filter === c.id
+                    ? "bg-secondary text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {c.label}
+              </button>
+            ))}
+          </nav>
         </div>
 
         <button
           onClick={onCart}
           aria-label="עגלת קניות"
-          className="relative grid size-11 place-items-center rounded-full border border-border bg-card transition-transform active:scale-95"
+          className="relative grid size-11 shrink-0 place-items-center rounded-full border border-border bg-card transition-transform active:scale-95"
         >
           <ShoppingBag className="size-5" />
           {count > 0 && (
@@ -573,50 +653,131 @@ function Header({ count, onCart }: { count: number; onCart: () => void }) {
 }
 
 function HeroSection({ onGift }: { onGift: () => void }) {
+  const frameRef = useRef<HTMLDivElement | null>(null);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [motionOk, setMotionOk] = useState(true);
+
+  useEffect(() => {
+    setMotionOk(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }, []);
+
+  useEffect(() => {
+    if (!motionOk) return;
+    const onOrient = (e: DeviceOrientationEvent) => {
+      const gamma = e.gamma ?? 0;
+      const beta = e.beta ?? 0;
+      setTilt({
+        y: Math.max(-10, Math.min(10, gamma / 3)),
+        x: Math.max(-8, Math.min(8, (beta - 45) / 5)),
+      });
+    };
+    window.addEventListener("deviceorientation", onOrient);
+    return () => window.removeEventListener("deviceorientation", onOrient);
+  }, [motionOk]);
+
+  function handlePointer(e: React.PointerEvent<HTMLDivElement>) {
+    if (!motionOk) return;
+    const rect = frameRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const px = (e.clientX - rect.left) / rect.width - 0.5;
+    const py = (e.clientY - rect.top) / rect.height - 0.5;
+    setTilt({ y: px * 16, x: -py * 12 });
+  }
+
+  const glare = 50 + tilt.y * 2.5;
+
   return (
-    <section className="pt-5">
-      <div className="relative overflow-hidden rounded-3xl bg-card ring-1 ring-border">
-        <div className="relative aspect-[4/5] w-full">
-          <img
-            src={heroBottle}
-            alt="בקבוק קמרון פרימיום על רקע כהה"
-            width={1024}
-            height={1280}
-            className="h-full w-full object-cover"
-            loading="eager"
-            decoding="async"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+    <section className="pt-5 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12 lg:pt-12">
+      <div
+        ref={frameRef}
+        onPointerMove={handlePointer}
+        onPointerLeave={() => setTilt({ x: 0, y: 0 })}
+        className="group relative overflow-hidden rounded-3xl bg-card ring-1 ring-border lg:order-last"
+        style={{ perspective: "1200px" }}
+      >
+        <div className="relative aspect-[4/5] w-full overflow-hidden">
+          <div
+            className="h-full w-full transition-transform duration-300 ease-out will-change-transform"
+            style={{
+              transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(1.06)`,
+              transformStyle: "preserve-3d",
+            }}
+          >
+            <img
+              src={heroBottle}
+              alt="בקבוק CEMRON פרימיום כשר על רקע כהה"
+              width={1024}
+              height={1280}
+              className="h-full w-full object-cover"
+              loading="eager"
+              decoding="async"
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 mix-blend-screen transition-opacity duration-300"
+              style={{
+                background: `linear-gradient(${105 + tilt.y * 2}deg, transparent ${glare - 18}%, rgba(255,255,255,0.16) ${glare}%, transparent ${glare + 18}%)`,
+              }}
+            />
+          </div>
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent lg:from-background/70 lg:via-transparent" />
         </div>
 
-        <div className="absolute inset-x-0 bottom-0 p-5 pt-20">
-          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-[11px] font-medium tracking-wide text-muted-foreground backdrop-blur-sm">
-            <span className="size-1.5 rounded-full bg-primary" />
-            קמרון — בחירת הסומלייה
-          </span>
-          <h1 className="mt-3 font-display text-[2.5rem] font-bold leading-[1.05]">
-            בקבוק אחד
-            <br />
-            <span className="text-primary">בדיוק בשבילך</span>
-          </h1>
-          <p className="mt-2 max-w-[28ch] text-[15px] leading-relaxed text-muted-foreground">
-            יין, וויסקי וספיריטים פרימיום. בחר מסלול — נמליץ תוך שניות.
-          </p>
+        <span className="pointer-events-none absolute top-4 right-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-background/70 px-3 py-1.5 text-[11px] font-semibold tracking-wide backdrop-blur-md">
+          <ShieldCheck className="size-3.5 text-primary" />
+          כשר · 100%
+        </span>
 
-          <div className="mt-5 flex flex-col gap-3">
-            <button
-              onClick={onGift}
-              className="w-full rounded-2xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/15 transition-transform active:scale-[0.98]"
-            >
-              בחר מתנה
-            </button>
-            <p className="text-center text-xs text-muted-foreground">
-              מארז מוכן + כרטיס אישי, עד הבית תוך שעות
-            </p>
-          </div>
+        <div className="absolute inset-x-0 bottom-0 p-5 pt-20 lg:hidden">
+          <HeroCopy onGift={onGift} />
         </div>
       </div>
+
+      <div className="hidden lg:block">
+        <HeroCopy onGift={onGift} desktop />
+      </div>
     </section>
+  );
+}
+
+function HeroCopy({
+  onGift,
+  desktop = false,
+}: {
+  onGift: () => void;
+  desktop?: boolean;
+}) {
+  return (
+    <div>
+      <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-[11px] font-medium tracking-wide text-muted-foreground backdrop-blur-sm">
+        <span className="size-1.5 rounded-full bg-primary" />
+        כל המשקאות אצלנו כשרים — בלי לבדוק תווית
+      </span>
+      <h1
+        className={`mt-3 font-display font-bold leading-[1.05] ${
+          desktop ? "text-6xl" : "text-[2.5rem]"
+        }`}
+      >
+        בקבוק אחד
+        <br />
+        <span className="text-primary">בדיוק בשבילך</span>
+      </h1>
+      <p className="mt-3 max-w-[34ch] text-[15px] leading-relaxed text-muted-foreground lg:text-lg">
+        יין, וויסקי וספיריטים פרימיום — כולם כשרים. בחר מסלול, ונמליץ תוך שניות.
+      </p>
+
+      <div className="mt-5 flex flex-col gap-3 lg:max-w-sm">
+        <button
+          onClick={onGift}
+          className="w-full rounded-2xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/15 transition-transform hover:scale-[1.01] active:scale-[0.98]"
+        >
+          בחר מתנה
+        </button>
+        <p className="text-center text-xs text-muted-foreground lg:text-right">
+          כשר · משלוח עד הבית · מגיל 18
+        </p>
+      </div>
+    </div>
   );
 }
 
