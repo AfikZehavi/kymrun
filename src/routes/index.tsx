@@ -34,6 +34,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import heroBottles from "@/assets/hero-bottles.jpg";
+import heroBottlesLight from "@/assets/hero-bottles-light.jpg";
 import { resolveImage } from "@/lib/images";
 import { getCatalog } from "@/lib/catalog.functions";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -625,7 +626,16 @@ function HeroSection({ onGift }: { onGift: () => void }) {
         alt=""
         width={1920}
         height={1080}
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
+        className="pointer-events-none absolute inset-0 hidden h-full w-full object-cover object-center dark:block"
+        loading="eager"
+        decoding="async"
+      />
+      <img
+        src={heroBottlesLight}
+        alt=""
+        width={1792}
+        height={1024}
+        className="pointer-events-none absolute inset-0 block h-full w-full object-cover object-center dark:hidden"
         loading="eager"
         decoding="async"
       />
@@ -659,12 +669,12 @@ function HeroCopy({ onGift }: { onGift: () => void }) {
         <span className="size-1.5 rounded-full bg-primary" />
         כל המשקאות אצלנו כשרים — בלי לבדוק תווית
       </span>
-      <h1 className="mt-3 font-display text-[2.5rem] font-bold leading-[1.05] [text-shadow:0_2px_18px_rgba(0,0,0,0.65)] md:text-5xl lg:text-6xl">
+      <h1 className="mt-3 font-display text-[2.5rem] font-bold leading-[1.05] dark:[text-shadow:0_2px_18px_rgba(0,0,0,0.65)] md:text-5xl lg:text-6xl">
         בקבוק אחד
         <br />
         <span className="text-primary">בדיוק בשבילך</span>
       </h1>
-      <p className="mt-3 max-w-[34ch] text-[15px] font-medium leading-relaxed text-foreground/85 [text-shadow:0_1px_10px_rgba(0,0,0,0.6)] md:text-base lg:text-lg">
+      <p className="mt-3 max-w-[34ch] text-[15px] font-medium leading-relaxed text-foreground/85 dark:[text-shadow:0_1px_10px_rgba(0,0,0,0.6)] md:text-base lg:text-lg">
         יין, וויסקי וספיריטים פרימיום — כולם כשרים. בחר מסלול, ונמליץ תוך שניות.
       </p>
 
