@@ -184,14 +184,14 @@ function Home() {
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function checkout() {
-    if (!cart.length) {
+  function goToCart() {
+    if (count === 0) {
       toast.error("הסל ריק", { description: "הוסיפו בקבוק כדי להמשיך" });
       return;
     }
-    setCartOpen(false);
-    setOrderPlaced(true);
+    navigate({ to: "/cart" });
   }
+
 
   return (
     <div dir="rtl" className="min-h-screen bg-background text-foreground">
