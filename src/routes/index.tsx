@@ -746,11 +746,7 @@ function HeroCopy({ onGift }: { onGift: () => void }) {
         <span className="size-1.5 rounded-full bg-primary" />
         כל המשקאות אצלנו כשרים — בלי לבדוק תווית
       </span>
-      <h1
-        className={`mt-3 font-display font-bold leading-[1.05] ${
-          desktop ? "text-6xl" : "text-[2.5rem]"
-        }`}
-      >
+      <h1 className="mt-3 font-display text-[2.5rem] font-bold leading-[1.05] lg:text-6xl">
         בקבוק אחד
         <br />
         <span className="text-primary">בדיוק בשבילך</span>
