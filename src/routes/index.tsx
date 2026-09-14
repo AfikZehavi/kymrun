@@ -198,7 +198,7 @@ function Home() {
 
 
   function selectPath(id: string) {
-    const path = paths.find((p) => p.id === id) ?? paths[0];
+    const path = paths.find((p) => p.id === id) ?? paths[0]!;
     setFilter(path.filter);
     toast(path.label, { description: path.toast });
     document
