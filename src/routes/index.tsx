@@ -222,11 +222,28 @@ function Home() {
   const [selected, setSelected] = useState<Product | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [customProducts, setCustomProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(CUSTOM_PRODUCTS_KEY);
+      if (raw) setCustomProducts(JSON.parse(raw));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const allProducts = useMemo(
+    () => [...products, ...customProducts],
+    [customProducts],
+  );
 
   const visible = useMemo(
     () =>
-      filter === "all" ? products : products.filter((p) => p.group === filter),
-    [filter],
+      filter === "all"
+        ? allProducts
+        : allProducts.filter((p) => p.group === filter),
+    [filter, allProducts],
   );
 
   const count = cart.reduce((s, l) => s + l.qty, 0);
