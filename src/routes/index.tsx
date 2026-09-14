@@ -34,6 +34,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import heroBottles from "@/assets/hero-bottles.jpg";
+import heroBottlesLight from "@/assets/hero-bottles-light.jpg";
 import { resolveImage } from "@/lib/images";
 import { getCatalog } from "@/lib/catalog.functions";
 import { ThemeToggle } from "@/components/theme-toggle";
