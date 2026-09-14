@@ -16,12 +16,6 @@ import {
 import { toast } from "sonner";
 
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -39,6 +33,8 @@ import { getCatalog } from "@/lib/catalog.functions";
 import { useCart } from "@/lib/use-cart";
 import type { Product, Category } from "@/lib/types";
 import { ThemeToggle } from "@/components/theme-toggle";
+
+
 
 
 
