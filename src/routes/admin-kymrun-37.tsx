@@ -155,6 +155,7 @@ function AdminPage() {
     setCustomProducts((prev) => [newProduct, ...prev]);
     setForm({ ...emptyForm });
     if (fileRef.current) fileRef.current.value = "";
+    setShowForm(false);
     toast.success("המוצר נוסף", { description: newProduct.name });
   }
 
