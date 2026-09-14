@@ -41,17 +41,20 @@ import giftSet from "@/assets/gift-set.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "קמרון — יין, וויסקי ומשקאות פרימיום" },
+      { title: "CEMRON — יין, וויסקי ומשקאות פרימיום כשרים" },
       {
         name: "description",
         content:
-          "קמרון: יין, וויסקי, ג'ין ורום נדירים בישראל. משלוח מהיר עד הבית, בחירות פרימיום בקליק.",
+          "CEMRON: יין, וויסקי, ג'ין ורום פרימיום — כל המשקאות כשרים, משלוח מהיר עד הבית ובחירה בכמה קליקים.",
       },
-      { property: "og:title", content: "קמרון — יין, וויסקי ומשקאות פרימיום" },
+      {
+        property: "og:title",
+        content: "CEMRON — יין, וויסקי ומשקאות פרימיום כשרים",
+      },
       {
         property: "og:description",
         content:
-          "קמרון: יין, וויסקי, ג'ין ורום נדירים בישראל. משלוח מהיר עד הבית.",
+          "CEMRON: כל המשקאות כשרים. יין, וויסקי וספיריטים פרימיום עם משלוח עד הבית.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
