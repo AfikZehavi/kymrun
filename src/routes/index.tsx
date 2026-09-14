@@ -279,24 +279,31 @@ function Home() {
 
   return (
     <div dir="rtl" className="min-h-screen bg-background text-foreground">
-      <Header count={count} onCart={() => setCartOpen(true)} />
+      <Header
+        count={count}
+        onCart={() => setCartOpen(true)}
+        filter={filter}
+        onFilter={setFilter}
+      />
 
-      <main className="mx-auto max-w-md px-5 pb-40">
+      <main className="mx-auto max-w-md px-5 pb-40 lg:max-w-6xl lg:px-8 lg:pb-28">
         <HeroSection onGift={() => selectPath("gift")} />
 
-        <section className="mt-8">
+        <Reveal as="section" className="mt-8 lg:mt-16">
           <div className="mb-3 flex items-end justify-between">
-            <h2 className="font-display text-xl font-bold">מה היום שלך?</h2>
+            <h2 className="font-display text-xl font-bold lg:text-3xl">
+              מה היום שלך?
+            </h2>
             <span className="text-xs tracking-widest text-muted-foreground">
               3 דרכים
             </span>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 pt-1 snap-x">
+          <div className="flex gap-3 overflow-x-auto pb-2 pt-1 snap-x md:grid md:grid-cols-3 md:gap-5 md:overflow-visible">
             {paths.map((path) => (
               <button
                 key={path.id}
                 onClick={() => selectPath(path.id)}
-                className="group shrink-0 basis-[44%] snap-start rounded-2xl border border-border bg-card p-4 text-right transition-all hover:border-primary/30 active:scale-[0.98]"
+                className="group shrink-0 basis-[44%] snap-start rounded-2xl border border-border bg-card p-4 text-right transition-all hover:border-primary/30 hover:-translate-y-0.5 active:scale-[0.98] md:basis-auto md:p-6"
               >
                 <p className="font-display text-lg font-bold">{path.label}</p>
                 <p className="mt-1 text-xs leading-snug text-muted-foreground">
