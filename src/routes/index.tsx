@@ -69,6 +69,7 @@ export const Route = createFileRoute("/")({
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(catalogQuery),
+  // keep the loader snapshot so client hydration matches the server HTML
   component: Home,
 });
 
