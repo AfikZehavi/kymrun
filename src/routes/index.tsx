@@ -792,14 +792,14 @@ function HeroCopy({ onGift }: { onGift: () => void }) {
           src={heroTitleLight}
           alt=""
           aria-hidden="true"
-          className="block w-full max-w-[min(520px,80vw)] dark:hidden md:max-w-[min(620px,75vw)]"
+          className="block w-full max-w-[min(340px,72vw)] dark:hidden md:max-w-[min(400px,60vw)] lg:max-w-[min(460px,52vw)]"
           style={{ height: "auto" }}
         />
         <img
           src={heroTitleDark}
           alt=""
           aria-hidden="true"
-          className="hidden w-full max-w-[min(520px,80vw)] dark:block md:max-w-[min(620px,75vw)]"
+          className="hidden w-full max-w-[min(340px,72vw)] dark:block md:max-w-[min(400px,60vw)] lg:max-w-[min(460px,52vw)]"
           style={{ height: "auto" }}
         />
       </div>
