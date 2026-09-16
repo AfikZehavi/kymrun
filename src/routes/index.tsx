@@ -785,8 +785,8 @@ function HeroCopy({ onGift }: { onGift: () => void }) {
         כל המשקאות אצלנו כשרים — איכות ללא פשרות
       </span>
       <h1 className="mt-3 font-display text-[2.5rem] font-bold leading-[1.05] dark:[text-shadow:0_2px_18px_rgba(0,0,0,0.65)] md:text-5xl lg:text-6xl">
-        <span className="block tracking-tight">קמרון</span>
-        <span className="block text-primary">כשיין וחוויה נפגשים!!!!</span>
+        <span className="block tracking-tight">קֶמְרוֹן</span>
+        <span className="block text-primary">כְּשֶׁיַּיִן וְחַוִּיָּה נִפְגָּשִׁים...</span>
       </h1>
       <p className="mt-3 max-w-[34ch] text-[15px] font-medium leading-relaxed text-foreground/85 dark:[text-shadow:0_1px_10px_rgba(0,0,0,0.6)] md:text-base lg:text-lg">
         יין, וויסקי וספיריטים פרימיום — כולם כשרים. בחר מסלול, ונמליץ תוך שניות.
