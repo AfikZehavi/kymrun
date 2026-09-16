@@ -31,8 +31,8 @@ import { useQuery, queryOptions } from "@tanstack/react-query";
 import heroBottles from "@/assets/hero-bottles.webp";
 import heroBottlesLight from "@/assets/hero-bottles-light.webp";
 import heritageCrest from "@/assets/kymrun-heritage-crest.png";
-import heroTitleLight from "@/assets/hero-title.png.asset.json";
-import heroTitleWhite from "@/assets/hero-title-white.png.asset.json";
+const heroTitleLight = "/hero-title-light.png";
+const heroTitleDark = "/hero-title-dark.png";
 import { resolveImage } from "@/lib/images";
 import { getCatalog } from "@/lib/catalog.functions";
 import { deliverySpeeds } from "@/lib/delivery";
@@ -786,17 +786,17 @@ function HeroCopy({ onGift }: { onGift: () => void }) {
         <span className="size-1.5 rounded-full bg-primary" />
         כל המשקאות אצלנו כשרים — איכות ללא פשרות
       </span>
-      <h1 className="sr-only">קֶמְרוֹן כְּשֶׁיַּיִן וְחַוִּיָּה נִפְגָּשִׁים</h1>
+      <h1 className="sr-only">קִמְרוּן כְּשֶׁיַּיִן וַחֲוָיָה נִפְגָּשִׁים</h1>
       <div className="mt-3">
         <img
-          src={heroTitleLight.url}
+          src={heroTitleLight}
           alt=""
           aria-hidden="true"
           className="block w-full max-w-[min(520px,80vw)] dark:hidden md:max-w-[min(620px,75vw)]"
           style={{ height: "auto" }}
         />
         <img
-          src={heroTitleWhite.url}
+          src={heroTitleDark}
           alt=""
           aria-hidden="true"
           className="hidden w-full max-w-[min(520px,80vw)] dark:block md:max-w-[min(620px,75vw)]"
