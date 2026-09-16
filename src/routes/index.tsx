@@ -69,6 +69,7 @@ export const Route = createFileRoute("/")({
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(catalogQuery),
+  // keep the loader snapshot so client hydration matches the server HTML
   component: Home,
 });
 
@@ -143,7 +144,11 @@ function Home() {
   const { add: addToCart, count, subtotal } = useCart();
 
 
-  const { data, isPending, isError, refetch } = useQuery(catalogQuery);
+  const loaderData = Route.useLoaderData();
+  const { data, isPending, isError, refetch } = useQuery({
+    ...catalogQuery,
+    initialData: loaderData,
+  });
 
   const allProducts = useMemo<Product[]>(
     () =>
