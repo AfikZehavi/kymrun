@@ -40,6 +40,7 @@ import { WhatsappButton } from "@/components/whatsapp-button";
 import { SiteFooter } from "@/components/site-footer";
 import { ZoneChecker } from "@/components/zone-checker";
 import { GoldBand } from "@/components/gold-band";
+import { BrandLockup } from "@/components/brand-lockup";
 
 
 
@@ -655,14 +656,9 @@ function Header({
     <header className="sticky top-0 z-40 border-b border-border/60 bg-white dark:bg-background/85 backdrop-blur-md">
       <div className="mx-auto grid h-16 max-w-md grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 md:h-[4.5rem] md:max-w-3xl md:px-8 lg:max-w-6xl">
         <div className="flex min-w-0 items-center gap-2.5">
-          <div className="min-w-0 leading-none">
-            <span className="font-display text-lg font-bold tracking-[0.18em]">
-              KYMRUN
-            </span>
-            <span className="block text-[10px] tracking-widest text-muted-foreground">
-              משקאות פרימיום · כשר
-            </span>
-          </div>
+          <Link to="/" aria-label="KYMRUN — דף הבית" className="shrink-0">
+            <BrandLockup compact />
+          </Link>
 
           <nav className="ms-8 hidden items-center gap-1 lg:flex">
             {categories.map((c) => (
