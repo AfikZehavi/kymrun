@@ -31,6 +31,8 @@ import { useQuery, queryOptions } from "@tanstack/react-query";
 import heroBottles from "@/assets/hero-bottles.webp";
 import heroBottlesLight from "@/assets/hero-bottles-light.webp";
 import heritageCrest from "@/assets/kymrun-heritage-crest.png";
+import heroTitleLight from "@/assets/hero-title.png.asset.json";
+import heroTitleWhite from "@/assets/hero-title-white.png.asset.json";
 import { resolveImage } from "@/lib/images";
 import { getCatalog } from "@/lib/catalog.functions";
 import { deliverySpeeds } from "@/lib/delivery";
