@@ -786,17 +786,17 @@ function HeroCopy({ onGift }: { onGift: () => void }) {
         <span className="size-1.5 rounded-full bg-primary" />
         כל המשקאות אצלנו כשרים — איכות ללא פשרות
       </span>
-      <h1 className="sr-only">קֶמְרוֹן כְּשֶׁיַּיִן וְחַוִּיָּה נִפְגָּשִׁים</h1>
+      <h1 className="sr-only">קִמְרוּן כְּשֶׁיַּיִן וַחֲוָיָה נִפְגָּשִׁים</h1>
       <div className="mt-3">
         <img
-          src={heroTitleLight.url}
+          src={heroTitleLight}
           alt=""
           aria-hidden="true"
           className="block w-full max-w-[min(520px,80vw)] dark:hidden md:max-w-[min(620px,75vw)]"
           style={{ height: "auto" }}
         />
         <img
-          src={heroTitleWhite.url}
+          src={heroTitleDark}
           alt=""
           aria-hidden="true"
           className="hidden w-full max-w-[min(520px,80vw)] dark:block md:max-w-[min(620px,75vw)]"
