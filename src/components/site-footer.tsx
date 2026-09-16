@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
 import { PHONE_DISPLAY, PHONE_TEL, WHATSAPP_URL } from "@/lib/contact";
+import { BrandLockup } from "@/components/brand-lockup";
 
 export function SiteFooter() {
   return (
@@ -8,9 +9,9 @@ export function SiteFooter() {
       <div className="mx-auto max-w-md px-5 py-10 md:max-w-3xl md:px-8 lg:max-w-6xl">
         <div className="grid gap-8 md:grid-cols-3">
           <div>
-            <p className="font-display text-lg font-bold tracking-[0.18em]">
-              KYMRUN
-            </p>
+            <div className="flex justify-start">
+              <BrandLockup />
+            </div>
             <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
               בית למשקאות פרימיום כשרים. בחירה קפדנית, אחסון מבוקר ושירות אישי —
               מהמדף שלנו לשולחן שלך.

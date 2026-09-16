@@ -4,6 +4,7 @@ import { ArrowRight, Crown, Check, Loader2, Truck, Percent, Sparkles } from "luc
 
 import { ThemeToggle } from "@/components/theme-toggle";
 import { WhatsappButton } from "@/components/whatsapp-button";
+import { BrandLockup } from "@/components/brand-lockup";
 import { SiteFooter } from "@/components/site-footer";
 import { GOLD_ENABLED, GOLD_PRICE_YEAR, useGold } from "@/lib/gold";
 import { submitInquiry } from "@/lib/inquiries.functions";
@@ -65,13 +66,8 @@ function GoldPage() {
     <div dir="rtl" className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-40 border-b border-border/60 bg-white backdrop-blur-md dark:bg-background/85">
         <div className="mx-auto flex h-16 max-w-md items-center justify-between gap-4 px-5 md:h-[4.5rem] md:max-w-2xl md:px-8 lg:max-w-5xl">
-          <Link to="/" className="min-w-0 leading-none">
-            <span className="font-display text-lg font-bold tracking-[0.18em]">
-              KYMRUN
-            </span>
-            <span className="block text-[10px] tracking-widest text-muted-foreground">
-              משקאות פרימיום · כשר
-            </span>
+          <Link to="/" aria-label="KYMRUN — דף הבית" className="min-w-0">
+            <BrandLockup compact />
           </Link>
           <div className="flex items-center gap-2">
             <ThemeToggle />

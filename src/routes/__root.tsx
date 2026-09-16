@@ -79,19 +79,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "CEMRON" },
+      { title: "KYMRUN" },
       {
         name: "description",
         content:
-          "CEMRON: יין, וויסקי, ג'ין ורום פרימיום כשרים בישראל, עם משלוח מהיר עד הבית.",
+          "KYMRUN: יין, וויסקי, ג'ין ורום פרימיום כשרים בישראל, עם משלוח מהיר עד הבית.",
       },
-      { name: "author", content: "CEMRON" },
+      { name: "author", content: "KYMRUN" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
       {
         rel: "preconnect",
         href: "https://fonts.googleapis.com",
