@@ -144,7 +144,11 @@ function Home() {
   const { add: addToCart, count, subtotal } = useCart();
 
 
-  const { data, isPending, isError, refetch } = useQuery(catalogQuery);
+  const loaderData = Route.useLoaderData();
+  const { data, isPending, isError, refetch } = useQuery({
+    ...catalogQuery,
+    initialData: loaderData,
+  });
 
   const allProducts = useMemo<Product[]>(
     () =>
