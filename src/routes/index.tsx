@@ -30,6 +30,7 @@ import { useQuery, queryOptions } from "@tanstack/react-query";
 
 import heroBottles from "@/assets/hero-bottles.webp";
 import heroBottlesLight from "@/assets/hero-bottles-light.webp";
+import heritageCrest from "@/assets/kymrun-heritage-crest.png";
 import { resolveImage } from "@/lib/images";
 import { getCatalog } from "@/lib/catalog.functions";
 import { deliverySpeeds } from "@/lib/delivery";
@@ -749,6 +750,17 @@ function HeroSection({ onGift }: { onGift: () => void }) {
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-background/25 md:hidden"
+      />
+
+      <img
+        src={heritageCrest}
+        alt=""
+        aria-hidden="true"
+        width={1093}
+        height={432}
+        className="pointer-events-none absolute left-[4%] top-1/2 z-[1] hidden w-[clamp(13rem,22vw,22rem)] -translate-y-1/2 object-contain opacity-[0.13] mix-blend-multiply md:block dark:invert dark:mix-blend-screen dark:opacity-[0.16]"
+        loading="eager"
+        decoding="async"
       />
 
       <span className="pointer-events-none absolute top-4 left-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-background/70 px-3 py-1.5 text-[11px] font-semibold tracking-wide backdrop-blur-md">
