@@ -725,7 +725,7 @@ function Header({
 
 function HeroSection({ onGift }: { onGift: () => void }) {
   return (
-    <section className="relative left-1/2 w-screen -translate-x-1/2 min-h-[78vh] overflow-hidden md:min-h-[62vh] lg:min-h-[70vh]">
+    <section className="relative w-[100dvw] max-w-none [margin-inline:calc(50%-50dvw)] min-h-[78vh] overflow-hidden md:min-h-[62vh] lg:min-h-[70vh]">
       <img
         src={heroBottles}
         alt=""
