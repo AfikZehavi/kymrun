@@ -725,7 +725,7 @@ function Header({
 
 function HeroSection({ onGift }: { onGift: () => void }) {
   return (
-    <section className="relative -mx-5 min-h-[78vh] overflow-hidden md:-mx-8 md:min-h-[62vh] lg:min-h-[70vh]">
+    <section className="relative left-1/2 w-screen -translate-x-1/2 min-h-[78vh] overflow-hidden md:min-h-[62vh] lg:min-h-[70vh]">
       <img
         src={heroBottles}
         alt=""
@@ -770,7 +770,7 @@ function HeroSection({ onGift }: { onGift: () => void }) {
         כשר · 100%
       </span>
 
-      <div className="relative z-10 flex min-h-[78vh] items-end px-5 pb-12 pt-24 md:min-h-[62vh] md:items-center md:px-8 md:py-14 lg:min-h-[70vh] lg:py-12">
+      <div className="relative z-10 mx-auto flex min-h-[78vh] w-full max-w-md items-end px-5 pb-12 pt-24 md:min-h-[62vh] md:max-w-3xl md:items-center md:px-8 md:py-14 lg:min-h-[70vh] lg:max-w-6xl lg:py-12">
         <div className="w-full max-w-xl">
           <HeroCopy onGift={onGift} />
         </div>
