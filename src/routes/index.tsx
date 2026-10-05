@@ -80,9 +80,14 @@ export const Route = createFileRoute("/")({
 });
 
 const catalogQuery = queryOptions({
-  queryKey: ["catalog"],
-  queryFn: () => getCatalog(),
-  staleTime: 15 * 60 * 1000,
+  queryKey: ["shopify-catalog"],
+  queryFn: async (): Promise<ShopifyProduct[]> => {
+    const data = await storefrontApiRequest<{
+      products: { edges: { node: ShopifyProduct["node"] }[] };
+    }>(PRODUCTS_QUERY, { first: 100 });
+    return (data?.products?.edges ?? []).map((e) => e.node) as ShopifyProduct[];
+  },
+  staleTime: 5 * 60 * 1000,
   gcTime: 30 * 60 * 1000,
   retry: 1,
 });
