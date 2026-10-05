@@ -245,6 +245,7 @@ function Home() {
                 id: product.variantId,
                 title: "Default Title",
                 price: { amount: String(product.price), currencyCode: product.currencyCode },
+                compareAtPrice: product.compareAtPrice ?? null,
                 availableForSale: product.inStock,
                 selectedOptions: [],
               },
