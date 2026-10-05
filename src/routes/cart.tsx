@@ -501,7 +501,7 @@ function CartPage() {
           <button
             onClick={() => {
               setOrderPlaced(false);
-              clear();
+              clearCart();
             }}
             className="mt-2 w-full rounded-2xl bg-primary py-3 text-base font-semibold text-primary-foreground"
           >
