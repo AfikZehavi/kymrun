@@ -620,7 +620,7 @@ function Home() {
         product={selected}
         onClose={() => setSelected(null)}
         onAdd={(p) => {
-          addToCart(p);
+          addProduct(p);
           setSelected(null);
         }}
       />
