@@ -150,7 +150,7 @@ function ProductPage() {
               aria-label="עגלת קניות"
               className="relative grid size-11 shrink-0 place-items-center rounded-full border border-border bg-muted text-foreground dark:bg-card"
             >
-              <Plus className="size-5" />
+              <ShoppingBag className="size-5" />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -left-1 grid size-5 place-items-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
                   {cartCount}
