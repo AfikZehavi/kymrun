@@ -200,13 +200,19 @@ function Home() {
     });
   }, [data]);
 
-  const categories = useMemo<Category[]>(
-    () => [
+  const categories = useMemo<Category[]>(() => {
+    const groupOrder = ["all", "gift", "wine", "whisky", "spirits", "secret"];
+    const seen = new Map<string, string>();
+    for (const p of allProducts) {
+      if (!seen.has(p.group)) seen.set(p.group, p.group);
+    }
+    return [
       { id: "all", label: "הכול" },
-      ...(data?.categories ?? []).map((c) => ({ id: c.slug, label: c.label })),
-    ],
-    [data],
-  );
+      ...groupOrder
+        .filter((g) => g !== "all" && seen.has(g))
+        .map((g) => ({ id: g, label: g })),
+    ];
+  }, [allProducts]);
 
   const visible = useMemo(
     () =>
