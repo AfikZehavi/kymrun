@@ -168,7 +168,7 @@ function Home() {
 
   const allProducts = useMemo<Product[]>(() => {
     return (data ?? []).map((sp) => {
-      const node = sp.node ?? sp;
+      const node = sp;
       const variant = node.variants.edges[0]?.node;
       const tags = node.tags ?? [];
       const group = tags[0] ?? "all";
