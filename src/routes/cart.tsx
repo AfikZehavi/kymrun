@@ -116,7 +116,7 @@ function CartPage() {
 
   const remaining = Math.max(FREE_SHIPPING_FROM - subtotal, 0);
   const progress = Math.min((subtotal / FREE_SHIPPING_FROM) * 100, 100);
-  const goldDiscount = goldActive ? goldDiscountFor(cart) : 0;
+  const goldDiscount = goldActive ? goldDiscountForItems(items) : 0;
   const shipping = goldActive ? 0 : remaining > 0 ? 35 : 0;
   const total = Math.max(subtotal - goldDiscount + shipping, 0);
 
@@ -142,8 +142,8 @@ function CartPage() {
     }
   }
 
-  // Avoid hydration mismatch with localStorage; render safe placeholders until hydrated.
-  if (!hydrated) {
+  // Avoid hydration mismatch with localStorage; render safe placeholders until mounted.
+  if (!mounted) {
     return (
       <div dir="rtl" className="min-h-screen bg-background text-foreground">
         <CartHeader />
