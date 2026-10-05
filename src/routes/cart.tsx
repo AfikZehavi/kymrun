@@ -134,6 +134,9 @@ function CartPage() {
           address: address.trim(),
         },
       });
+      if (checkoutUrl) {
+        window.open(checkoutUrl, "_blank");
+      }
       setOrderPlaced(true);
     } catch {
       setOrderPlaced(true);
