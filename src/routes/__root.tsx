@@ -36,7 +36,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error }: { error: Error }) {
+function ErrorComponent({ error }: { error: unknown }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
