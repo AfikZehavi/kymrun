@@ -150,10 +150,12 @@ function Home() {
   const [filter, setFilter] = useState<string>("all");
   const [selected, setSelected] = useState<Product | null>(null);
 
-
+  useCartSync();
   const navigate = useNavigate({ from: "/" });
-  const { add: addToCart, count, subtotal } = useCart();
-
+  const addShopifyItem = useCartStore((s) => s.addItem);
+  const cartCount = useCartStore(
+    (s) => s.items.reduce((sum, i) => sum + i.quantity, 0),
+  );
 
   const loaderData = Route.useLoaderData();
   const { data, isPending, isError, refetch } = useQuery({
@@ -161,28 +163,39 @@ function Home() {
     initialData: loaderData,
   });
 
-  const allProducts = useMemo<Product[]>(
-    () =>
-      (data?.products ?? []).map((p) => {
-        const base = Number(p.price);
-        const discount = p.discount_percent ?? 0;
-        return {
-          id: p.id,
-          name: p.name,
-          category: p.subtitle,
-          group: p.category_slug,
-          basePrice: base,
-          price: Math.round(base * (1 - discount / 100)),
-          discount,
-          image: resolveImage(p.image),
-          abv: p.abv,
-          note: p.note,
-          inStock: p.in_stock,
-          featured: p.featured,
-        };
-      }),
-    [data],
-  );
+  const allProducts = useMemo<Product[]>(() => {
+    return (data ?? []).map((sp) => {
+      const node = sp.node ?? sp;
+      const variant = node.variants.edges[0]?.node;
+      const tags = node.tags ?? [];
+      const group = tags[0] ?? "all";
+      const abvTag = tags.find((t) => /^\d+(\.\d+)?%$/.test(t));
+      const compareAt = variant?.compareAtPrice
+        ? parseFloat(variant.compareAtPrice.amount)
+        : 0;
+      const price = parseFloat(variant?.price.amount ?? "0");
+      const discount =
+        compareAt > price ? Math.round((1 - price / compareAt) * 100) : 0;
+      return {
+        id: node.id,
+        handle: node.handle,
+        variantId: variant?.id ?? "",
+        name: node.title,
+        category: node.productType,
+        group,
+        basePrice: compareAt > price ? compareAt : price,
+        price,
+        discount,
+        image: node.images.edges[0]?.node.url ?? "",
+        abv: abvTag ?? "",
+        note: node.description,
+        inStock: variant?.availableForSale ?? false,
+        featured: tags.includes("featured"),
+        compareAtPrice: variant?.compareAtPrice ?? null,
+        currencyCode: variant?.price.currencyCode ?? "ILS",
+      };
+    });
+  }, [data]);
 
   const categories = useMemo<Category[]>(
     () => [
