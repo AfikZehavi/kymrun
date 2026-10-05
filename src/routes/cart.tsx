@@ -179,7 +179,7 @@ function CartPage() {
           {count === 0 ? "הסל ריק — הוסיפו בקבוק מהמדף" : `${count} פריטים בסל`}
         </p>
 
-        {cart.length === 0 ? (
+        {items.length === 0 ? (
           <div className="mt-8 flex flex-col items-center rounded-3xl border border-border bg-card p-10 text-center">
             <div className="grid size-16 place-items-center rounded-full bg-muted">
               <ShoppingBag className="size-7 text-muted-foreground" />
