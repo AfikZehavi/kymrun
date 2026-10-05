@@ -26,7 +26,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { BrandLockup } from "@/components/brand-lockup";
 import { lookupCustomer, saveCustomer } from "@/lib/customers.functions";
 import { useSecretGift } from "@/lib/use-secret-gift";
-import { GOLD_ENABLED, goldDiscountFor, useGold } from "@/lib/gold";
+import { GOLD_ENABLED, goldDiscountForItems, useGold } from "@/lib/gold";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
