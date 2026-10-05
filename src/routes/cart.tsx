@@ -21,7 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useCart } from "@/lib/use-cart";
+import { useCartStore, useCartSync } from "@/lib/use-shopify-cart";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { BrandLockup } from "@/components/brand-lockup";
 import { lookupCustomer, saveCustomer } from "@/lib/customers.functions";
