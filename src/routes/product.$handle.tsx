@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, Loader2, Plus, ShieldCheck, Truck } from "lucide-react";
+import { ArrowRight, Loader2, ShoppingBag, ShieldCheck, Truck } from "lucide-react";
 import { toast } from "sonner";
 import {
   storefrontApiRequest,
