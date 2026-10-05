@@ -607,9 +607,9 @@ function Home() {
       <SiteFooter />
 
 
-      {count > 0 && (
+      {cartCount > 0 && (
         <CartBar
-          count={count}
+          count={cartCount}
           subtotal={subtotal}
           onOpen={goToCart}
           onCheckout={goToCart}
