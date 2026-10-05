@@ -214,7 +214,16 @@ function Home() {
   );
 
   function addProduct(product: Product) {
-    addToCart(product);
+    if (!product.variantId) return;
+    addShopifyItem({
+      lineId: null,
+      product: { node: { id: product.id, handle: product.handle, title: product.name, description: product.note, productType: product.category, tags: [], images: { edges: [{ node: { url: product.image, altText: product.name } }] } } },
+      variantId: product.variantId,
+      variantTitle: "Default",
+      price: { amount: String(product.price), currencyCode: product.currencyCode },
+      compareAtPrice: product.compareAtPrice,
+      quantity: 1,
+    });
     toast.custom(
       (id) => (
         <div
