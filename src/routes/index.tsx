@@ -85,7 +85,7 @@ const catalogQuery = queryOptions({
     const data = await storefrontApiRequest<{
       products: { edges: { node: ShopifyProduct["node"] }[] };
     }>(PRODUCTS_QUERY, { first: 100 });
-    return (data?.products?.edges ?? []).map((e) => e.node) as ShopifyProduct[];
+    return (data?.products?.edges ?? []).map((e) => e.node);
   },
   staleTime: 5 * 60 * 1000,
   gcTime: 30 * 60 * 1000,
