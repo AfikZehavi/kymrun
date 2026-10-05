@@ -197,28 +197,37 @@ function CartPage() {
         ) : (
           <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_360px] lg:items-start">
             <section className="space-y-3">
-              {cart.map((line) => (
+              {items.map((line) => {
+                const img = line.product.node.images.edges[0]?.node.url ?? "";
+                const unit = parseFloat(line.price.amount);
+                return (
                 <article
-                  key={line.product.id}
+                  key={line.variantId}
                   className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3"
                 >
-                  <img
-                    src={line.product.image}
-                    alt={line.product.name}
-                    width={768}
-                    height={960}
-                    loading="lazy"
-                    className="size-20 rounded-xl object-cover md:size-24"
-                  />
+                  {img ? (
+                    <img
+                      src={img}
+                      alt={line.product.node.title}
+                      width={768}
+                      height={960}
+                      loading="lazy"
+                      className="size-20 rounded-xl object-cover md:size-24"
+                    />
+                  ) : (
+                    <div className="grid size-20 place-items-center rounded-xl bg-muted md:size-24">
+                      <ShoppingBag className="size-6 text-muted-foreground" />
+                    </div>
+                  )}
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold md:text-base">
-                      {line.product.name}
+                      {line.product.node.title}
                     </p>
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                      {line.product.category} · {line.product.abv}
+                      {line.product.node.productType}
                     </p>
                     <p className="mt-2 font-display text-base font-bold md:text-lg">
-                      ₪{line.product.price * line.qty}
+                      ₪{Math.round(unit * line.quantity)}
                     </p>
                   </div>
 
@@ -226,25 +235,25 @@ function CartPage() {
                     <div className="flex items-center gap-2">
                       <button
                         aria-label="הפחת"
-                        onClick={() => changeQty(line.product.id, -1)}
+                        onClick={() => updateQuantity(line.variantId, line.quantity - 1)}
                         className="grid size-8 place-items-center rounded-full border border-border bg-secondary transition-colors hover:bg-primary/10"
                       >
                         <Minus className="size-3.5" />
                       </button>
                       <span className="w-5 text-center text-sm font-semibold">
-                        {line.qty}
+                        {line.quantity}
                       </span>
                       <button
                         aria-label="הוסף"
-                        onClick={() => changeQty(line.product.id, 1)}
+                        onClick={() => updateQuantity(line.variantId, line.quantity + 1)}
                         className="grid size-8 place-items-center rounded-full border border-border bg-secondary transition-colors hover:bg-primary/10"
                       >
                         <Plus className="size-3.5" />
                       </button>
                     </div>
                     <button
-                      onClick={() => remove(line.product.id)}
-                      aria-label={`הסר ${line.product.name} מהסל`}
+                      onClick={() => removeItem(line.variantId)}
+                      aria-label={`הסר ${line.product.node.title} מהסל`}
                       className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-destructive"
                     >
                       <Trash2 className="size-3.5" />
@@ -252,10 +261,11 @@ function CartPage() {
                     </button>
                   </div>
                 </article>
-              ))}
+                );
+              })}
 
               <button
-                onClick={clear}
+                onClick={clearCart}
                 className="mt-2 text-sm text-muted-foreground underline-offset-4 hover:underline"
               >
                 רוקן את הסל
