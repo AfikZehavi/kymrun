@@ -1,5 +1,7 @@
 export type Product = {
   id: string;
+  handle: string;
+  variantId: string;
   name: string;
   category: string;
   group: string;
@@ -11,6 +13,8 @@ export type Product = {
   note: string;
   inStock: boolean;
   featured: boolean;
+  compareAtPrice: { amount: string; currencyCode: string } | null;
+  currencyCode: string;
 };
 
 export type Category = { id: string; label: string };

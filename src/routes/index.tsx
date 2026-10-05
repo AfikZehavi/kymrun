@@ -33,10 +33,13 @@ import heroBottlesLight from "@/assets/hero-bottles-light.webp";
 import heritageCrest from "@/assets/kymrun-heritage-crest.png";
 const heroTitleLight = "/hero-title-light.png";
 const heroTitleDark = "/hero-title-dark.png";
-import { resolveImage } from "@/lib/images";
-import { getCatalog } from "@/lib/catalog.functions";
+import {
+  storefrontApiRequest,
+  PRODUCTS_QUERY,
+  type ShopifyProduct,
+} from "@/lib/shopify";
+import { useCartStore, useCartSync } from "@/lib/use-shopify-cart";
 import { deliverySpeeds } from "@/lib/delivery";
-import { useCart } from "@/lib/use-cart";
 import type { Product, Category } from "@/lib/types";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { WhatsappButton } from "@/components/whatsapp-button";
@@ -77,9 +80,14 @@ export const Route = createFileRoute("/")({
 });
 
 const catalogQuery = queryOptions({
-  queryKey: ["catalog"],
-  queryFn: () => getCatalog(),
-  staleTime: 15 * 60 * 1000,
+  queryKey: ["shopify-catalog"],
+  queryFn: async (): Promise<ShopifyProduct["node"][]> => {
+    const data = await storefrontApiRequest<{
+      products: { edges: { node: ShopifyProduct["node"] }[] };
+    }>(PRODUCTS_QUERY, { first: 100 });
+    return (data?.products?.edges ?? []).map((e) => e.node);
+  },
+  staleTime: 5 * 60 * 1000,
   gcTime: 30 * 60 * 1000,
   retry: 1,
 });
@@ -142,10 +150,15 @@ function Home() {
   const [filter, setFilter] = useState<string>("all");
   const [selected, setSelected] = useState<Product | null>(null);
 
-
+  useCartSync();
   const navigate = useNavigate({ from: "/" });
-  const { add: addToCart, count, subtotal } = useCart();
-
+  const addShopifyItem = useCartStore((s) => s.addItem);
+  const cartCount = useCartStore(
+    (s) => s.items.reduce((sum, i) => sum + i.quantity, 0),
+  );
+  const subtotal = useCartStore(
+    (s) => s.items.reduce((sum, i) => sum + i.quantity * parseFloat(i.price.amount), 0),
+  );
 
   const loaderData = Route.useLoaderData();
   const { data, isPending, isError, refetch } = useQuery({
@@ -153,36 +166,53 @@ function Home() {
     initialData: loaderData,
   });
 
-  const allProducts = useMemo<Product[]>(
-    () =>
-      (data?.products ?? []).map((p) => {
-        const base = Number(p.price);
-        const discount = p.discount_percent ?? 0;
-        return {
-          id: p.id,
-          name: p.name,
-          category: p.subtitle,
-          group: p.category_slug,
-          basePrice: base,
-          price: Math.round(base * (1 - discount / 100)),
-          discount,
-          image: resolveImage(p.image),
-          abv: p.abv,
-          note: p.note,
-          inStock: p.in_stock,
-          featured: p.featured,
-        };
-      }),
-    [data],
-  );
+  const allProducts = useMemo<Product[]>(() => {
+    return (data ?? []).map((sp) => {
+      const node = sp;
+      const variant = node.variants.edges[0]?.node;
+      const tags = node.tags ?? [];
+      const group = tags[0] ?? "all";
+      const abvTag = tags.find((t) => /^\d+(\.\d+)?%$/.test(t));
+      const compareAt = variant?.compareAtPrice
+        ? parseFloat(variant.compareAtPrice.amount)
+        : 0;
+      const price = parseFloat(variant?.price.amount ?? "0");
+      const discount =
+        compareAt > price ? Math.round((1 - price / compareAt) * 100) : 0;
+      return {
+        id: node.id,
+        handle: node.handle,
+        variantId: variant?.id ?? "",
+        name: node.title,
+        category: node.productType,
+        group,
+        basePrice: compareAt > price ? compareAt : price,
+        price,
+        discount,
+        image: node.images.edges[0]?.node.url ?? "",
+        abv: abvTag ?? "",
+        note: node.description,
+        inStock: variant?.availableForSale ?? false,
+        featured: tags.includes("featured"),
+        compareAtPrice: variant?.compareAtPrice ?? null,
+        currencyCode: variant?.price.currencyCode ?? "ILS",
+      };
+    });
+  }, [data]);
 
-  const categories = useMemo<Category[]>(
-    () => [
+  const categories = useMemo<Category[]>(() => {
+    const groupOrder = ["all", "gift", "wine", "whisky", "spirits", "secret"];
+    const seen = new Map<string, string>();
+    for (const p of allProducts) {
+      if (!seen.has(p.group)) seen.set(p.group, p.group);
+    }
+    return [
       { id: "all", label: "הכול" },
-      ...(data?.categories ?? []).map((c) => ({ id: c.slug, label: c.label })),
-    ],
-    [data],
-  );
+      ...groupOrder
+        .filter((g) => g !== "all" && seen.has(g))
+        .map((g) => ({ id: g, label: g })),
+    ];
+  }, [allProducts]);
 
   const visible = useMemo(
     () =>
@@ -193,7 +223,42 @@ function Home() {
   );
 
   function addProduct(product: Product) {
-    addToCart(product);
+    if (!product.variantId) return;
+    addShopifyItem({
+      product: {
+        node: {
+          id: product.id,
+          handle: product.handle,
+          title: product.name,
+          description: product.note,
+          productType: product.category,
+          tags: [],
+          priceRange: { minVariantPrice: { amount: String(product.price), currencyCode: product.currencyCode } },
+          compareAtPriceRange: product.compareAtPrice
+            ? { minVariantPrice: product.compareAtPrice }
+            : { minVariantPrice: { amount: String(product.price), currencyCode: product.currencyCode } },
+          images: { edges: [{ node: { url: product.image, altText: product.name } }] },
+          variants: {
+            edges: [{
+              node: {
+                id: product.variantId,
+                title: "Default Title",
+                price: { amount: String(product.price), currencyCode: product.currencyCode },
+                compareAtPrice: product.compareAtPrice ?? null,
+                availableForSale: product.inStock,
+                selectedOptions: [],
+              },
+            }],
+          },
+          options: [],
+        },
+      },
+      variantId: product.variantId,
+      variantTitle: "Default",
+      price: { amount: String(product.price), currencyCode: product.currencyCode },
+      compareAtPrice: product.compareAtPrice,
+      quantity: 1,
+    });
     toast.custom(
       (id) => (
         <div
@@ -248,7 +313,7 @@ function Home() {
   }
 
   function goToCart() {
-    if (count === 0) {
+    if (cartCount === 0) {
       toast.error("הסל ריק", { description: "הוסיפו בקבוק כדי להמשיך" });
       return;
     }
@@ -259,7 +324,7 @@ function Home() {
   return (
     <div dir="rtl" className="min-h-screen bg-background text-foreground">
       <Header
-        count={count}
+        count={cartCount}
         onCart={goToCart}
         filter={filter}
         onFilter={setFilter}
@@ -387,7 +452,7 @@ function Home() {
                     )}
                   </span>
                   <button
-                    onClick={() => addToCart(product)}
+                    onClick={() => addProduct(product)}
                     disabled={!product.inStock}
                     aria-label={`הוסף ${product.name} לסל`}
                     className="grid size-9 place-items-center rounded-full border border-border bg-secondary text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground disabled:opacity-40"
@@ -577,9 +642,9 @@ function Home() {
       <SiteFooter />
 
 
-      {count > 0 && (
+      {cartCount > 0 && (
         <CartBar
-          count={count}
+          count={cartCount}
           subtotal={subtotal}
           onOpen={goToCart}
           onCheckout={goToCart}
@@ -590,7 +655,7 @@ function Home() {
         product={selected}
         onClose={() => setSelected(null)}
         onAdd={(p) => {
-          addToCart(p);
+          addProduct(p);
           setSelected(null);
         }}
       />

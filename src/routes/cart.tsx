@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
   Check,
@@ -21,12 +21,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useCart } from "@/lib/use-cart";
+import { useCartStore, useCartSync } from "@/lib/use-shopify-cart";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { BrandLockup } from "@/components/brand-lockup";
 import { lookupCustomer, saveCustomer } from "@/lib/customers.functions";
 import { useSecretGift } from "@/lib/use-secret-gift";
-import { GOLD_ENABLED, goldDiscountFor, useGold } from "@/lib/gold";
+import { GOLD_ENABLED, goldDiscountForItems, useGold } from "@/lib/gold";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -56,9 +56,25 @@ const FREE_SHIPPING_FROM = 550;
 function CartPage() {
   const { gift } = useSecretGift();
   const { active: goldActive, member: goldMember } = useGold();
-  const { cart, changeQty, remove, clear, count, subtotal, hydrated } =
-    useCart();
+  useCartSync();
+  const items = useCartStore((s) => s.items);
+  const checkoutUrl = useCartStore((s) => s.checkoutUrl);
+  const updateQuantity = useCartStore((s) => s.updateQuantity);
+  const removeItem = useCartStore((s) => s.removeItem);
+  const clearCart = useCartStore((s) => s.clearCart);
+  const isLoading = useCartStore((s) => s.isLoading);
+  const [mounted, setMounted] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
+
+  const count = items.reduce((sum, i) => sum + i.quantity, 0);
+  const subtotal = items.reduce(
+    (sum, i) => sum + i.quantity * parseFloat(i.price.amount),
+    0,
+  );
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
@@ -100,7 +116,7 @@ function CartPage() {
 
   const remaining = Math.max(FREE_SHIPPING_FROM - subtotal, 0);
   const progress = Math.min((subtotal / FREE_SHIPPING_FROM) * 100, 100);
-  const goldDiscount = goldActive ? goldDiscountFor(cart) : 0;
+  const goldDiscount = goldActive ? goldDiscountForItems(items) : 0;
   const shipping = goldActive ? 0 : remaining > 0 ? 35 : 0;
   const total = Math.max(subtotal - goldDiscount + shipping, 0);
 
@@ -118,6 +134,9 @@ function CartPage() {
           address: address.trim(),
         },
       });
+      if (checkoutUrl) {
+        window.open(checkoutUrl, "_blank");
+      }
       setOrderPlaced(true);
     } catch {
       setOrderPlaced(true);
@@ -126,8 +145,8 @@ function CartPage() {
     }
   }
 
-  // Avoid hydration mismatch with localStorage; render safe placeholders until hydrated.
-  if (!hydrated) {
+  // Avoid hydration mismatch with localStorage; render safe placeholders until mounted.
+  if (!mounted) {
     return (
       <div dir="rtl" className="min-h-screen bg-background text-foreground">
         <CartHeader />
@@ -160,7 +179,7 @@ function CartPage() {
           {count === 0 ? "הסל ריק — הוסיפו בקבוק מהמדף" : `${count} פריטים בסל`}
         </p>
 
-        {cart.length === 0 ? (
+        {items.length === 0 ? (
           <div className="mt-8 flex flex-col items-center rounded-3xl border border-border bg-card p-10 text-center">
             <div className="grid size-16 place-items-center rounded-full bg-muted">
               <ShoppingBag className="size-7 text-muted-foreground" />
@@ -181,28 +200,37 @@ function CartPage() {
         ) : (
           <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_360px] lg:items-start">
             <section className="space-y-3">
-              {cart.map((line) => (
+              {items.map((line) => {
+                const img = line.product.node.images.edges[0]?.node.url ?? "";
+                const unit = parseFloat(line.price.amount);
+                return (
                 <article
-                  key={line.product.id}
+                  key={line.variantId}
                   className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3"
                 >
-                  <img
-                    src={line.product.image}
-                    alt={line.product.name}
-                    width={768}
-                    height={960}
-                    loading="lazy"
-                    className="size-20 rounded-xl object-cover md:size-24"
-                  />
+                  {img ? (
+                    <img
+                      src={img}
+                      alt={line.product.node.title}
+                      width={768}
+                      height={960}
+                      loading="lazy"
+                      className="size-20 rounded-xl object-cover md:size-24"
+                    />
+                  ) : (
+                    <div className="grid size-20 place-items-center rounded-xl bg-muted md:size-24">
+                      <ShoppingBag className="size-6 text-muted-foreground" />
+                    </div>
+                  )}
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold md:text-base">
-                      {line.product.name}
+                      {line.product.node.title}
                     </p>
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                      {line.product.category} · {line.product.abv}
+                      {line.product.node.productType}
                     </p>
                     <p className="mt-2 font-display text-base font-bold md:text-lg">
-                      ₪{line.product.price * line.qty}
+                      ₪{Math.round(unit * line.quantity)}
                     </p>
                   </div>
 
@@ -210,25 +238,25 @@ function CartPage() {
                     <div className="flex items-center gap-2">
                       <button
                         aria-label="הפחת"
-                        onClick={() => changeQty(line.product.id, -1)}
+                        onClick={() => updateQuantity(line.variantId, line.quantity - 1)}
                         className="grid size-8 place-items-center rounded-full border border-border bg-secondary transition-colors hover:bg-primary/10"
                       >
                         <Minus className="size-3.5" />
                       </button>
                       <span className="w-5 text-center text-sm font-semibold">
-                        {line.qty}
+                        {line.quantity}
                       </span>
                       <button
                         aria-label="הוסף"
-                        onClick={() => changeQty(line.product.id, 1)}
+                        onClick={() => updateQuantity(line.variantId, line.quantity + 1)}
                         className="grid size-8 place-items-center rounded-full border border-border bg-secondary transition-colors hover:bg-primary/10"
                       >
                         <Plus className="size-3.5" />
                       </button>
                     </div>
                     <button
-                      onClick={() => remove(line.product.id)}
-                      aria-label={`הסר ${line.product.name} מהסל`}
+                      onClick={() => removeItem(line.variantId)}
+                      aria-label={`הסר ${line.product.node.title} מהסל`}
                       className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-destructive"
                     >
                       <Trash2 className="size-3.5" />
@@ -236,10 +264,11 @@ function CartPage() {
                     </button>
                   </div>
                 </article>
-              ))}
+                );
+              })}
 
               <button
-                onClick={clear}
+                onClick={clearCart}
                 className="mt-2 text-sm text-muted-foreground underline-offset-4 hover:underline"
               >
                 רוקן את הסל
@@ -472,7 +501,7 @@ function CartPage() {
           <button
             onClick={() => {
               setOrderPlaced(false);
-              clear();
+              clearCart();
             }}
             className="mt-2 w-full rounded-2xl bg-primary py-3 text-base font-semibold text-primary-foreground"
           >
@@ -485,7 +514,8 @@ function CartPage() {
 }
 
 function CartHeader() {
-  const { count } = useCart();
+  const items = useCartStore((s) => s.items);
+  const count = items.reduce((sum, i) => sum + i.quantity, 0);
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-white dark:bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-md items-center justify-between gap-4 px-5 md:h-[4.5rem] md:max-w-2xl md:px-8 lg:max-w-4xl">

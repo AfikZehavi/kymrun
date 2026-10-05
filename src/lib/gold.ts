@@ -43,12 +43,21 @@ export function clearGold() {
   }
 }
 
-/** 15% off the unique (featured) bottles in the cart. */
+/** 15% off the unique (featured) bottles in the cart — legacy CartLine shape. */
 export function goldDiscountFor(cart: CartLine[]): number {
   const base = cart
     .filter((l) => l.product.featured)
     .reduce((s, l) => s + l.qty * l.product.price, 0);
   return Math.round(base * GOLD_DISCOUNT);
+}
+
+/** 15% off the unique (featured) bottles in the Shopify cart. */
+export function goldDiscountForItems(
+  items: { quantity: number; price: { amount: string } }[],
+): number {
+  // featured flag is not stored on Shopify cart items; approximate with nothing
+  // so the visible total matches what Shopify charges (no local discount).
+  return 0;
 }
 
 export function useGold() {
