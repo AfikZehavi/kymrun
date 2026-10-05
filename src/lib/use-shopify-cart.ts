@@ -210,5 +210,3 @@ export function useCartSync() {
       document.removeEventListener("visibilitychange", onVisibility);
   }, [syncCart]);
 }
-
-import { useEffect } from "react";
