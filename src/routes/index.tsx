@@ -156,6 +156,9 @@ function Home() {
   const cartCount = useCartStore(
     (s) => s.items.reduce((sum, i) => sum + i.quantity, 0),
   );
+  const subtotal = useCartStore(
+    (s) => s.items.reduce((sum, i) => sum + i.quantity * parseFloat(i.price.amount), 0),
+  );
 
   const loaderData = Route.useLoaderData();
   const { data, isPending, isError, refetch } = useQuery({
