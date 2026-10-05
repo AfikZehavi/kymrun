@@ -226,7 +226,33 @@ function Home() {
     if (!product.variantId) return;
     addShopifyItem({
       lineId: null,
-      product: { node: { id: product.id, handle: product.handle, title: product.name, description: product.note, productType: product.category, tags: [], images: { edges: [{ node: { url: product.image, altText: product.name } }] } } },
+      product: {
+        node: {
+          id: product.id,
+          handle: product.handle,
+          title: product.name,
+          description: product.note,
+          productType: product.category,
+          tags: [],
+          priceRange: { minVariantPrice: { amount: String(product.price), currencyCode: product.currencyCode } },
+          compareAtPriceRange: product.compareAtPrice
+            ? { minVariantPrice: product.compareAtPrice }
+            : { minVariantPrice: { amount: String(product.price), currencyCode: product.currencyCode } },
+          images: { edges: [{ node: { url: product.image, altText: product.name } }] },
+          variants: {
+            edges: [{
+              node: {
+                id: product.variantId,
+                title: "Default Title",
+                price: { amount: String(product.price), currencyCode: product.currencyCode },
+                availableForSale: product.inStock,
+                selectedOptions: [],
+              },
+            }],
+          },
+          options: [],
+        },
+      },
       variantId: product.variantId,
       variantTitle: "Default",
       price: { amount: String(product.price), currencyCode: product.currencyCode },
