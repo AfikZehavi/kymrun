@@ -33,10 +33,13 @@ import heroBottlesLight from "@/assets/hero-bottles-light.webp";
 import heritageCrest from "@/assets/kymrun-heritage-crest.png";
 const heroTitleLight = "/hero-title-light.png";
 const heroTitleDark = "/hero-title-dark.png";
-import { resolveImage } from "@/lib/images";
-import { getCatalog } from "@/lib/catalog.functions";
+import {
+  storefrontApiRequest,
+  PRODUCTS_QUERY,
+  type ShopifyProduct,
+} from "@/lib/shopify";
+import { useCartStore, useCartSync } from "@/lib/use-shopify-cart";
 import { deliverySpeeds } from "@/lib/delivery";
-import { useCart } from "@/lib/use-cart";
 import type { Product, Category } from "@/lib/types";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { WhatsappButton } from "@/components/whatsapp-button";
