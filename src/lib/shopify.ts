@@ -363,7 +363,7 @@ export async function addLineToShopifyCart(
   const line = edges.find(
     (l) => l.node.merchandise.id === variantId,
   );
-  return { success: true, lineId: line?.node?.id };
+  return { success: true, lineId: line?.node?.id ?? undefined };
 }
 
 export async function updateShopifyCartLine(
