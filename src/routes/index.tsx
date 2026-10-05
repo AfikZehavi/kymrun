@@ -81,7 +81,7 @@ export const Route = createFileRoute("/")({
 
 const catalogQuery = queryOptions({
   queryKey: ["shopify-catalog"],
-  queryFn: async (): Promise<ShopifyProduct[]> => {
+  queryFn: async (): Promise<ShopifyProduct["node"][]> => {
     const data = await storefrontApiRequest<{
       products: { edges: { node: ShopifyProduct["node"] }[] };
     }>(PRODUCTS_QUERY, { first: 100 });
