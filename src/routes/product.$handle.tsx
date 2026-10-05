@@ -253,5 +253,3 @@ function ProductPage() {
     </div>
   );
 }
-
-import React from "react";
