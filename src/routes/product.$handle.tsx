@@ -37,7 +37,7 @@ function ProductPage() {
   const [notFound, setNotFound] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     let cancelled = false;
     setLoaded(false);
     storefrontApiRequest<{
