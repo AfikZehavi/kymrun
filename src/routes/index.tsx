@@ -426,7 +426,7 @@ function Home() {
                     )}
                   </span>
                   <button
-                    onClick={() => addToCart(product)}
+                    onClick={() => addProduct(product)}
                     disabled={!product.inStock}
                     aria-label={`הוסף ${product.name} לסל`}
                     className="grid size-9 place-items-center rounded-full border border-border bg-secondary text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground disabled:opacity-40"
