@@ -336,7 +336,7 @@ export async function addLineToShopifyCart(
   cartId: string,
   variantId: string,
   quantity: number,
-): Promise<{ success: boolean; lineId?: string; cartNotFound?: boolean }> {
+): Promise<{ success: boolean; lineId?: string | undefined; cartNotFound?: boolean }> {
   const data = await storefrontApiRequest<{
     cartLinesAdd: {
       cart: {
