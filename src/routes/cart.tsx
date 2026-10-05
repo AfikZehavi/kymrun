@@ -56,9 +56,25 @@ const FREE_SHIPPING_FROM = 550;
 function CartPage() {
   const { gift } = useSecretGift();
   const { active: goldActive, member: goldMember } = useGold();
-  const { cart, changeQty, remove, clear, count, subtotal, hydrated } =
-    useCart();
+  useCartSync();
+  const items = useCartStore((s) => s.items);
+  const checkoutUrl = useCartStore((s) => s.checkoutUrl);
+  const updateQuantity = useCartStore((s) => s.updateQuantity);
+  const removeItem = useCartStore((s) => s.removeItem);
+  const clearCart = useCartStore((s) => s.clearCart);
+  const isLoading = useCartStore((s) => s.isLoading);
+  const [mounted, setMounted] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
+
+  const count = items.reduce((sum, i) => sum + i.quantity, 0);
+  const subtotal = items.reduce(
+    (sum, i) => sum + i.quantity * parseFloat(i.price.amount),
+    0,
+  );
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
