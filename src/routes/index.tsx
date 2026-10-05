@@ -278,7 +278,7 @@ function Home() {
   }
 
   function goToCart() {
-    if (count === 0) {
+    if (cartCount === 0) {
       toast.error("הסל ריק", { description: "הוסיפו בקבוק כדי להמשיך" });
       return;
     }
@@ -289,7 +289,7 @@ function Home() {
   return (
     <div dir="rtl" className="min-h-screen bg-background text-foreground">
       <Header
-        count={count}
+        count={cartCount}
         onCart={goToCart}
         filter={filter}
         onFilter={setFilter}
