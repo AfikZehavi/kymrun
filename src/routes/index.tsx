@@ -225,7 +225,6 @@ function Home() {
   function addProduct(product: Product) {
     if (!product.variantId) return;
     addShopifyItem({
-      lineId: null,
       product: {
         node: {
           id: product.id,
