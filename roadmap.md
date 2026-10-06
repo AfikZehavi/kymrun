@@ -13,7 +13,8 @@
 - [x] /contact page and inquiries stored in the database
 - [x] Real phone 050-4001575 sitewide + WhatsApp button in header
 - [x] Secret room trivia game (56 questions) with gift code reward shown in cart
-- [ ] Connect a payment provider (needs user decision + Pro plan)
+- [x] Payment provider connected: Shopify Storefront API (36 products, cart, checkout verified end-to-end)
+- [ ] Claim Shopify store (30-day window) + set up payment gateway in Shopify admin (checkout currently shows "can't accept payments")
 - [ ] Connect a custom domain
-- [ ] Product detail page
+- [x] Product detail page (/product/$handle from Shopify)
 - [ ] Admin view for incoming inquiries
