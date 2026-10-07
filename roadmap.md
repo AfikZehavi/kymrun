@@ -15,6 +15,7 @@
 - [x] Secret room trivia game (56 questions) with gift code reward shown in cart
 - [x] Payment provider connected: Shopify Storefront API (36 products, cart, checkout verified end-to-end)
 - [ ] Claim Shopify store (30-day window) + set up payment gateway in Shopify admin (checkout currently shows "can't accept payments")
+- [ ] Decide payment gateway: check whether Tranzila can be connected to Shopify, then configure the chosen gateway in Shopify admin
 - [ ] Connect a custom domain
 - [x] Product detail page (/product/$handle from Shopify)
 - [ ] Admin view for incoming inquiries
