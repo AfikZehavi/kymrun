@@ -14,8 +14,9 @@
 - [x] Real phone 050-4001575 sitewide + WhatsApp button in header
 - [x] Secret room trivia game (56 questions) with gift code reward shown in cart
 - [x] Payment provider connected: Shopify Storefront API (36 products, cart, checkout verified end-to-end)
-- [ ] Claim Shopify store (30-day window) + set up payment gateway in Shopify admin (checkout currently shows "can't accept payments")
-- [ ] Decide payment gateway: check whether Tranzila can be connected to Shopify, then configure the chosen gateway in Shopify admin
+- [x] Claim Shopify store — store is live, 120-day free trial started
+- [x] Payment gateway decision: Tranzila works with Shopify via the official "Tranzila PayTech" payments app
+- [ ] Install + activate Tranzila in Shopify admin (terminal details from Tranzila), then run a real test order
 - [ ] Connect a custom domain
 - [x] Product detail page (/product/$handle from Shopify)
 - [ ] Admin view for incoming inquiries
