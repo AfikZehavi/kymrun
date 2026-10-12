@@ -6,12 +6,14 @@ import { toast } from "sonner";
 import { Plus, Trash2, Upload } from "lucide-react";
 
 import {
-  getCatalog,
+  getAdminCatalog,
+  checkAdmin,
   saveProduct,
   deleteProduct,
   saveCategory,
   deleteCategory,
   type DbProduct,
+  type ProductInput,
 } from "@/lib/catalog.functions";
 import { resolveImage } from "@/lib/images";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -42,7 +44,7 @@ function AdminGate() {
   const [pass, setPass] = useState("");
   const [error, setError] = useState(false);
   const [checking, setChecking] = useState(false);
-  const check = useServerFn(saveCategory);
+  const check = useServerFn(checkAdmin);
 
   useEffect(() => {
     try {
@@ -69,9 +71,7 @@ function AdminGate() {
           const candidate = { user, pass };
           try {
             // Credentials are verified on the server.
-            await check({
-              data: { ...candidate, slug: "gift", label: "מתנות" },
-            });
+            await check({ data: candidate });
             sessionStorage.setItem(SESSION_KEY, JSON.stringify(candidate));
             setCreds(candidate);
           } catch {
@@ -139,15 +139,15 @@ const emptyForm = {
 
 function AdminPage({ creds }: { creds: Creds }) {
   const qc = useQueryClient();
-  const fetchCatalog = useServerFn(getCatalog);
+  const fetchCatalog = useServerFn(getAdminCatalog);
   const doSaveProduct = useServerFn(saveProduct);
   const doDeleteProduct = useServerFn(deleteProduct);
   const doSaveCategory = useServerFn(saveCategory);
   const doDeleteCategory = useServerFn(deleteCategory);
 
   const { data } = useQuery({
-    queryKey: ["catalog"],
-    queryFn: () => fetchCatalog(),
+    queryKey: ["admin-catalog"],
+    queryFn: () => fetchCatalog({ data: creds }),
   });
 
   const products = useMemo(() => data?.products ?? [], [data]);
@@ -160,7 +160,8 @@ function AdminPage({ creds }: { creds: Creds }) {
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   function refresh() {
-    qc.invalidateQueries({ queryKey: ["catalog"] });
+    qc.invalidateQueries({ queryKey: ["admin-catalog"] });
+    qc.invalidateQueries({ queryKey: ["shopify-catalog"] });
   }
 
   const rows = useMemo(() => {
@@ -171,14 +172,16 @@ function AdminPage({ creds }: { creds: Creds }) {
     );
   }, [products, query]);
 
-  async function patch(p: DbProduct, next: Partial<DbProduct>) {
+  async function patch(p: DbProduct, next: ProductInput) {
+    const t = toast.loading("שומר...");
     try {
       await doSaveProduct({
         data: { ...creds, product: { id: p.id, ...next } },
       });
       refresh();
+      toast.success("נשמר — מופיע באתר", { id: t });
     } catch {
-      toast.error("השמירה נכשלה");
+      toast.error("השמירה נכשלה", { id: t });
     }
   }
 
@@ -195,8 +198,8 @@ function AdminPage({ creds }: { creds: Creds }) {
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 1024 * 300) {
-      toast.error("התמונה גדולה מדי", { description: "נא לבחור קובץ עד 300KB" });
+    if (file.size > 1024 * 1024 * 4) {
+      toast.error("התמונה גדולה מדי", { description: "נא לבחור קובץ עד 4MB" });
       return;
     }
     const reader = new FileReader();
@@ -211,6 +214,7 @@ function AdminPage({ creds }: { creds: Creds }) {
       toast.error("חסרים שדות", { description: "נא למלא שם ולבחור קטגוריה" });
       return;
     }
+    const t = toast.loading("מוסיף לחנות...");
     try {
       await doSaveProduct({
         data: {
@@ -224,7 +228,7 @@ function AdminPage({ creds }: { creds: Creds }) {
               95,
               Math.max(0, Number(form.discount_percent) || 0),
             ),
-            image: form.imageFile || form.imageUrl.trim() || "hero-bottle",
+            imageData: form.imageFile || form.imageUrl.trim() || undefined,
             abv: form.abv.trim(),
             note: form.note.trim(),
             in_stock: form.in_stock,
@@ -236,9 +240,9 @@ function AdminPage({ creds }: { creds: Creds }) {
       if (fileRef.current) fileRef.current.value = "";
       setShowForm(false);
       refresh();
-      toast.success("המוצר נוסף");
+      toast.success("המוצר נוסף לחנות", { id: t });
     } catch {
-      toast.error("ההוספה נכשלה");
+      toast.error("ההוספה נכשלה", { id: t });
     }
   }
 
@@ -283,7 +287,7 @@ function AdminPage({ creds }: { creds: Creds }) {
               KYMRUN · ניהול
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              השינויים נשמרים במסד הנתונים ומופיעים באתר לכולם.
+              כל שינוי נשמר ישירות בחנות ומופיע באתר תוך דקה.
             </p>
           </div>
           <ThemeToggle />
@@ -495,16 +499,33 @@ function AdminPage({ creds }: { creds: Creds }) {
               key={p.id}
               className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-4 rounded-2xl border border-border bg-card p-3"
             >
-              <img
-                src={resolveImage(p.image)}
-                alt={p.name}
-                className="size-16 shrink-0 rounded-xl object-cover"
-                loading="lazy"
-              />
+              <label className="relative block cursor-pointer" title="החלפת תמונה">
+                <img
+                  src={resolveImage(p.image)}
+                  alt={p.name}
+                  className="size-16 shrink-0 rounded-xl object-cover"
+                  loading="lazy"
+                />
+                <span className="absolute inset-x-0 bottom-0 flex justify-center rounded-b-xl bg-background/80 py-0.5">
+                  <Upload className="size-3" />
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const r = new FileReader();
+                    r.onload = () => patch(p, { imageData: String(r.result) });
+                    r.readAsDataURL(file);
+                  }}
+                />
+              </label>
               <div className="min-w-0">
                 <div className="truncate text-sm font-semibold">{p.name}</div>
                 <div className="text-xs text-muted-foreground">
-                  {p.subtitle} · {p.abv}
+                  {p.subtitle}{p.abv ? ` · ${p.abv}` : ""}
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <label className="flex items-center gap-1 text-xs text-muted-foreground">
