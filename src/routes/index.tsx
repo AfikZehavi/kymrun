@@ -171,7 +171,7 @@ function Home() {
       const node = sp;
       const variant = node.variants.edges[0]?.node;
       const tags = node.tags ?? [];
-      const group = tags[0] ?? "all";
+      const group = tags.find((t) => !/%$/.test(t) && t !== "featured") ?? "all";
       const abvTag = tags.find((t) => /^\d+(\.\d+)?%$/.test(t));
       const compareAt = variant?.compareAtPrice
         ? parseFloat(variant.compareAtPrice.amount)
