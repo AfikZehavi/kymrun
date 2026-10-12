@@ -18,7 +18,7 @@ export type DbProduct = {
   sort: number;
 };
 
-export type ProductInput = Partial<DbProduct> & { imageData?: string };
+export type ProductInput = Partial<DbProduct> & { imageData?: string | undefined };
 
 export type Catalog = { categories: DbCategory[]; products: DbProduct[] };
 
