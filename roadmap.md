@@ -24,5 +24,5 @@
 - [x] Bottle photos fit inside cards + shelf split into pages of 12
 
 - [x] Approved storefront update: hide GOLD/trivia, name search, remove badge/contact prompt, 30-day age gate, image loading and fitted previews
-- [ ] Match bottle page to uploaded references, extend add/edit bottle details as needed, and always show kosher
-- [ ] Fix floating-point currency display and mobile cart bar layout with multiple bottles
+- [x] Match bottle page to uploaded references, extend add/edit bottle details as needed, and always show kosher
+- [x] Fix floating-point currency display and mobile cart bar layout with multiple bottles
