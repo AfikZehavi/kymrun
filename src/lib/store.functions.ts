@@ -95,6 +95,11 @@ export const createOrder = createServerFn({ method: "POST" })
       phone: data.phone,
       pdesc: lines.map((l) => `${l.name} x${l.qty}`).join(", ").slice(0, 250),
     });
+    // Ask Tranzila to post the result back so the order is marked as paid.
+    const origin = import.meta.env.PROD
+      ? "https://kymrun.lovable.app"
+      : "https://kymrun--0d735870-b8f2-4329-a2c9-cc581bbcc3cd.lovable.app";
+    params.set("notify_url", `${origin}/api/public/tranzila/notify`);
     return {
       orderId,
       total,
