@@ -20,5 +20,5 @@
 - [x] Product detail page (/product/$handle from Shopify)
 - [ ] Admin view for incoming inquiries
 - [x] Site + admin read the site's own product list again (109 bottles); 35 demo bottles deleted (backup kept)
-- [ ] Tranzila payment: built; waiting on terminal name (+ password) from owner, then set notify URL on terminal and run a real order
+- [ ] Tranzila payment: terminal + private key stored; payment page verified live (₪318.91, notify_url sent). Remaining: confirm with a real card order that money arrives and the order flips to "paid"
 - [x] Bottle photos fit inside cards + shelf split into pages of 12
