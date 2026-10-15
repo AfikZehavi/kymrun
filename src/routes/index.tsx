@@ -237,7 +237,7 @@ function Home() {
     document.getElementById("shelf")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function addProduct(product: Product) {
+  function addProduct(product: Product, quantity = 1) {
     if (!product.variantId) return;
     addShopifyItem({
       product: {
@@ -272,7 +272,7 @@ function Home() {
       variantTitle: "Default",
       price: { amount: String(product.price), currencyCode: product.currencyCode },
       compareAtPrice: product.compareAtPrice,
-      quantity: 1,
+      quantity,
     });
     toast.custom(
       (id) => (
@@ -690,8 +690,8 @@ function Home() {
       <ProductDialog
         product={selected}
         onClose={() => setSelected(null)}
-        onAdd={(p) => {
-          addProduct(p);
+        onAdd={(p, qty) => {
+          addProduct(p, qty);
           setSelected(null);
         }}
       />
