@@ -211,6 +211,9 @@ function Home() {
     ];
   }, [allProducts]);
 
+  const PAGE_SIZE = 12;
+  const [page, setPage] = useState(1);
+  useEffect(() => setPage(1), [filter]);
   const visible = useMemo(
     () =>
       filter === "all"
@@ -395,7 +398,7 @@ function Home() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
-            {visible.map((product) => (
+            {pageItems.map((product) => (
               <article
                 key={product.id}
                 className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card p-3"
@@ -405,13 +408,13 @@ function Home() {
                   className="text-right transition-transform active:scale-[0.98]"
                   aria-label={`פרטי ${product.name}`}
                 >
-                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-muted">
+                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-photo">
                     <img
                       src={product.image}
                       alt={product.name}
                       width={768}
                       height={960}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="h-full w-full object-contain p-3 mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
                     />
                     <span className="absolute top-2 right-2 rounded-lg bg-background/70 px-2 py-1 text-[10px] font-medium backdrop-blur-sm">

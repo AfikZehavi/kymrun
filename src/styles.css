@@ -26,6 +26,7 @@
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
+  --color-photo: var(--photo);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
@@ -38,6 +39,7 @@
 
 :root,
 .dark {
+  --photo: oklch(0.97 0.004 85);
   --radius: 1rem;
 
   --background: oklch(0.158 0.018 260);
