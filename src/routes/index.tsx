@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import {
+  Minus,
   ShoppingBag,
   Plus,
   Check,
@@ -39,7 +40,7 @@ import type { ShopifyProduct } from "@/lib/shopify";
 import { getStoreProducts } from "@/lib/store.functions";
 import { useCartStore, useCartSync } from "@/lib/use-shopify-cart";
 import { deliverySpeeds } from "@/lib/delivery";
-import type { Product, Category } from "@/lib/types";
+import type { Product, Category, ProductDetails } from "@/lib/types";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { WhatsappButton } from "@/components/whatsapp-button";
 import { SiteFooter } from "@/components/site-footer";
@@ -84,7 +85,7 @@ export const Route = createFileRoute("/")({
 
 const catalogQuery = queryOptions({
   queryKey: ["store-catalog"],
-  queryFn: (): Promise<ShopifyProduct["node"][]> => getStoreProducts(),
+  queryFn: (): Promise<(ShopifyProduct["node"] & { details?: ProductDetails })[]> => getStoreProducts(),
   staleTime: 5 * 60 * 1000,
   gcTime: 30 * 60 * 1000,
   retry: 1,
@@ -196,6 +197,7 @@ function Home() {
         featured: tags.includes("featured"),
         compareAtPrice: variant?.compareAtPrice ?? null,
         currencyCode: variant?.price.currencyCode ?? "ILS",
+        details: node.details,
       };
     });
   }, [data]);
