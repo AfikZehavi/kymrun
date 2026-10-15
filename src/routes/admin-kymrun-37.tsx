@@ -248,7 +248,7 @@ function AdminPage({ creds }: { creds: Creds }) {
             abv: form.abv.trim(),
             note: form.note.trim(),
             in_stock: form.in_stock,
-            sort: 1,
+            ...(!editingId ? { sort: 1 } : {}),
           },
         },
       });
