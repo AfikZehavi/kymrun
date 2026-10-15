@@ -21,3 +21,4 @@
 - [ ] Admin view for incoming inquiries
 - [x] Site + admin read the site's own product list again (109 bottles); 35 demo bottles deleted (backup kept)
 - [ ] Tranzila payment: built; waiting on terminal name (+ password) from owner, then set notify URL on terminal and run a real order
+- [x] Bottle photos fit inside cards + shelf split into pages of 12

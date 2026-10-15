@@ -484,7 +484,7 @@ function Home() {
               ))}
           </div>
           {pageCount > 1 && (
-            <nav aria-label="עמודים" className="mt-8 flex flex-wrap items-center justify-center gap-2">
+            <nav aria-label="עמודים" className="mt-8 flex items-center justify-center gap-2">
               <button
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
@@ -492,12 +492,15 @@ function Home() {
               >
                 הקודם
               </button>
+              <span className="px-3 text-sm text-muted-foreground md:hidden">
+                עמוד {currentPage} מתוך {pageCount}
+              </span>
               {Array.from({ length: pageCount }, (_, k) => k + 1).map((n) => (
                 <button
                   key={n}
                   onClick={() => goToPage(n)}
                   aria-current={n === currentPage ? "page" : undefined}
-                  className={`size-10 rounded-full text-sm font-semibold ${
+                  className={`hidden size-10 rounded-full text-sm font-semibold md:inline-block ${
                     n === currentPage
                       ? "bg-primary text-primary-foreground"
                       : "border border-border bg-card text-muted-foreground"
@@ -513,9 +516,6 @@ function Home() {
               >
                 הבא
               </button>
-              <p className="w-full text-center text-xs text-muted-foreground">
-                עמוד {currentPage} מתוך {pageCount}
-              </p>
             </nav>
           )}
 
