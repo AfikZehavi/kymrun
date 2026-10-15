@@ -211,6 +211,9 @@ function Home() {
     ];
   }, [allProducts]);
 
+  const PAGE_SIZE = 12;
+  const [page, setPage] = useState(1);
+  useEffect(() => setPage(1), [filter]);
   const visible = useMemo(
     () =>
       filter === "all"
@@ -218,6 +221,13 @@ function Home() {
         : allProducts.filter((p) => p.group === filter),
     [filter, allProducts],
   );
+  const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pageItems = visible.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  function goToPage(n: number) {
+    setPage(n);
+    document.getElementById("shelf")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   function addProduct(product: Product) {
     if (!product.variantId) return;
@@ -395,7 +405,7 @@ function Home() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
-            {visible.map((product) => (
+            {pageItems.map((product) => (
               <article
                 key={product.id}
                 className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card p-3"
@@ -405,13 +415,13 @@ function Home() {
                   className="text-right transition-transform active:scale-[0.98]"
                   aria-label={`פרטי ${product.name}`}
                 >
-                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-muted">
+                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-photo">
                     <img
                       src={product.image}
                       alt={product.name}
                       width={768}
                       height={960}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="h-full w-full object-contain p-3 mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
                     />
                     <span className="absolute top-2 right-2 rounded-lg bg-background/70 px-2 py-1 text-[10px] font-medium backdrop-blur-sm">
@@ -473,6 +483,41 @@ function Home() {
                 </div>
               ))}
           </div>
+          {pageCount > 1 && (
+            <nav aria-label="עמודים" className="mt-8 flex items-center justify-center gap-2">
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium disabled:opacity-40"
+              >
+                הקודם
+              </button>
+              <span className="px-3 text-sm text-muted-foreground md:hidden">
+                עמוד {currentPage} מתוך {pageCount}
+              </span>
+              {Array.from({ length: pageCount }, (_, k) => k + 1).map((n) => (
+                <button
+                  key={n}
+                  onClick={() => goToPage(n)}
+                  aria-current={n === currentPage ? "page" : undefined}
+                  className={`hidden size-10 rounded-full text-sm font-semibold md:inline-block ${
+                    n === currentPage
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border bg-card text-muted-foreground"
+                  }`}
+                >
+                  {n}
+                </button>
+              ))}
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === pageCount}
+                className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium disabled:opacity-40"
+              >
+                הבא
+              </button>
+            </nav>
+          )}
 
           {isError && (
             <div className="rounded-2xl border border-border bg-card p-6 text-center">
