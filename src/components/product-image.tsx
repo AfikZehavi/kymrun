@@ -2,7 +2,7 @@ import { useRef, useState, type ImgHTMLAttributes } from "react";
 import { ImageOff, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Props = ImgHTMLAttributes<HTMLImageElement> & { containerClassName?: string };
+type Props = ImgHTMLAttributes<HTMLImageElement> & { containerClassName?: string | undefined };
 
 export function ProductImage({ src, alt, className, containerClassName, ...props }: Props) {
   return <ImageState key={src} src={src} alt={alt} className={className} containerClassName={containerClassName} {...props} />;
