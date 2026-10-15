@@ -505,10 +505,10 @@ function CartPage() {
               <Check className="size-7" />
             </div>
             <DialogTitle className="font-display text-xl">
-              ההזמנה אושרה
+              ההזמנה התקבלה
             </DialogTitle>
             <DialogDescription>
-              {count} פריטים · ₪{subtotal}. נשלח אישור והמשלוח יוצא אליך.
+              נחזור אליך בטלפון לתיאום התשלום והמשלוח.
             </DialogDescription>
           </DialogHeader>
           <button
