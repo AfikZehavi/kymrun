@@ -1,245 +1,95 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { ArrowRight, Loader2, ShoppingBag, ShieldCheck, Truck } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
+import { ArrowRight, Loader2, ShoppingBag, ShieldCheck, Minus, Plus, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { getStoreProduct } from "@/lib/store.functions";
-import { useCartStore } from "@/lib/use-shopify-cart";
+import { useCartStore, useCartSync } from "@/lib/use-shopify-cart";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { BrandLockup } from "@/components/brand-lockup";
 import { ProductImage } from "@/components/product-image";
-import type { Product } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import { SiteFooter } from "@/components/site-footer";
 
+const productQuery = (handle: string) => queryOptions({ queryKey: ["store-product", handle], queryFn: () => getStoreProduct({ data: { handle } }), staleTime: 60_000 });
 export const Route = createFileRoute("/product/$handle")({
-  head: ({ params }) => ({
-    meta: [
-      { title: "מוצר — KYMRUN" },
-      { name: "description", content: "מוצר פרימיום כשר מ-KYMRUN." },
-      { property: "og:title", content: "מוצר — KYMRUN" },
-      { property: "og:description", content: "מוצר פרימיום כשר מ-KYMRUN." },
-      { property: "og:type", content: "product" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  loader: ({ context, params }) => context.queryClient.ensureQueryData(productQuery(params.handle)),
+  head: ({ loaderData }) => {
+    const title = loaderData ? `${loaderData.title} — KYMRUN` : "הבקבוק לא נמצא — KYMRUN";
+    const description = loaderData ? `${loaderData.title} — ${loaderData.productType}, כשר. ${loaderData.description.slice(0, 140)}` : "בקבוקי פרימיום כשרים בחנות KYMRUN.";
+    return { meta: [{ title }, { name: "description", content: description }, { property: "og:title", content: title }, { property: "og:description", content: description }, { property: "og:type", content: "product" }, { name: "twitter:card", content: "summary_large_image" }] };
+  },
   component: ProductPage,
 });
 
 function ProductPage() {
   const { handle } = Route.useParams();
-  const navigate = useNavigate();
+  const { data: product } = useSuspenseQuery(productQuery(handle));
+  useCartSync();
   const addItem = useCartStore((s) => s.addItem);
-  const cartCount = useCartStore(
-    (s) => s.items.reduce((sum, i) => sum + i.quantity, 0),
-  );
+  const count = useCartStore((s) => s.items.reduce((sum, item) => sum + item.quantity, 0));
+  const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
-  const [product, setProduct] = useState<Product | null>(null);
-  const [notFound, setNotFound] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoaded(false);
-    getStoreProduct({ data: { handle } })
-      .then((data) => {
-        if (cancelled) return;
-        const node = data;
-        if (!node) {
-          setNotFound(true);
-        } else {
-          const variant = node.variants.edges[0]?.node;
-          const tags = node.tags ?? [];
-          const abvTag = tags.find((t) => /^\d+(\.\d+)?%$/.test(t));
-          const compareAt = variant?.compareAtPrice
-            ? parseFloat(variant.compareAtPrice.amount)
-            : 0;
-          const price = parseFloat(variant?.price.amount ?? "0");
-          setProduct({
-            id: node.id,
-            handle: node.handle,
-            variantId: variant?.id ?? "",
-            name: node.title,
-            category: node.productType,
-            group: tags[0] ?? "all",
-            basePrice: compareAt > price ? compareAt : price,
-            price,
-            discount:
-              compareAt > price ? Math.round((1 - price / compareAt) * 100) : 0,
-            image: node.images.edges[0]?.node.url ?? "",
-            abv: abvTag ?? "",
-            note: node.description,
-            inStock: variant?.availableForSale ?? false,
-            featured: tags.includes("featured"),
-            compareAtPrice: variant?.compareAtPrice ?? null,
-            currencyCode: variant?.price.currencyCode ?? "ILS",
-          });
-        }
-        setLoaded(true);
-      })
-      .catch(() => {
-        if (!cancelled) setLoaded(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [handle]);
-
-  function handleAdd(p: Product) {
-    if (!p.variantId) return;
+  const variant = product?.variants.edges[0]?.node;
+  const price = Number(variant?.price.amount ?? 0);
+  const basePrice = Number(variant?.compareAtPrice?.amount ?? price);
+  const money = (n: number) => new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS" }).format(n);
+  async function add() {
+    if (!product || !variant || !variant.availableForSale) return;
     setAdding(true);
-    addItem({
-      product: {
-        node: {
-          id: p.id,
-          handle: p.handle,
-          title: p.name,
-          description: p.note,
-          productType: p.category,
-          tags: [],
-          priceRange: { minVariantPrice: { amount: String(p.price), currencyCode: p.currencyCode } },
-          compareAtPriceRange: p.compareAtPrice
-            ? { minVariantPrice: p.compareAtPrice }
-            : { minVariantPrice: { amount: String(p.price), currencyCode: p.currencyCode } },
-          images: { edges: [{ node: { url: p.image, altText: p.name } }] },
-          variants: {
-            edges: [{
-              node: {
-                id: p.variantId,
-                title: "Default Title",
-                price: { amount: String(p.price), currencyCode: p.currencyCode },
-                compareAtPrice: p.compareAtPrice ?? null,
-                availableForSale: p.inStock,
-                selectedOptions: [],
-              },
-            }],
-          },
-          options: [],
-        },
-      },
-      variantId: p.variantId,
-      variantTitle: "Default",
-      price: { amount: String(p.price), currencyCode: p.currencyCode },
-      compareAtPrice: p.compareAtPrice,
-      quantity: 1,
-    })
-      .then(() => toast.success("נוסף לסל", { description: p.name }))
-      .catch(() => toast.error("אופס", { description: "נסו שוב" }))
-      .finally(() => setAdding(false));
+    try {
+      await addItem({ product: { node: product }, variantId: variant.id, variantTitle: variant.title, price: variant.price, compareAtPrice: variant.compareAtPrice, quantity });
+      toast.success("נוסף לסל", { description: product.title });
+    } catch { toast.error("לא הצלחנו להוסיף לסל. נסו שוב."); }
+    finally { setAdding(false); }
   }
-
-  return (
-    <div dir="rtl" className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-40 border-b border-border/60 bg-white/90 dark:bg-background/85 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-md items-center justify-between gap-4 px-5 md:h-[4.5rem] md:max-w-2xl md:px-8 lg:max-w-4xl">
-          <button
-            onClick={() => navigate({ to: "/" })}
-            className="min-w-0 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <span className="inline-flex items-center gap-1">
-              <ArrowRight className="size-4" />
-              חזרה
-            </span>
-          </button>
-          <BrandLockup compact />
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <Link
-              to="/cart"
-              aria-label="עגלת קניות"
-              className="relative grid size-11 shrink-0 place-items-center rounded-full border border-border bg-muted text-foreground dark:bg-card"
-            >
-              <ShoppingBag className="size-5" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -left-1 grid size-5 place-items-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
+  const details = product?.details;
+  const info: { label: string; value: string }[] = product && details ? [
+    { label: "סוג מוצר", value: product.productType },
+    { label: "אחוז אלכוהול", value: details.abv },
+    { label: "נפח", value: details.volume_ml ? `${details.volume_ml} מ״ל` : "" },
+    { label: "ארץ ייצור", value: details.country },
+    { label: "יצרן / יקב", value: details.producer },
+    { label: "זן ענבים", value: details.grape_variety },
+    { label: "כשרות", value: "כשר" },
+    { label: "כשר לפסח", value: details.kosher_passover ? "כן" : "" },
+  ].filter((item) => item.value) : [];
+  return <div dir="rtl" className="min-h-screen bg-background text-foreground">
+    <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4 md:px-8">
+        <Button variant="ghost" size="icon" asChild><Link to="/" aria-label="חזרה לחנות" title="חזרה לחנות"><ArrowRight className="size-5" /></Link></Button>
+        <BrandLockup compact />
+        <div className="flex items-center gap-2"><ThemeToggle /><Button variant="outline" size="icon" asChild className="relative"><Link to="/cart" aria-label="עגלת קניות"><ShoppingBag className="size-5" />{count > 0 && <span className="absolute -top-2 -left-2 grid size-5 place-items-center rounded-full bg-primary text-xs text-primary-foreground">{count}</span>}</Link></Button></div>
+      </div>
+    </header>
+    {!product ? <main className="mx-auto max-w-xl px-5 py-20 text-center"><h1 className="text-2xl font-bold">הבקבוק לא נמצא</h1><Button asChild className="mt-6"><Link to="/">חזרה לחנות</Link></Button></main> : <>
+      <main className="mx-auto max-w-6xl px-4 pb-28 pt-4 md:px-8 md:pb-12">
+        <nav aria-label="מיקום בחנות" className="mb-4 flex flex-wrap gap-2 text-xs text-muted-foreground"><Link to="/" className="hover:text-primary">החנות</Link><span>/</span><span>{product.productType}</span><span>/</span><span>{product.title}</span></nav>
+        <div className="grid gap-6 md:grid-cols-2 md:gap-12">
+          <div className="min-w-0 md:sticky md:top-24 md:self-start"><ProductImage src={product.images.edges[0]?.node.url} alt={product.title} loading="eager" width={960} height={1200} containerClassName="h-[min(43dvh,340px)] w-full rounded-lg md:h-[min(70dvh,620px)]" className="p-4 md:p-8" /></div>
+          <div className="min-w-0">
+            <div className="text-center md:text-right">
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-primary"><ShieldCheck className="size-4" />כשר</span>
+              {basePrice > price && <span className="mr-3 text-xs font-semibold text-accent">{Math.round((1-price/basePrice)*100)}% הנחה</span>}
+              <h1 className="mt-2 font-display text-2xl font-bold leading-snug md:text-3xl">{product.title}</h1>
+              {details?.english_name && <p dir="ltr" className="mt-2 text-sm leading-relaxed text-muted-foreground md:text-right">{details.english_name}</p>}
+              <div className="mt-4 flex items-baseline justify-center gap-3 md:justify-start"><span className="text-2xl font-bold text-primary">{money(price)}</span>{basePrice > price && <span className="text-sm text-muted-foreground line-through">{money(basePrice)}</span>}</div>
+              {details?.volume_ml ? <p className="mt-1 text-xs text-muted-foreground">{details.volume_ml} מ״ל · {money(price / details.volume_ml * 100)} ל־100 מ״ל</p> : null}
+            </div>
+            <div className="mt-6 flex items-center gap-3">
+              <div className="grid h-12 shrink-0 grid-cols-[40px_32px_40px] items-center rounded-lg border border-border"><Button variant="ghost" size="icon" aria-label="הפחת כמות" disabled={quantity <= 1} onClick={() => setQuantity((q) => q - 1)}><Minus className="size-4" /></Button><output className="text-center text-sm font-medium">{quantity}</output><Button variant="ghost" size="icon" aria-label="הגדל כמות" disabled={quantity >= 50} onClick={() => setQuantity((q) => q + 1)}><Plus className="size-4" /></Button></div>
+              <Button className="hidden h-12 flex-1 md:inline-flex" onClick={add} disabled={adding || !variant?.availableForSale}>{adding ? <Loader2 className="size-4 animate-spin" /> : <ShoppingBag className="size-4" />}{variant?.availableForSale ? "הוסף לסל" : "אזל מהמלאי"}</Button>
+              <p className="text-xs text-muted-foreground md:hidden">{variant?.availableForSale ? "במלאי" : "אזל מהמלאי"}</p>
+            </div>
+            <section className="mt-7 border-t border-border pt-5"><h2 className="font-display text-lg font-bold">מידע נוסף</h2><dl className="mt-3">{info.map((item) => <div key={item.label} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-4 border-b border-border py-3 text-sm"><dt className="text-muted-foreground">{item.label}</dt><dd className="break-words text-left">{item.value}</dd></div>)}</dl></section>
+            {product.description && <section className="mt-7 border-t border-border pt-5"><h2 className="font-display text-lg font-bold">על המוצר</h2><p className="mt-3 whitespace-pre-line text-sm leading-7 text-muted-foreground">{product.description}</p></section>}
+            <p className="mt-6 flex items-center gap-2 text-xs text-muted-foreground"><Truck className="size-4 shrink-0 text-primary" />משלוח עד הבית · בדיקת תעודה מזהה במסירה</p>
           </div>
         </div>
-      </header>
-
-      <main className="mx-auto max-w-md px-5 py-8 md:max-w-2xl md:py-12 lg:max-w-4xl">
-        {!loaded && (
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="aspect-[4/5] w-full animate-pulse rounded-3xl bg-muted" />
-            <div className="space-y-3">
-              <div className="h-8 w-3/4 animate-pulse rounded bg-muted" />
-              <div className="h-5 w-1/3 animate-pulse rounded bg-muted" />
-              <div className="h-24 w-full animate-pulse rounded bg-muted" />
-            </div>
-          </div>
-        )}
-        {loaded && (notFound || !product) && (
-          <div className="rounded-3xl border border-border bg-card p-10 text-center">
-            <h1 className="font-display text-xl font-bold">המוצר לא נמצא</h1>
-            <Link
-              to="/"
-              className="mt-4 inline-block rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground"
-            >
-              חזרה לחנות
-            </Link>
-          </div>
-        )}
-        {loaded && product && (
-          <div className="grid gap-6 md:grid-cols-2 md:gap-10">
-            <div className="overflow-hidden rounded-3xl border border-border bg-card">
-              {product.image ? (
-                <ProductImage src={product.image} alt={product.name} width={960} height={1200} containerClassName="aspect-[4/5] w-full" />
-              ) : (
-                <div className="aspect-[4/5] w-full bg-muted" />
-              )}
-            </div>
-            <div>
-              <p className="text-xs tracking-widest text-muted-foreground">
-                {product.category}
-              </p>
-              <h1 className="mt-1 font-display text-2xl font-bold md:text-3xl">
-                {product.name}
-              </h1>
-              <div className="mt-3 flex flex-wrap items-baseline gap-2">
-                <span className="font-display text-2xl font-bold">
-                  ₪{product.price}
-                </span>
-                {product.discount > 0 && (
-                  <>
-                    <span className="text-sm text-muted-foreground line-through">
-                      ₪{product.basePrice}
-                    </span>
-                    <span className="rounded-md bg-accent px-1.5 py-0.5 text-xs font-bold text-accent-foreground">
-                      -{product.discount}%
-                    </span>
-                  </>
-                )}
-              </div>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                {product.note}
-              </p>
-              <div className="mt-5 space-y-2 text-xs text-muted-foreground">
-                <p className="flex items-center gap-2">
-                  <ShieldCheck className="size-4 text-primary" />
-                  כשר · איכות ללא פשרות
-                </p>
-                <p className="flex items-center gap-2">
-                  <Truck className="size-4 text-primary" />
-                  משלוח עד 4 שעות באזורי חלוקה נתמכים
-                </p>
-              </div>
-              <button
-                onClick={() => handleAdd(product)}
-                disabled={!product.inStock || adding}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-base font-semibold text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-50"
-              >
-                {adding ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : product.inStock ? (
-                  "הוסף לסל"
-                ) : (
-                  "אזל מהמלאי"
-                )}
-              </button>
-            </div>
-          </div>
-        )}
       </main>
-    </div>
-  );
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] backdrop-blur-md md:hidden"><div className="mx-auto flex max-w-md items-center gap-4"><span className="shrink-0 text-lg font-bold">{money(price*quantity)}</span><Button className="h-12 flex-1" onClick={add} disabled={adding || !variant?.availableForSale}>{adding ? <Loader2 className="size-4 animate-spin" /> : <ShoppingBag className="size-4" />}{variant?.availableForSale ? "הוסף לסל" : "אזל מהמלאי"}</Button></div></div>
+      <SiteFooter />
+    </>}
+  </div>;
 }

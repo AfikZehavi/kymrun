@@ -961,6 +961,7 @@ function ProductDialog({
                 <span className="font-display text-2xl font-bold">
                   ₪{product.price}
                 </span>
+                <Button variant="outline" asChild><Link to="/product/$handle" params={{ handle: product.handle }}>לפרטי הבקבוק</Link></Button>
                 <Button onClick={() => onAdd(product)} disabled={!product.inStock} className="h-12 flex-1 text-base">{product.inStock ? "הוסף לסל" : "אזל מהמלאי"}</Button>
               </div>
             </div>

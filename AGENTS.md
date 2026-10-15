@@ -14,3 +14,6 @@
 - Storefront product photos use the shared ProductImage component for loading/error states and whole-bottle framing.
 - Storefront age declaration is centralized in AgeGate at the root and excludes admin/API paths; browser expiry controls repeat prompts.
 - Optional membership and trivia surfaces use their module feature flags, including direct route redirects, so disabling remains reversible.
+
+- Bottle specifications use additive products columns shared by admin add/edit and the full detail page; empty unknown attributes are omitted, not invented.
+- Full bottle pages load through TanStack Query with loader-backed metadata and expose a mobile sticky purchase action.
