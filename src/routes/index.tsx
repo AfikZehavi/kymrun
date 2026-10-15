@@ -986,21 +986,20 @@ function CartBar({
   const freeShippingFrom = 550;
   const progress = Math.min((subtotal / freeShippingFrom) * 100, 100);
   const remaining = Math.max(freeShippingFrom - subtotal, 0);
+  const formatMoney = (value: number) => new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS", maximumFractionDigits: 2 }).format(value);
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 animate-slide-in-bottom">
       <div className="mx-auto max-w-md px-4 pb-4 md:max-w-xl lg:max-w-2xl">
         <div className="rounded-2xl border border-border bg-card p-4 shadow-2xl shadow-black/40 backdrop-blur-xl">
           <div className="mb-3">
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-muted-foreground">
               <span>
                 {remaining > 0
-                  ? `עוד ₪${remaining} למשלוח חינם`
+                  ? `עוד ${formatMoney(remaining)} למשלוח חינם`
                   : "משלוח חינם — מגיע אליך"}
               </span>
-              <span className="font-mono">
-                ₪{subtotal} / ₪{freeShippingFrom}
-              </span>
+              <span className="whitespace-nowrap font-mono" dir="ltr">{formatMoney(subtotal)} / {formatMoney(freeShippingFrom)}</span>
             </div>
             <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
               <div
@@ -1010,17 +1009,12 @@ function CartBar({
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button onClick={onOpen} className="min-w-0 flex-1 text-right">
-              <p className="text-xs text-muted-foreground">{count} פריטים</p>
-              <p className="font-display text-2xl font-bold">₪{subtotal}</p>
-            </button>
-            <button
-              onClick={onCheckout}
-              className="flex-1 rounded-2xl bg-primary py-3.5 text-base font-semibold text-primary-foreground transition-transform active:scale-[0.98]"
-            >
-              לתשלום
-            </button>
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(100px,1fr)] items-center gap-3">
+            <Button variant="ghost" onClick={onOpen} className="h-auto min-w-0 flex-col items-start px-0 text-right">
+              <span className="text-xs text-muted-foreground">{count} פריטים</span>
+              <span className="whitespace-nowrap font-display text-xl font-bold">{formatMoney(subtotal)}</span>
+            </Button>
+            <Button onClick={onCheckout} className="h-12 w-full text-base">לתשלום</Button>
           </div>
         </div>
       </div>
