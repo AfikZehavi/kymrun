@@ -221,6 +221,13 @@ function Home() {
         : allProducts.filter((p) => p.group === filter),
     [filter, allProducts],
   );
+  const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pageItems = visible.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  function goToPage(n: number) {
+    setPage(n);
+    document.getElementById("shelf")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   function addProduct(product: Product) {
     if (!product.variantId) return;
@@ -476,6 +483,41 @@ function Home() {
                 </div>
               ))}
           </div>
+          {pageCount > 1 && (
+            <nav aria-label="עמודים" className="mt-8 flex flex-wrap items-center justify-center gap-2">
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium disabled:opacity-40"
+              >
+                הקודם
+              </button>
+              {Array.from({ length: pageCount }, (_, k) => k + 1).map((n) => (
+                <button
+                  key={n}
+                  onClick={() => goToPage(n)}
+                  aria-current={n === currentPage ? "page" : undefined}
+                  className={`size-10 rounded-full text-sm font-semibold ${
+                    n === currentPage
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border bg-card text-muted-foreground"
+                  }`}
+                >
+                  {n}
+                </button>
+              ))}
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === pageCount}
+                className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium disabled:opacity-40"
+              >
+                הבא
+              </button>
+              <p className="w-full text-center text-xs text-muted-foreground">
+                עמוד {currentPage} מתוך {pageCount}
+              </p>
+            </nav>
+          )}
 
           {isError && (
             <div className="rounded-2xl border border-border bg-card p-6 text-center">
