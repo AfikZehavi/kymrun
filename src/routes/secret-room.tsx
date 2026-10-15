@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { Sparkles, Check, X, Gift, RotateCcw, Trophy } from "lucide-react";
 
@@ -10,9 +10,10 @@ import {
   PASS_SCORE,
   type TriviaQuestion,
 } from "@/lib/trivia";
-import { saveSecretGift, useSecretGift } from "@/lib/use-secret-gift";
+import { SECRET_ROOM_ENABLED, saveSecretGift, useSecretGift } from "@/lib/use-secret-gift";
 
 export const Route = createFileRoute("/secret-room")({
+  beforeLoad: () => { if (!SECRET_ROOM_ENABLED) throw redirect({ to: "/" }); },
   head: () => ({
     meta: [
       { title: "החדר הסודי — טריוויית יין ווויסקי | KYMRUN" },

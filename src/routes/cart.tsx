@@ -27,7 +27,8 @@ import { BrandLockup } from "@/components/brand-lockup";
 import { lookupCustomer, saveCustomer } from "@/lib/customers.functions";
 import { toast } from "sonner";
 import { createOrder } from "@/lib/store.functions";
-import { useSecretGift } from "@/lib/use-secret-gift";
+import { ProductImage } from "@/components/product-image";
+import { SECRET_ROOM_ENABLED, useSecretGift } from "@/lib/use-secret-gift";
 import { GOLD_ENABLED, goldDiscountForItems, useGold } from "@/lib/gold";
 
 export const Route = createFileRoute("/cart")({
@@ -222,14 +223,7 @@ function CartPage() {
                   className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3"
                 >
                   {img ? (
-                    <img
-                      src={img}
-                      alt={line.product.node.title}
-                      width={768}
-                      height={960}
-                      loading="lazy"
-                      className="size-20 rounded-xl object-cover md:size-24"
-                    />
+                    <ProductImage src={img} alt={line.product.node.title} width={768} height={960} loading="lazy" containerClassName="size-20 shrink-0 rounded-xl md:size-24" />
                   ) : (
                     <div className="grid size-20 place-items-center rounded-xl bg-muted md:size-24">
                       <ShoppingBag className="size-6 text-muted-foreground" />
@@ -470,7 +464,7 @@ function CartPage() {
                 </div>
               )}
 
-              {gift && (
+              {SECRET_ROOM_ENABLED && gift && (
                 <div className="mt-4 flex items-start gap-3 rounded-xl border border-primary/35 bg-primary/10 p-4">
                   <Gift className="mt-0.5 size-4 shrink-0 text-primary" />
                   <p className="text-xs leading-relaxed">

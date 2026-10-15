@@ -22,3 +22,5 @@
 - [x] Site + admin read the site's own product list again (109 bottles); 35 demo bottles deleted (backup kept)
 - [ ] Tranzila payment: terminal + private key stored; payment page verified live (₪318.91, notify_url sent). Remaining: confirm with a real card order that money arrives and the order flips to "paid"
 - [x] Bottle photos fit inside cards + shelf split into pages of 12
+
+- [ ] Approved storefront update: hide GOLD/trivia, name search, remove badge/contact prompt, 30-day age gate, image loading and fitted previews

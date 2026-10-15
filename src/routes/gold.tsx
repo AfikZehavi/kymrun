@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowRight, Crown, Check, Loader2, Truck, Percent, Sparkles } from "lucide-react";
 
@@ -10,6 +10,7 @@ import { GOLD_ENABLED, GOLD_PRICE_YEAR, useGold } from "@/lib/gold";
 import { submitInquiry } from "@/lib/inquiries.functions";
 
 export const Route = createFileRoute("/gold")({
+  beforeLoad: () => { if (!GOLD_ENABLED) throw redirect({ to: "/" }); },
   head: () => ({
     meta: [
       { title: "KYMRUN GOLD — מועדון החברים" },

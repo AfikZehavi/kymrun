@@ -14,6 +14,8 @@ import {
   ShieldCheck,
   Truck,
   Sparkles,
+  Search,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -42,6 +44,10 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { WhatsappButton } from "@/components/whatsapp-button";
 import { SiteFooter } from "@/components/site-footer";
 import { ZoneChecker } from "@/components/zone-checker";
+import { ProductImage } from "@/components/product-image";
+import { Button } from "@/components/ui/button";
+import { GOLD_ENABLED } from "@/lib/gold";
+import { SECRET_ROOM_ENABLED } from "@/lib/use-secret-gift";
 import { GoldBand } from "@/components/gold-band";
 import { BrandLockup } from "@/components/brand-lockup";
 
@@ -139,6 +145,8 @@ const paths: {
 ];
 
 function Home() {
+  const [search, setSearch] = useState("");
+  const activePaths = paths.filter((path) => SECRET_ROOM_ENABLED || path.id !== "secret");
   const [filter, setFilter] = useState<string>("all");
   const [selected, setSelected] = useState<Product | null>(null);
 
@@ -205,7 +213,7 @@ function Home() {
     return [
       { id: "all", label: "הכול" },
       ...[...seen.keys()]
-        .filter((g) => g !== "all")
+        .filter((g) => g !== "all" && (SECRET_ROOM_ENABLED || g !== "secret"))
         .sort((a, b) => rank(a) - rank(b))
         .map((g) => ({ id: g, label: seen.get(g) ?? g })),
     ];
@@ -213,13 +221,11 @@ function Home() {
 
   const PAGE_SIZE = 12;
   const [page, setPage] = useState(1);
-  useEffect(() => setPage(1), [filter]);
+  useEffect(() => setPage(1), [filter, search]);
   const visible = useMemo(
     () =>
-      filter === "all"
-        ? allProducts
-        : allProducts.filter((p) => p.group === filter),
-    [filter, allProducts],
+      allProducts.filter((p) => (filter === "all" || p.group === filter) && p.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase())),
+    [filter, search, allProducts],
   );
   const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
@@ -272,11 +278,7 @@ function Home() {
           dir="rtl"
           className="pointer-events-auto flex w-[min(92vw,380px)] items-center gap-3 rounded-2xl border border-primary/25 bg-card/95 p-3 text-right shadow-2xl shadow-black/50 backdrop-blur-xl"
         >
-          <img
-            src={product.image}
-            alt=""
-            className="size-14 shrink-0 rounded-xl object-cover ring-1 ring-border"
-          />
+          <ProductImage src={product.image} alt="" containerClassName="size-14 shrink-0 rounded-xl ring-1 ring-border" />
           <div className="min-w-0 flex-1">
             <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-primary">
               <Check className="size-3.5" />
@@ -307,7 +309,8 @@ function Home() {
 
 
   function selectPath(id: string) {
-    const path = paths.find((p) => p.id === id) ?? paths[0]!;
+    const path = activePaths.find((p) => p.id === id) ?? activePaths[0];
+    if (!path) return;
     if (path.to) {
       navigate({ to: path.to });
       return;
@@ -348,11 +351,11 @@ function Home() {
               בחר מה שהכי תרצה היום
             </h2>
             <span className="text-xs tracking-widest text-muted-foreground">
-              {paths.length} דרכים
+              {activePaths.length} דרכים
             </span>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 pt-1 snap-x md:grid md:grid-cols-3 md:gap-5 md:overflow-visible lg:grid-cols-6">
-            {paths.map((path) => (
+          <div className="flex gap-3 overflow-x-auto pb-2 pt-1 snap-x md:grid md:grid-cols-3 md:gap-5 md:overflow-visible lg:grid-cols-5">
+            {activePaths.map((path) => (
               <button
                 key={path.id}
                 onClick={() => selectPath(path.id)}
@@ -381,6 +384,11 @@ function Home() {
             </span>
           </div>
 
+          <div className="relative mb-4">
+            <Search className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
+            <input type="search" aria-label="חיפוש לפי שם בקבוק" placeholder="חיפוש לפי שם בקבוק" maxLength={150} value={search} onChange={(e) => setSearch(e.target.value)} className="h-12 w-full rounded-lg border border-border bg-card pr-12 pl-12 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary [&::-webkit-search-cancel-button]:hidden" />
+            {search && <Button variant="ghost" size="icon" aria-label="נקה חיפוש" title="נקה חיפוש" onClick={() => setSearch("")} className="absolute left-2 top-1/2 -translate-y-1/2"><X /></Button>}
+          </div>
           <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
             {categories.map((c) => (
               <button
@@ -416,14 +424,7 @@ function Home() {
                   aria-label={`פרטי ${product.name}`}
                 >
                   <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-photo">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      width={768}
-                      height={960}
-                      className="h-full w-full object-contain p-3 mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
+                    <ProductImage src={product.image} alt={product.name} width={768} height={960} containerClassName="h-full w-full" className="transition-transform duration-500 group-hover:scale-105" loading="lazy" />
                     <span className="absolute top-2 right-2 rounded-lg bg-background/70 px-2 py-1 text-[10px] font-medium backdrop-blur-sm">
                       {product.abv}
                     </span>
@@ -483,6 +484,7 @@ function Home() {
                 </div>
               ))}
           </div>
+          {!isPending && !isError && visible.length === 0 && <p role="status" className="py-10 text-center text-sm text-muted-foreground">לא נמצאו בקבוקים התואמים לחיפוש.</p>}
           {pageCount > 1 && (
             <nav aria-label="עמודים" className="mt-8 flex items-center justify-center gap-2">
               <button
@@ -569,6 +571,7 @@ function Home() {
           </div>
         </Reveal>
 
+        {SECRET_ROOM_ENABLED && (
         <Reveal as="section" className="mt-12 lg:mt-20">
           <div className="overflow-hidden rounded-3xl border border-primary/25 bg-gradient-to-bl from-card via-card to-primary/10 p-6 lg:p-10">
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 px-3 py-1 text-[11px] font-semibold tracking-wide text-primary">
@@ -617,9 +620,9 @@ function Home() {
           </div>
         </Reveal>
 
-        <Reveal as="section" className="mt-12 lg:mt-20">
-          <GoldBand />
-        </Reveal>
+        )}
+
+        {GOLD_ENABLED && <Reveal as="section" className="mt-12 lg:mt-20"><GoldBand /></Reveal>}
 
         <Reveal as="section" className="mt-12 lg:mt-20">
           <div className="grid gap-3 rounded-3xl border border-border bg-card p-5 md:grid-cols-4 lg:p-8">
@@ -666,17 +669,6 @@ function Home() {
                 </p>
               </div>
             ))}
-          </div>
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-border bg-card p-6">
-            <p className="text-sm text-muted-foreground">
-              שאלה על בקבוק, מתנה או משלוח?
-            </p>
-            <Link
-              to="/contact"
-              className="rounded-2xl border border-primary/40 px-5 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
-            >
-              דברו איתנו
-            </Link>
           </div>
         </Reveal>
       </main>
@@ -872,11 +864,6 @@ function HeroSection({ onGift }: { onGift: () => void }) {
         decoding="async"
       />
 
-      <span className="pointer-events-none absolute top-4 left-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-background/70 px-3 py-1.5 text-[11px] font-semibold tracking-wide backdrop-blur-md">
-        <ShieldCheck className="size-3.5 text-primary" />
-        כשר · 100%
-      </span>
-
       <div className="relative z-10 mx-auto flex min-h-[78vh] w-full max-w-md items-end px-5 pb-12 pt-24 md:min-h-[62vh] md:max-w-3xl md:items-center md:px-8 md:py-14 lg:min-h-[70vh] lg:max-w-6xl lg:py-12">
         <div className="w-full max-w-xl">
           <HeroCopy onGift={onGift} />
@@ -954,17 +941,10 @@ function ProductDialog({
 }) {
   return (
     <Dialog open={!!product} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent dir="rtl" className="max-w-sm p-0 text-right">
+      <DialogContent dir="rtl" className="w-[calc(100%-2rem)] max-w-sm max-h-[calc(100dvh-2rem)] overflow-y-auto gap-0 rounded-lg p-0 text-right">
         {product && (
           <>
-            <img
-              src={product.image}
-              alt={product.name}
-              width={768}
-              height={960}
-              loading="lazy"
-              className="aspect-[4/3] w-full rounded-t-lg object-cover"
-            />
+            <ProductImage src={product.image} alt={product.name} width={768} height={960} loading="eager" containerClassName="h-[min(42dvh,360px)] w-full shrink-0 rounded-t-lg" />
             <div className="space-y-3 p-5">
               <DialogHeader className="text-right">
                 <DialogTitle className="font-display text-xl">
@@ -981,12 +961,7 @@ function ProductDialog({
                 <span className="font-display text-2xl font-bold">
                   ₪{product.price}
                 </span>
-                <button
-                  onClick={() => onAdd(product)}
-                  className="flex-1 rounded-2xl bg-primary py-3 text-base font-semibold text-primary-foreground active:scale-[0.98]"
-                >
-                  הוסף לסל
-                </button>
+                <Button onClick={() => onAdd(product)} disabled={!product.inStock} className="h-12 flex-1 text-base">{product.inStock ? "הוסף לסל" : "אזל מהמלאי"}</Button>
               </div>
             </div>
           </>

@@ -6,6 +6,7 @@ import { getStoreProduct } from "@/lib/store.functions";
 import { useCartStore } from "@/lib/use-shopify-cart";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { BrandLockup } from "@/components/brand-lockup";
+import { ProductImage } from "@/components/product-image";
 import type { Product } from "@/lib/types";
 
 export const Route = createFileRoute("/product/$handle")({
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/product/$handle")({
       { title: "מוצר — KYMRUN" },
       { name: "description", content: "מוצר פרימיום כשר מ-KYMRUN." },
       { property: "og:title", content: "מוצר — KYMRUN" },
+      { property: "og:description", content: "מוצר פרימיום כשר מ-KYMRUN." },
       { property: "og:type", content: "product" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -181,13 +183,7 @@ function ProductPage() {
           <div className="grid gap-6 md:grid-cols-2 md:gap-10">
             <div className="overflow-hidden rounded-3xl border border-border bg-card">
               {product.image ? (
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  width={960}
-                  height={1200}
-                  className="aspect-[4/5] w-full object-cover"
-                />
+                <ProductImage src={product.image} alt={product.name} width={960} height={1200} containerClassName="aspect-[4/5] w-full" />
               ) : (
                 <div className="aspect-[4/5] w-full bg-muted" />
               )}

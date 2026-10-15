@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+export const SECRET_ROOM_ENABLED = false;
+
 const KEY = "kymrun-secret-gift";
 
 export type SecretGift = { code: string; score: number; wonAt: string };

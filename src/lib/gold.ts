@@ -6,7 +6,7 @@ import type { CartLine } from "./types";
  * Set to false to hide every GOLD surface (home band, /gold page, cart perks)
  * without removing any code.
  */
-export const GOLD_ENABLED = true;
+export const GOLD_ENABLED = false;
 
 export const GOLD_DISCOUNT = 0.15;
 export const GOLD_PRICE_YEAR = 349;
