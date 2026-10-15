@@ -116,6 +116,51 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          address: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          items: Json
+          phone: string
+          status: string
+          total: number
+          tranzila_index: string
+          tranzila_response: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          items?: Json
+          phone?: string
+          status?: string
+          total?: number
+          tranzila_index?: string
+          tranzila_response?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          items?: Json
+          phone?: string
+          status?: string
+          total?: number
+          tranzila_index?: string
+          tranzila_response?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           abv: string
@@ -171,6 +216,54 @@ export type Database = {
             referencedColumns: ["slug"]
           },
         ]
+      }
+      products_backup_20261015: {
+        Row: {
+          abv: string | null
+          category_slug: string | null
+          created_at: string | null
+          discount_percent: number | null
+          featured: boolean | null
+          id: string | null
+          image: string | null
+          in_stock: boolean | null
+          name: string | null
+          note: string | null
+          price: number | null
+          sort: number | null
+          subtitle: string | null
+        }
+        Insert: {
+          abv?: string | null
+          category_slug?: string | null
+          created_at?: string | null
+          discount_percent?: number | null
+          featured?: boolean | null
+          id?: string | null
+          image?: string | null
+          in_stock?: boolean | null
+          name?: string | null
+          note?: string | null
+          price?: number | null
+          sort?: number | null
+          subtitle?: string | null
+        }
+        Update: {
+          abv?: string | null
+          category_slug?: string | null
+          created_at?: string | null
+          discount_percent?: number | null
+          featured?: boolean | null
+          id?: string | null
+          image?: string | null
+          in_stock?: boolean | null
+          name?: string | null
+          note?: string | null
+          price?: number | null
+          sort?: number | null
+          subtitle?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {

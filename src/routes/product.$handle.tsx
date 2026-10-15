@@ -2,11 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowRight, Loader2, ShoppingBag, ShieldCheck, Truck } from "lucide-react";
 import { toast } from "sonner";
-import {
-  storefrontApiRequest,
-  PRODUCT_BY_HANDLE_QUERY,
-  type ShopifyProduct,
-} from "@/lib/shopify";
+import { getStoreProduct } from "@/lib/store.functions";
 import { useCartStore } from "@/lib/use-shopify-cart";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { BrandLockup } from "@/components/brand-lockup";
@@ -40,12 +36,10 @@ function ProductPage() {
   useEffect(() => {
     let cancelled = false;
     setLoaded(false);
-    storefrontApiRequest<{
-      product: ShopifyProduct["node"] | null;
-    }>(PRODUCT_BY_HANDLE_QUERY, { handle })
+    getStoreProduct({ data: { handle } })
       .then((data) => {
         if (cancelled) return;
-        const node = data?.product;
+        const node = data;
         if (!node) {
           setNotFound(true);
         } else {

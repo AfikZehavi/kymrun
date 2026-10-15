@@ -33,11 +33,8 @@ import heroBottlesLight from "@/assets/hero-bottles-light.webp";
 import heritageCrest from "@/assets/kymrun-heritage-crest.png";
 const heroTitleLight = "/hero-title-light.png";
 const heroTitleDark = "/hero-title-dark.png";
-import {
-  storefrontApiRequest,
-  PRODUCTS_QUERY,
-  type ShopifyProduct,
-} from "@/lib/shopify";
+import type { ShopifyProduct } from "@/lib/shopify";
+import { getStoreProducts } from "@/lib/store.functions";
 import { useCartStore, useCartSync } from "@/lib/use-shopify-cart";
 import { deliverySpeeds } from "@/lib/delivery";
 import type { Product, Category } from "@/lib/types";
@@ -80,13 +77,8 @@ export const Route = createFileRoute("/")({
 });
 
 const catalogQuery = queryOptions({
-  queryKey: ["shopify-catalog"],
-  queryFn: async (): Promise<ShopifyProduct["node"][]> => {
-    const data = await storefrontApiRequest<{
-      products: { edges: { node: ShopifyProduct["node"] }[] };
-    }>(PRODUCTS_QUERY, { first: 100 });
-    return (data?.products?.edges ?? []).map((e) => e.node);
-  },
+  queryKey: ["store-catalog"],
+  queryFn: (): Promise<ShopifyProduct["node"][]> => getStoreProducts(),
   staleTime: 5 * 60 * 1000,
   gcTime: 30 * 60 * 1000,
   retry: 1,
@@ -204,13 +196,18 @@ function Home() {
     const groupOrder = ["all", "gift", "wine", "whisky", "spirits", "secret"];
     const seen = new Map<string, string>();
     for (const p of allProducts) {
-      if (!seen.has(p.group)) seen.set(p.group, p.group);
+      if (!seen.has(p.group)) seen.set(p.group, p.category || p.group);
     }
+    const rank = (g: string) => {
+      const i = groupOrder.indexOf(g);
+      return i === -1 ? 99 : i;
+    };
     return [
       { id: "all", label: "הכול" },
-      ...groupOrder
-        .filter((g) => g !== "all" && seen.has(g))
-        .map((g) => ({ id: g, label: g })),
+      ...[...seen.keys()]
+        .filter((g) => g !== "all")
+        .sort((a, b) => rank(a) - rank(b))
+        .map((g) => ({ id: g, label: seen.get(g) ?? g })),
     ];
   }, [allProducts]);
 

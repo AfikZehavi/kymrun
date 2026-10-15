@@ -16,8 +16,8 @@
 - [x] Payment provider connected: Shopify Storefront API (36 products, cart, checkout verified end-to-end)
 - [x] Claim Shopify store — store is live, 120-day free trial started
 - [x] Payment gateway decision: Tranzila works with Shopify via the official "Tranzila PayTech" payments app
-- [ ] Install + activate Tranzila in Shopify admin (terminal details from Tranzila), then run a real test order
 - [ ] Connect a custom domain
 - [x] Product detail page (/product/$handle from Shopify)
 - [ ] Admin view for incoming inquiries
-- [ ] Admin screen edits Shopify directly — built; blocked on a new Shopify admin key (old one expired after claim)
+- [x] Site + admin read the site's own product list again (109 bottles); 35 demo bottles deleted (backup kept)
+- [ ] Tranzila payment: built; waiting on terminal name (+ password) from owner, then set notify URL on terminal and run a real order
