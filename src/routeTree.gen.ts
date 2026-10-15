@@ -19,6 +19,8 @@ import { Route as SecretRoomRouteImport } from './routes/secret-room'
 import { Route as ShippingRouteImport } from './routes/shipping'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ProductHandleRouteImport } from './routes/product.$handle'
+import { Route as ApiPublicProductImageIdRouteImport } from './routes/api/public/product-image.$id'
+import { Route as ApiPublicTranzilaNotifyRouteImport } from './routes/api/public/tranzila/notify'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -70,6 +72,16 @@ const ProductHandleRoute = ProductHandleRouteImport.update({
   path: '/product/$handle',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicProductImageIdRoute = ApiPublicProductImageIdRouteImport.update({
+  id: '/api/public/product-image/$id',
+  path: '/api/public/product-image/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicTranzilaNotifyRoute = ApiPublicTranzilaNotifyRouteImport.update({
+  id: '/api/public/tranzila/notify',
+  path: '/api/public/tranzila/notify',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -82,6 +94,8 @@ export interface FileRoutesByFullPath {
   '/shipping': typeof ShippingRoute
   '/terms': typeof TermsRoute
   '/product/$handle': typeof ProductHandleRoute
+  '/api/public/product-image/$id': typeof ApiPublicProductImageIdRoute
+  '/api/public/tranzila/notify': typeof ApiPublicTranzilaNotifyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +108,8 @@ export interface FileRoutesByTo {
   '/shipping': typeof ShippingRoute
   '/terms': typeof TermsRoute
   '/product/$handle': typeof ProductHandleRoute
+  '/api/public/product-image/$id': typeof ApiPublicProductImageIdRoute
+  '/api/public/tranzila/notify': typeof ApiPublicTranzilaNotifyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +123,8 @@ export interface FileRoutesById {
   '/shipping': typeof ShippingRoute
   '/terms': typeof TermsRoute
   '/product/$handle': typeof ProductHandleRoute
+  '/api/public/product-image/$id': typeof ApiPublicProductImageIdRoute
+  '/api/public/tranzila/notify': typeof ApiPublicTranzilaNotifyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +139,8 @@ export interface FileRouteTypes {
     | '/shipping'
     | '/terms'
     | '/product/$handle'
+    | '/api/public/product-image/$id'
+    | '/api/public/tranzila/notify'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +153,8 @@ export interface FileRouteTypes {
     | '/shipping'
     | '/terms'
     | '/product/$handle'
+    | '/api/public/product-image/$id'
+    | '/api/public/tranzila/notify'
   id:
     | '__root__'
     | '/'
@@ -145,6 +167,8 @@ export interface FileRouteTypes {
     | '/shipping'
     | '/terms'
     | '/product/$handle'
+    | '/api/public/product-image/$id'
+    | '/api/public/tranzila/notify'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -158,6 +182,8 @@ export interface RootRouteChildren {
   ShippingRoute: typeof ShippingRoute
   TermsRoute: typeof TermsRoute
   ProductHandleRoute: typeof ProductHandleRoute
+  ApiPublicProductImageIdRoute: typeof ApiPublicProductImageIdRoute
+  ApiPublicTranzilaNotifyRoute: typeof ApiPublicTranzilaNotifyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -232,6 +258,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductHandleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/product-image/$id': {
+      id: '/api/public/product-image/$id'
+      path: '/api/public/product-image/$id'
+      fullPath: '/api/public/product-image/$id'
+      preLoaderRoute: typeof ApiPublicProductImageIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/tranzila/notify': {
+      id: '/api/public/tranzila/notify'
+      path: '/api/public/tranzila/notify'
+      fullPath: '/api/public/tranzila/notify'
+      preLoaderRoute: typeof ApiPublicTranzilaNotifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -246,6 +286,8 @@ const rootRouteChildren: RootRouteChildren = {
   ShippingRoute: ShippingRoute,
   TermsRoute: TermsRoute,
   ProductHandleRoute: ProductHandleRoute,
+  ApiPublicProductImageIdRoute: ApiPublicProductImageIdRoute,
+  ApiPublicTranzilaNotifyRoute: ApiPublicTranzilaNotifyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
