@@ -1,0 +1,6 @@
+// Cloudflare Workers settings. Nitro merges this into the generated
+// .output/server/wrangler.json at build time (main/assets are filled in by Nitro).
+// The name must match the Worker name in the Cloudflare dashboard.
+{
+  "name": "kymrun"
+}
