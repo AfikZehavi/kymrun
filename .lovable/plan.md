@@ -1,72 +1,28 @@
-# תכנית: להתחיל לקבל הזמנות בתשלום — המסלול הכי קצר
+# Showing the new bottles on the site
 
-## למה בכלל צריך סולק אם יש שופיפיי
+## Admin login
+- Address: kymrun.lovable.app/admin-kymrun-37
+- Username: `adminkymrunhere22!!`
+- Password: `kymrunToWin2423`
 
-שופיפיי היא החנות: קטלוג, עגלה, קופה, הזמנות, אימיילים. היא לא סורקת בעצמה את הכרטיס.
-שירות התשלומים המובנה של שופיפיי (Shopify Payments) לא זמין לעסקים בישראל [4](https://shopifyisrael.co.il/help/manual/selling/payments/shopify-payments-country-availability),
-ולכן כרטיס אשראי דורש חיבור לסולק ישראלי — זה החלק שחסר היום, ולכן הקופה כותבת "החנות לא מקבלת תשלומים כרגע".
+## Why the new bottles don't show up
+Your friend has added 109 new bottles in the last few days, so his work isn't lost. They're saved in the site's own product list.
+But since we connected Shopify, the homepage only shows products from Shopify. These are two separate lists, so the new bottles don't appear anywhere.
+On top of that, the key that let the site update Shopify stopped working when the store was claimed. Without it, nothing can be moved into Shopify automatically.
 
-**המסקנה הכנה:** אין בישראל סולק שנכנס לעבודה תוך דקות. כל סולק דורש פתיחת חשבון עסק ואישור.
-לכן התכנית מפרידה בין מה שעובד **היום בלי אף אישור** לבין כרטיס אשראי.
+## Recommendation: the site's own list becomes the main list
+The fastest option that doesn't need any key from Shopify:
+1. The homepage, product page and admin screen show the site's own product list again, with all 109 new bottles. That's where your friend is already working, so every change he makes shows up right away.
+2. Shopify is used only for payment. When a customer clicks "Pay", a Shopify payment page opens with the right bottles and prices.
+3. Delete the 35 demo bottles from the start (everything added before the last few days), from both the site and Shopify.
 
-## שלב 1 — היום, בלי אישור: מזומן במסירה + העברה בנקאית (2 דקות)
+## Technical details
+- Catalog on `/`, `/product/$handle` and the admin screen: read from the `products` table (restore `getCatalog`). The admin screen goes back to its old database CRUD.
+- Checkout: a server function creates a Shopify cart using draft line items, or creates or updates a Shopify product with the admin token at checkout. Both need a working Shopify admin token. Fallback without a token: an order form saved to the database, plus the "cash on delivery" WhatsApp flow.
+- Delete demo rows: `delete from products where created_at < now() - interval '3 days'` (35 rows), and remove the 36 old products from Shopify.
 
-באדמין של שופיפיי: Settings → Payments → Manual payment methods → לבחור **Cash on Delivery (COD)** → **Activate**.
-אותו דבר מוסיפים **Bank transfer** אם רוצים גם.
-
-- אמצעי תשלום ידניים פטורים מעמלת עסקה של שופיפיי [3](https://help.shopify.com/en/manual/payments/manual-payments).
-- ההזמנה מגיעה אליך במייל + לרשימת ההזמנות באדמין, מסומנת "לא שולמה", ואתה מסמן "שולם" כשהכסף מתקבל [3](https://help.shopify.com/en/manual/payments/manual-payments).
-- מבחינת הלקוח: אותו מסך תשלום של שופיפיי, עם אפשרות "מזומן במסירה".
-
-**מה אני עושה:** בודק הזמנת בדיקה מקצה לקצה ומוודא שהאפשרות אכן מופיעה בקופה ושההזמנה נרשמת.
-
-## שלב 2 — כרטיס אשראי: Grow (לשעבר משולם) — הכי פחות התעסקות
-
-למה דווקא Grow:
-- מחיר מפורסם מראש, בלי דמי הקמה [3](https://grow.business/fees/).
-- סליקה כלולה בחבילה — הסכם אחד, בלי לרוץ אחרי חברת אשראי בנפרד [3](https://grow.business/fees/).
-- יש חיבור רשמי לשופיפיי, כולל כרטיסי אשראי, Apple Pay, Google Pay, bit, PayBox [1](https://grow.business/shopify/).
-- הרשמה עצמית באתר; אחרי אישור החשבון מקבלים במייל את פרטי המסוף [6](https://support.wix.com/he/article/%D7%97%D7%99%D7%91%D7%95%D7%A8-grow-%D7%A9%D7%9C-%D7%9E%D7%A9%D7%95%D7%9C%D7%9D-%D7%9B%D7%97%D7%91%D7%A8%D7%AA-%D7%A1%D7%9C%D7%99%D7%A7%D7%94).
-
-מחירון (לא כולל מע"מ): 0.75% לעסקה + מנוי ₪59 לחודש (שנתי) או ₪69 (חודשי); תוספת 0.6% בסליקה דרך שופיפיי; ₪1 להעברה בנקאית [3](https://grow.business/fees/).
-הכסף נכנס לחשבון Grow וזמינים לשימוש מ-1 בחודש העוקב [3](https://grow.business/fees/).
-
-חלופה אם תעדיף: **PayPlus** — סביב ₪79 לחודש + 0.6% לעסקה, דמי הקמה ~₪250 [3](https://shopifyisrael.co.il/tools/payment-providers-comparison).
-**טרנזילה ירדה מהפרק** לטענתך: המחיר אצלם רק בשיחה אישית, וזה לא "כמה פעולות".
-
-שים לב: על כל ספק חיצוני שופיפיי מוסיפה גם עמלת עסקה משלה (במסלול הבסיסי כ-2%).
-
-## שלב 3 — כשמגיעים פרטי המסוף (10 דקות)
-
-1. באדמין שופיפיי: Apps → לחפש את אפליקציית Grow לשופיפיי → Install.
-2. Settings → Payments → להדביק את פרטי המסוף שקיבלת במייל → Activate.
-3. אני מריץ הזמנה אמיתית מקצה לקצה: מוצר → סל → קופה → תשלום → ומוודא שהכסף עובר, שהמייל הגיע ושההזמנה נרשמה באדמין.
-
-## איך עורכים מוצרים, תמונות ומחירים
-
-**הכתובת:** `kymrun.lovable.app/admin-kymrun-37` — מוסתרת מהתפריט, לקוחות לא מגיעים אליה בטעות.
-**כניסה:** שם משתמש `adminkymrunhere22!!` וסיסמה `kymrunToWin2423`.
-במסך: הוספת מוצר, העלאת תמונה, שינוי מחיר, הנחה, קטגוריה, "במלאי", "מקודם", ומחיקה.
-
-**הפער שחייבים לסגור:** דף הבית היום מציג את הרשימה של שופיפיי, אבל המסך הזה עדיין כותב לרשימה הישנה —
-ולכן שינוי מחיר או תמונה שם עדיין **לא** מופיע אצל הלקוח. שתי דרכים לסגור:
-
-- **עובד עכשיו, בלי בנייה:** לערוך מוצרים, תמונות ומחירים באדמין של שופיפיי. שם מקור האמת.
-- **הכי נוח, דורש בנייה:** שאותו מסך בעברית שאתה כבר מכיר יעביר כל שינוי גם לשופיפיי —
-  ואז אתה לא נוגע בכלל במסך של שופיפיי. נוסיף את זה מיד אחרי התשלומים, אם תרצה.
-
-## מה נבנה באתר עבור התשלומים
-
-**כלום.** האתר כבר מוביל לשער התשלום של שופיפיי, ושם נקראת ההגדרה החדשה.
-לכן אין שינוי עיצוב, אין ניסיון לנחש, ואפשר לחזור אחורה בלחיצה על "Deactivate".
-
-## מה לא בתכנית (לפי הבחירה שלך)
-
-- הזמנות לא יועתקו למסך הניהול `/admin-kymrun-37` — הכול במייל ובאדמין של שופיפיי.
-- דומיין מותאם ומסך פניות באדמין — נשארים ברודמאפ להמשך.
-
-## סדר הפעולות שלך
-
-1. היום: Settings → Payments → Cash on Delivery → Activate. (2 דקות, בלי אישור)
-2. היום: להגיש בקשה לחשבון עסקי ב-grow.business.
-3. כשמגיע המייל עם פרטי המסוף: להתקין אפליקציה, להדביק, להפעיל — ואני מוודא הזמנה אמיתית.
+## What I need from you
+To make checkout and deleting from Shopify work, one of these:
+- Reconnect your Shopify account in the chat (one click), or
+- An admin key from Shopify (the steps from my previous message).
+Until then, the bottles will show on the site, but payment can only be cash on delivery, through WhatsApp or the order form.
