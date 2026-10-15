@@ -20,3 +20,4 @@
 - [ ] Connect a custom domain
 - [x] Product detail page (/product/$handle from Shopify)
 - [ ] Admin view for incoming inquiries
+- [ ] Admin screen edits Shopify directly — built; blocked on a new Shopify admin key (old one expired after claim)
