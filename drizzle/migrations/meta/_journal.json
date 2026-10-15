@@ -8,6 +8,13 @@
       "when": 1792072030406,
       "tag": "0000_products_backup_and_orders",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792083949565,
+      "tag": "0001_add_bottle_details",
+      "breakpoints": true
     }
   ]
 }

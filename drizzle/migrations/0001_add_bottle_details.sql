@@ -1,0 +1,3 @@
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS english_name text NOT NULL DEFAULT '', ADD COLUMN IF NOT EXISTS volume_ml integer NOT NULL DEFAULT 0, ADD COLUMN IF NOT EXISTS country text NOT NULL DEFAULT '', ADD COLUMN IF NOT EXISTS producer text NOT NULL DEFAULT '', ADD COLUMN IF NOT EXISTS grape_variety text NOT NULL DEFAULT '', ADD COLUMN IF NOT EXISTS kosher_passover boolean NOT NULL DEFAULT false;
+GRANT SELECT ON public.products TO anon, authenticated;
+GRANT ALL ON public.products TO service_role;

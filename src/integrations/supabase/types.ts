@@ -165,47 +165,65 @@ export type Database = {
         Row: {
           abv: string
           category_slug: string
+          country: string
           created_at: string
           discount_percent: number
+          english_name: string
           featured: boolean
+          grape_variety: string
           id: string
           image: string
           in_stock: boolean
+          kosher_passover: boolean
           name: string
           note: string
           price: number
+          producer: string
           sort: number
           subtitle: string
+          volume_ml: number
         }
         Insert: {
           abv?: string
           category_slug: string
+          country?: string
           created_at?: string
           discount_percent?: number
+          english_name?: string
           featured?: boolean
+          grape_variety?: string
           id?: string
           image?: string
           in_stock?: boolean
+          kosher_passover?: boolean
           name: string
           note?: string
           price?: number
+          producer?: string
           sort?: number
           subtitle?: string
+          volume_ml?: number
         }
         Update: {
           abv?: string
           category_slug?: string
+          country?: string
           created_at?: string
           discount_percent?: number
+          english_name?: string
           featured?: boolean
+          grape_variety?: string
           id?: string
           image?: string
           in_stock?: boolean
+          kosher_passover?: boolean
           name?: string
           note?: string
           price?: number
+          producer?: string
           sort?: number
           subtitle?: string
+          volume_ml?: number
         }
         Relationships: [
           {
