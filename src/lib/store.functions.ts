@@ -28,7 +28,11 @@ export const getStoreProduct = createServerFn({ method: "GET" })
   .handler(async ({ data }): Promise<ReturnType<typeof import("./store.server").toNode> | null> => {
     if (!/^[0-9a-f-]{36}$/i.test(data.handle)) return null;
     const { m, db, labels } = await load();
-    const { data: r, error } = await db.from("products").select(m.ROW_COLS).eq("id", data.handle).maybeSingle();
+    const { data: r, error } = await db
+      .from("products")
+      .select(m.ROW_COLS)
+      .eq("id", data.handle)
+      .maybeSingle();
     if (error) throw error;
     return r ? m.toNode(r as any, labels.get((r as any).category_slug) ?? "") : null;
   });
@@ -38,7 +42,7 @@ type OrderInput = {
   full_name: string;
   phone: string;
   address: string;
-  shipping: number;
+  shipping_method: string;
   items: { id: string; qty: number }[];
 };
 
@@ -47,17 +51,24 @@ export const createOrder = createServerFn({ method: "POST" })
     if (!d.items?.length || d.items.length > 100) throw new Error("bad items");
     return {
       ...d,
-      shipping: Math.min(Math.max(Number(d.shipping) || 0, 0), 35),
-      items: d.items.map((i) => ({ id: String(i.id), qty: Math.min(Math.max(Math.floor(i.qty), 1), 50) })),
+      shipping_method: String(d.shipping_method ?? "standard"),
+      items: d.items.map((i) => ({
+        id: String(i.id),
+        qty: Math.min(Math.max(Math.floor(i.qty), 1), 50),
+      })),
     };
   })
   .handler(async ({ data }) => {
     const m = await import("./store.server");
+    const { availableSpeeds, shippingPrice } = await import("./delivery");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows, error } = await supabaseAdmin
       .from("products")
       .select("id,name,price,discount_percent,in_stock")
-      .in("id", data.items.map((i) => i.id));
+      .in(
+        "id",
+        data.items.map((i) => i.id),
+      );
     if (error) throw error;
     const lines = data.items.flatMap((i) => {
       const r = (rows ?? []).find((x: any) => x.id === i.id) as any;
@@ -65,7 +76,13 @@ export const createOrder = createServerFn({ method: "POST" })
       return [{ id: r.id, name: r.name, qty: i.qty, price: m.salePrice(r) }];
     });
     if (!lines.length) throw new Error("no available items");
-    const total = Math.round((lines.reduce((s, l) => s + l.price * l.qty, 0) + data.shipping) * 100) / 100;
+
+    // Shipping is priced here from the chosen method, never trusted from the browser.
+    const method = availableSpeeds(data.address).find((s) => s.id === data.shipping_method);
+    if (!method) throw new Error("shipping method not available for this address");
+    const subtotal = lines.reduce((s, l) => s + l.price * l.qty, 0);
+    const shipping = shippingPrice(method.id, subtotal);
+    const total = Math.round((subtotal + shipping) * 100) / 100;
 
     const { data: order, error: oe } = await supabaseAdmin
       .from("orders")
@@ -76,6 +93,8 @@ export const createOrder = createServerFn({ method: "POST" })
         address: data.address.slice(0, 500),
         items: lines,
         total,
+        shipping,
+        shipping_method: method.id,
       } as never)
       .select("id")
       .single();
@@ -84,6 +103,10 @@ export const createOrder = createServerFn({ method: "POST" })
 
     const terminal = process.env["TRANZILA_TERMINAL"];
     if (!terminal) return { orderId, total, paymentUrl: null as string | null };
+
+    // Tranzila sends the buyer and the payment result back to this same site.
+    const { getRequestUrl } = await import("@tanstack/react-start/server");
+    const origin = (process.env["SITE_URL"] || getRequestUrl().origin).replace(/\/+$/, "");
     const params = new URLSearchParams({
       sum: total.toFixed(2),
       currency: "1",
@@ -93,13 +116,14 @@ export const createOrder = createServerFn({ method: "POST" })
       contact: data.full_name,
       email: data.email,
       phone: data.phone,
-      pdesc: lines.map((l) => `${l.name} x${l.qty}`).join(", ").slice(0, 250),
+      pdesc: lines
+        .map((l) => `${l.name} x${l.qty}`)
+        .join(", ")
+        .slice(0, 250),
+      notify_url_address: `${origin}/api/public/tranzila/notify`,
+      success_url_address: `${origin}/api/public/tranzila/return?status=ok`,
+      fail_url_address: `${origin}/api/public/tranzila/return?status=fail`,
     });
-    // Ask Tranzila to post the result back so the order is marked as paid.
-    const origin = import.meta.env.PROD
-      ? "https://kymrun.lovable.app"
-      : "https://kymrun--0d735870-b8f2-4329-a2c9-cc581bbcc3cd.lovable.app";
-    params.set("notify_url", `${origin}/api/public/tranzila/notify`);
     return {
       orderId,
       total,

@@ -101,3 +101,9 @@ GRANT ALL ON public.orders TO service_role;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON public.orders
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+-- Delivery choice and paid-order email tracking (added for Tranzila checkout)
+ALTER TABLE public.orders
+  ADD COLUMN IF NOT EXISTS shipping_method text NOT NULL DEFAULT 'standard',
+  ADD COLUMN IF NOT EXISTS shipping numeric NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS paid_email_sent_at timestamptz;

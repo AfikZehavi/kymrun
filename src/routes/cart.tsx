@@ -32,6 +32,7 @@ import { createOrder } from "@/lib/store.functions";
 import { ProductImage } from "@/components/product-image";
 import { SECRET_ROOM_ENABLED, useSecretGift } from "@/lib/use-secret-gift";
 import { GOLD_ENABLED, goldDiscountForItems, useGold } from "@/lib/gold";
+import { FREE_SHIPPING_FROM, availableSpeeds, deliverySpeeds, shippingPrice } from "@/lib/delivery";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -56,8 +57,6 @@ export const Route = createFileRoute("/cart")({
   component: CartPage,
 });
 
-const FREE_SHIPPING_FROM = 550;
-
 function CartPage() {
   const { gift } = useSecretGift();
   const { active: goldActive, member: goldMember } = useGold();
@@ -81,6 +80,7 @@ function CartPage() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [shippingMethod, setShippingMethod] = useState("standard");
   const [lookup, setLookup] = useState<"idle" | "loading" | "found" | "new">("idle");
   const [submitting, setSubmitting] = useState(false);
 
@@ -116,7 +116,10 @@ function CartPage() {
   const remaining = Math.max(FREE_SHIPPING_FROM - subtotal, 0);
   const progress = Math.min((subtotal / FREE_SHIPPING_FROM) * 100, 100);
   const goldDiscount = goldActive ? goldDiscountForItems(items) : 0;
-  const shipping = goldActive ? 0 : remaining > 0 ? 35 : 0;
+  // Same rules the server uses; the server recomputes the real price when the order is created.
+  const available = availableSpeeds(address);
+  const method = available.find((s) => s.id === shippingMethod) ?? available[available.length - 1]!;
+  const shipping = goldActive ? 0 : shippingPrice(method.id, subtotal);
   const total = Math.max(subtotal - goldDiscount + shipping, 0);
 
   const ready = subtotal > 0 && detailsValid && !submitting;
@@ -139,15 +142,16 @@ function CartPage() {
           full_name: fullName.trim(),
           phone: phone.trim(),
           address: address.trim(),
-          shipping,
+          shipping_method: method.id,
           items: items.map((i) => ({ id: i.variantId, qty: i.quantity })),
         },
       });
-      clearCart();
       if (res.paymentUrl) {
+        // The cart is kept until the payment succeeds, so a failed payment can be retried.
         window.location.href = res.paymentUrl;
         return;
       }
+      clearCart();
       setOrderPlaced(true);
     } catch {
       toast.error("לא הצלחנו לשלוח את ההזמנה, נסו שוב או התקשרו 050-4001575");
@@ -388,6 +392,48 @@ function CartPage() {
                     />
                   </div>
                 </div>
+
+                <fieldset className="mt-7">
+                  <legend className={labelClass}>סוג משלוח</legend>
+                  <div className="grid gap-2.5 sm:grid-cols-3">
+                    {deliverySpeeds.map((s) => {
+                      const enabled = available.some((a) => a.id === s.id);
+                      const selected = enabled && method.id === s.id;
+                      const price = shippingPrice(s.id, subtotal);
+                      return (
+                        <label
+                          key={s.id}
+                          className={`relative flex cursor-pointer flex-col rounded-md border p-4 transition-colors ${
+                            selected
+                              ? "border-gold bg-gold/10"
+                              : "border-input hover:border-gold/50"
+                          } ${enabled ? "" : "pointer-events-none opacity-40"}`}
+                        >
+                          <input
+                            type="radio"
+                            name="shipping_method"
+                            value={s.id}
+                            checked={selected}
+                            disabled={!enabled}
+                            onChange={() => setShippingMethod(s.id)}
+                            className="sr-only"
+                          />
+                          <span className="font-display text-base font-medium">{s.label}</span>
+                          <span className="mt-0.5 text-xs text-muted-foreground">{s.window}</span>
+                          <span className="mt-2 text-sm font-semibold">
+                            {price === 0 ? "חינם" : `₪${price}`}
+                          </span>
+                          {!enabled && (
+                            <span className="mt-1 text-[11px] text-muted-foreground">
+                              לא זמין לכתובת הזו
+                            </span>
+                          )}
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <p className="mt-2 text-[11px] text-muted-foreground">{method.note}</p>
+                </fieldset>
               </section>
             </div>
 
@@ -407,7 +453,7 @@ function CartPage() {
                     </div>
                   )}
                   <div className="flex items-center justify-between">
-                    <dt className="text-muted-foreground">משלוח</dt>
+                    <dt className="text-muted-foreground">משלוח · {method.label}</dt>
                     <dd className="font-display">{shipping > 0 ? `₪${shipping}` : "חינם"}</dd>
                   </div>
                 </dl>
@@ -432,9 +478,9 @@ function CartPage() {
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Truck className="size-4 text-gold" strokeWidth={1.5} />
                       {remaining > 0 ? (
-                        <span>עוד ₪{fmt(remaining)} למשלוח חינם</span>
+                        <span>עוד ₪{fmt(remaining)} למשלוח רגיל חינם</span>
                       ) : (
-                        <span>משלוח חינם — מגיע אליך</span>
+                        <span>משלוח רגיל (עד 48 שעות) חינם בהזמנה הזו</span>
                       )}
                     </div>
                     <div className="mt-2.5 h-1 w-full overflow-hidden rounded-full bg-muted">

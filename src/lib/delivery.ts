@@ -54,16 +54,7 @@ export const deliveryZones: Zone[] = [
   },
   {
     name: "שרון והשפלה",
-    cities: [
-      "רעננה",
-      "כפר סבא",
-      "הוד השרון",
-      "נתניה",
-      "רחובות",
-      "נס ציונה",
-      "מודיעין",
-      "אשדוד",
-    ],
+    cities: ["רעננה", "כפר סבא", "הוד השרון", "נתניה", "רחובות", "נס ציונה", "מודיעין", "אשדוד"],
     speeds: ["express", "next", "standard"],
   },
   {
@@ -86,13 +77,27 @@ export const deliveryZones: Zone[] = [
 export function findZone(query: string): Zone | null {
   const q = query.trim();
   if (!q) return null;
-  return (
-    deliveryZones.find((z) =>
-      z.cities.some((c) => c.includes(q) || q.includes(c)),
-    ) ?? null
-  );
+  return deliveryZones.find((z) => z.cities.some((c) => c.includes(q) || q.includes(c))) ?? null;
 }
 
 export function speedById(id: string): DeliverySpeed | undefined {
   return deliverySpeeds.find((s) => s.id === id);
+}
+
+export const FREE_SHIPPING_FROM = 550;
+
+/** Price of a delivery method for a given subtotal. Regular (48h) delivery is free above FREE_SHIPPING_FROM. */
+export function shippingPrice(methodId: string, subtotal: number): number {
+  const speed = speedById(methodId) ?? speedById("standard")!;
+  if (speed.id === "standard" && subtotal >= FREE_SHIPPING_FROM) return 0;
+  return speed.price;
+}
+
+/** Methods offered for an address: limited to the zone when a known city appears in it, otherwise all. */
+export function availableSpeeds(address: string): DeliverySpeed[] {
+  const words = address.trim();
+  const zone = words
+    ? deliveryZones.find((z) => z.cities.some((c) => words.includes(c)))
+    : undefined;
+  return zone ? deliverySpeeds.filter((s) => zone.speeds.includes(s.id)) : deliverySpeeds;
 }

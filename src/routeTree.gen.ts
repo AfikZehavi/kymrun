@@ -15,12 +15,14 @@ import { Route as CartRouteImport } from './routes/cart'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as GoldRouteImport } from './routes/gold'
+import { Route as OrderCompleteRouteImport } from './routes/order-complete'
 import { Route as SecretRoomRouteImport } from './routes/secret-room'
 import { Route as ShippingRouteImport } from './routes/shipping'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ProductHandleRouteImport } from './routes/product.$handle'
 import { Route as ApiPublicProductImageIdRouteImport } from './routes/api/public/product-image.$id'
 import { Route as ApiPublicTranzilaNotifyRouteImport } from './routes/api/public/tranzila/notify'
+import { Route as ApiPublicTranzilaReturnRouteImport } from './routes/api/public/tranzila/return'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -50,6 +52,11 @@ const EventsRoute = EventsRouteImport.update({
 const GoldRoute = GoldRouteImport.update({
   id: '/gold',
   path: '/gold',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrderCompleteRoute = OrderCompleteRouteImport.update({
+  id: '/order-complete',
+  path: '/order-complete',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SecretRoomRoute = SecretRoomRouteImport.update({
@@ -82,6 +89,11 @@ const ApiPublicTranzilaNotifyRoute = ApiPublicTranzilaNotifyRouteImport.update({
   path: '/api/public/tranzila/notify',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTranzilaReturnRoute = ApiPublicTranzilaReturnRouteImport.update({
+  id: '/api/public/tranzila/return',
+  path: '/api/public/tranzila/return',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -90,12 +102,14 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
   '/gold': typeof GoldRoute
+  '/order-complete': typeof OrderCompleteRoute
   '/secret-room': typeof SecretRoomRoute
   '/shipping': typeof ShippingRoute
   '/terms': typeof TermsRoute
   '/product/$handle': typeof ProductHandleRoute
   '/api/public/product-image/$id': typeof ApiPublicProductImageIdRoute
   '/api/public/tranzila/notify': typeof ApiPublicTranzilaNotifyRoute
+  '/api/public/tranzila/return': typeof ApiPublicTranzilaReturnRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -104,12 +118,14 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
   '/gold': typeof GoldRoute
+  '/order-complete': typeof OrderCompleteRoute
   '/secret-room': typeof SecretRoomRoute
   '/shipping': typeof ShippingRoute
   '/terms': typeof TermsRoute
   '/product/$handle': typeof ProductHandleRoute
   '/api/public/product-image/$id': typeof ApiPublicProductImageIdRoute
   '/api/public/tranzila/notify': typeof ApiPublicTranzilaNotifyRoute
+  '/api/public/tranzila/return': typeof ApiPublicTranzilaReturnRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -119,12 +135,14 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
   '/gold': typeof GoldRoute
+  '/order-complete': typeof OrderCompleteRoute
   '/secret-room': typeof SecretRoomRoute
   '/shipping': typeof ShippingRoute
   '/terms': typeof TermsRoute
   '/product/$handle': typeof ProductHandleRoute
   '/api/public/product-image/$id': typeof ApiPublicProductImageIdRoute
   '/api/public/tranzila/notify': typeof ApiPublicTranzilaNotifyRoute
+  '/api/public/tranzila/return': typeof ApiPublicTranzilaReturnRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -135,12 +153,14 @@ export interface FileRouteTypes {
     | '/contact'
     | '/events'
     | '/gold'
+    | '/order-complete'
     | '/secret-room'
     | '/shipping'
     | '/terms'
     | '/product/$handle'
     | '/api/public/product-image/$id'
     | '/api/public/tranzila/notify'
+    | '/api/public/tranzila/return'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -149,12 +169,14 @@ export interface FileRouteTypes {
     | '/contact'
     | '/events'
     | '/gold'
+    | '/order-complete'
     | '/secret-room'
     | '/shipping'
     | '/terms'
     | '/product/$handle'
     | '/api/public/product-image/$id'
     | '/api/public/tranzila/notify'
+    | '/api/public/tranzila/return'
   id:
     | '__root__'
     | '/'
@@ -163,12 +185,14 @@ export interface FileRouteTypes {
     | '/contact'
     | '/events'
     | '/gold'
+    | '/order-complete'
     | '/secret-room'
     | '/shipping'
     | '/terms'
     | '/product/$handle'
     | '/api/public/product-image/$id'
     | '/api/public/tranzila/notify'
+    | '/api/public/tranzila/return'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -178,12 +202,14 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   EventsRoute: typeof EventsRoute
   GoldRoute: typeof GoldRoute
+  OrderCompleteRoute: typeof OrderCompleteRoute
   SecretRoomRoute: typeof SecretRoomRoute
   ShippingRoute: typeof ShippingRoute
   TermsRoute: typeof TermsRoute
   ProductHandleRoute: typeof ProductHandleRoute
   ApiPublicProductImageIdRoute: typeof ApiPublicProductImageIdRoute
   ApiPublicTranzilaNotifyRoute: typeof ApiPublicTranzilaNotifyRoute
+  ApiPublicTranzilaReturnRoute: typeof ApiPublicTranzilaReturnRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -230,6 +256,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GoldRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/order-complete': {
+      id: '/order-complete'
+      path: '/order-complete'
+      fullPath: '/order-complete'
+      preLoaderRoute: typeof OrderCompleteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/secret-room': {
       id: '/secret-room'
       path: '/secret-room'
@@ -272,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTranzilaNotifyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/tranzila/return': {
+      id: '/api/public/tranzila/return'
+      path: '/api/public/tranzila/return'
+      fullPath: '/api/public/tranzila/return'
+      preLoaderRoute: typeof ApiPublicTranzilaReturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -282,12 +322,14 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   EventsRoute: EventsRoute,
   GoldRoute: GoldRoute,
+  OrderCompleteRoute: OrderCompleteRoute,
   SecretRoomRoute: SecretRoomRoute,
   ShippingRoute: ShippingRoute,
   TermsRoute: TermsRoute,
   ProductHandleRoute: ProductHandleRoute,
   ApiPublicProductImageIdRoute: ApiPublicProductImageIdRoute,
   ApiPublicTranzilaNotifyRoute: ApiPublicTranzilaNotifyRoute,
+  ApiPublicTranzilaReturnRoute: ApiPublicTranzilaReturnRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
