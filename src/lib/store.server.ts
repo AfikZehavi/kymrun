@@ -2,13 +2,18 @@ import { createClient } from "@supabase/supabase-js";
 import type { ShopifyProduct } from "./shopify";
 
 export function publicDb() {
-  const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
-  return createClient(process.env["SUPABASE_URL"]!, key, {
+  // Runtime vars win; the public URL/key baked in at build time (.env) are the fallback,
+  // so hosting only has to provide secrets.
+  const key =
+    process.env["SUPABASE_PUBLISHABLE_KEY"] || import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"];
+  const url = process.env["SUPABASE_URL"] || import.meta.env["VITE_SUPABASE_URL"];
+  return createClient(url, key, {
     auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
     global: {
       fetch: (input, init) => {
         const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
+          h.delete("Authorization");
         h.set("apikey", key);
         return fetch(input, { ...init, headers: h });
       },
@@ -37,7 +42,9 @@ export type Row = {
 };
 
 export const salePrice = (r: Row) =>
-  Math.round(Number(r.price) * (1 - Math.min(95, Math.max(0, r.discount_percent || 0)) / 100) * 100) / 100;
+  Math.round(
+    Number(r.price) * (1 - Math.min(95, Math.max(0, r.discount_percent || 0)) / 100) * 100,
+  ) / 100;
 
 export function imageUrl(r: Row) {
   if (!r.image) return "hero-bottle";
@@ -46,12 +53,36 @@ export function imageUrl(r: Row) {
 }
 
 /** Maps a database row into the node shape the storefront UI already understands. */
-export function toNode(r: Row, catLabel: string): ShopifyProduct["node"] & { details: Pick<Row, "subtitle" | "english_name" | "volume_ml" | "country" | "producer" | "grape_variety" | "kosher_passover" | "abv"> } {
+export function toNode(
+  r: Row,
+  catLabel: string,
+): ShopifyProduct["node"] & {
+  details: Pick<
+    Row,
+    | "subtitle"
+    | "english_name"
+    | "volume_ml"
+    | "country"
+    | "producer"
+    | "grape_variety"
+    | "kosher_passover"
+    | "abv"
+  >;
+} {
   const base = Number(r.price);
   const sale = salePrice(r);
   const money = (n: number) => ({ amount: String(n), currencyCode: "ILS" });
   return {
-    details: { subtitle: r.subtitle, english_name: r.english_name, volume_ml: r.volume_ml, country: r.country, producer: r.producer, grape_variety: r.grape_variety, kosher_passover: r.kosher_passover, abv: r.abv },
+    details: {
+      subtitle: r.subtitle,
+      english_name: r.english_name,
+      volume_ml: r.volume_ml,
+      country: r.country,
+      producer: r.producer,
+      grape_variety: r.grape_variety,
+      kosher_passover: r.kosher_passover,
+      abv: r.abv,
+    },
     id: r.id,
     title: r.name,
     description: r.note || r.subtitle,
@@ -79,6 +110,8 @@ export function toNode(r: Row, catLabel: string): ShopifyProduct["node"] & { det
   };
 }
 
-export const ROW_COLS = "id,name,subtitle,category_slug,price,discount_percent,image,abv,note,in_stock,featured,english_name,volume_ml,country,producer,grape_variety,kosher_passover";
+export const ROW_COLS =
+  "id,name,subtitle,category_slug,price,discount_percent,image,abv,note,in_stock,featured,english_name,volume_ml,country,producer,grape_variety,kosher_passover";
 // list query without the heavy image payload, image resolved via length marker
-export const LIST_COLS = "id,name,subtitle,category_slug,price,discount_percent,abv,note,in_stock,featured,sort,created_at";
+export const LIST_COLS =
+  "id,name,subtitle,category_slug,price,discount_percent,abv,note,in_stock,featured,sort,created_at";
