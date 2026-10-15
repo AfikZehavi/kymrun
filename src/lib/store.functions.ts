@@ -25,7 +25,7 @@ export const getStoreProducts = createServerFn({ method: "GET" }).handler(
 
 export const getStoreProduct = createServerFn({ method: "GET" })
   .inputValidator((d: { handle: string }) => d)
-  .handler(async ({ data }): Promise<ShopifyProduct["node"] | null> => {
+  .handler(async ({ data }): Promise<ReturnType<typeof import("./store.server").toNode> | null> => {
     if (!/^[0-9a-f-]{36}$/i.test(data.handle)) return null;
     const { m, db, labels } = await load();
     const { data: r, error } = await db.from("products").select(m.ROW_COLS).eq("id", data.handle).maybeSingle();
