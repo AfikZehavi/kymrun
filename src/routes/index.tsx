@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import {
+  Minus,
   ShoppingBag,
   Plus,
   Check,
@@ -39,7 +40,7 @@ import type { ShopifyProduct } from "@/lib/shopify";
 import { getStoreProducts } from "@/lib/store.functions";
 import { useCartStore, useCartSync } from "@/lib/use-shopify-cart";
 import { deliverySpeeds } from "@/lib/delivery";
-import type { Product, Category } from "@/lib/types";
+import type { Product, Category, ProductDetails } from "@/lib/types";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { WhatsappButton } from "@/components/whatsapp-button";
 import { SiteFooter } from "@/components/site-footer";
@@ -84,7 +85,7 @@ export const Route = createFileRoute("/")({
 
 const catalogQuery = queryOptions({
   queryKey: ["store-catalog"],
-  queryFn: (): Promise<ShopifyProduct["node"][]> => getStoreProducts(),
+  queryFn: (): Promise<(ShopifyProduct["node"] & { details?: ProductDetails })[]> => getStoreProducts(),
   staleTime: 5 * 60 * 1000,
   gcTime: 30 * 60 * 1000,
   retry: 1,
@@ -196,6 +197,7 @@ function Home() {
         featured: tags.includes("featured"),
         compareAtPrice: variant?.compareAtPrice ?? null,
         currencyCode: variant?.price.currencyCode ?? "ILS",
+        details: node.details,
       };
     });
   }, [data]);
@@ -235,7 +237,7 @@ function Home() {
     document.getElementById("shelf")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function addProduct(product: Product) {
+  function addProduct(product: Product, quantity = 1) {
     if (!product.variantId) return;
     addShopifyItem({
       product: {
@@ -270,7 +272,7 @@ function Home() {
       variantTitle: "Default",
       price: { amount: String(product.price), currencyCode: product.currencyCode },
       compareAtPrice: product.compareAtPrice,
-      quantity: 1,
+      quantity,
     });
     toast.custom(
       (id) => (
@@ -688,8 +690,8 @@ function Home() {
       <ProductDialog
         product={selected}
         onClose={() => setSelected(null)}
-        onAdd={(p) => {
-          addProduct(p);
+        onAdd={(p, qty) => {
+          addProduct(p, qty);
           setSelected(null);
         }}
       />
@@ -937,32 +939,76 @@ function ProductDialog({
 }: {
   product: Product | null;
   onClose: () => void;
-  onAdd: (p: Product) => void;
+  onAdd: (p: Product, qty: number) => void;
 }) {
+  const [quantity, setQuantity] = useState(1);
+  useEffect(() => setQuantity(1), [product?.id]);
+  const details = product?.details;
+  const info: { label: string; value: string }[] = product
+    ? [
+        { label: "סוג מוצר", value: product.category },
+        { label: "אחוז אלכוהול", value: details?.abv || product.abv },
+        { label: "נפח", value: details?.volume_ml ? `${details.volume_ml} מ״ל` : "" },
+        { label: "ארץ ייצור", value: details?.country ?? "" },
+        { label: "יצרן / יקב", value: details?.producer ?? "" },
+        { label: "זן ענבים", value: details?.grape_variety ?? "" },
+        { label: "כשרות", value: "כשר" },
+        { label: "כשר לפסח", value: details?.kosher_passover ? "כן" : "" },
+      ].filter((item) => item.value)
+    : [];
+  const money = (n: number) => new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS" }).format(n);
+  const volume = details?.volume_ml ?? 0;
   return (
     <Dialog open={!!product} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent dir="rtl" className="w-[calc(100%-2rem)] max-w-sm max-h-[calc(100dvh-2rem)] overflow-y-auto gap-0 rounded-lg p-0 text-right [&>button]:bg-primary [&>button]:text-primary-foreground [&>button]:opacity-100 [&>button]:p-2">
+      <DialogContent dir="rtl" className="w-[calc(100%-2rem)] max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto gap-0 rounded-lg p-0 text-right [&>button]:bg-primary [&>button]:text-primary-foreground [&>button]:opacity-100 [&>button]:p-2">
         {product && (
           <>
-            <ProductImage src={product.image} alt={product.name} width={768} height={960} loading="eager" containerClassName="h-[min(42dvh,360px)] w-full shrink-0 rounded-t-lg" />
+            <ProductImage src={product.image} alt={product.name} width={768} height={960} loading="eager" containerClassName="h-[min(38dvh,340px)] w-full shrink-0 rounded-t-lg" />
             <div className="space-y-3 p-5">
-              <DialogHeader className="text-right">
+              <DialogHeader className="space-y-1 text-right">
                 <DialogTitle className="font-display text-xl">
                   {product.name}
                 </DialogTitle>
+                {details?.english_name && <p dir="ltr" className="text-xs text-muted-foreground">{details.english_name}</p>}
                 <DialogDescription>
-                  {product.category} · {product.abv}
+                  {product.category}{product.abv ? ` · ${product.abv}` : ""}
                 </DialogDescription>
               </DialogHeader>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {product.note}
+              <div className="flex flex-wrap items-baseline gap-2">
+                <span className="font-display text-2xl font-bold">{money(product.price)}</span>
+                {product.discount > 0 && (
+                  <>
+                    <span className="text-sm text-muted-foreground line-through">{money(product.basePrice)}</span>
+                    <span className="rounded-md bg-accent px-1.5 py-0.5 text-[10px] font-bold text-accent-foreground">-{product.discount}%</span>
+                  </>
+                )}
+              </div>
+              {volume > 0 && <p className="text-xs text-muted-foreground">{volume} מ״ל · {money((product.price / volume) * 100)} ל־100 מ״ל</p>}
+              {product.note && <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{product.note}</p>}
+              {info.length > 0 && (
+                <section className="border-t border-border pt-3">
+                  <h3 className="font-display text-base font-bold">מידע נוסף</h3>
+                  <dl className="mt-1">
+                    {info.map((item) => (
+                      <div key={item.label} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-4 border-b border-border py-2.5 text-sm">
+                        <dt className="text-muted-foreground">{item.label}</dt>
+                        <dd className="break-words text-left">{item.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+              )}
+              <p className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Truck className="size-4 shrink-0 text-primary" />
+                משלוח עד הבית · בדיקת תעודה מזהה במסירה
               </p>
-              <div className="flex items-center justify-between gap-3 pt-1">
-                <span className="font-display text-2xl font-bold">
-                  ₪{product.price}
-                </span>
-                <Button variant="outline" asChild><Link to="/product/$handle" params={{ handle: product.handle }}>לפרטי הבקבוק</Link></Button>
-                <Button onClick={() => onAdd(product)} disabled={!product.inStock} className="h-12 flex-1 text-base">{product.inStock ? "הוסף לסל" : "אזל מהמלאי"}</Button>
+              <div className="flex items-center gap-3 pt-1">
+                <div className="grid h-12 shrink-0 grid-cols-[40px_32px_40px] items-center rounded-lg border border-border">
+                  <Button variant="ghost" size="icon" aria-label="הפחת כמות" disabled={quantity <= 1} onClick={() => setQuantity((q) => q - 1)}><Minus className="size-4" /></Button>
+                  <output className="text-center text-sm font-medium">{quantity}</output>
+                  <Button variant="ghost" size="icon" aria-label="הגדל כמות" disabled={quantity >= 50} onClick={() => setQuantity((q) => q + 1)}><Plus className="size-4" /></Button>
+                </div>
+                <Button onClick={() => onAdd(product, quantity)} disabled={!product.inStock} className="h-12 flex-1 text-base">{product.inStock ? "הוסף לסל" : "אזל מהמלאי"}</Button>
               </div>
             </div>
           </>

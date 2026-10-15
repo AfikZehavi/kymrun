@@ -1,3 +1,14 @@
+export type ProductDetails = {
+  subtitle: string;
+  english_name: string;
+  volume_ml: number;
+  country: string;
+  producer: string;
+  grape_variety: string;
+  kosher_passover: boolean;
+  abv: string;
+};
+
 export type Product = {
   id: string;
   handle: string;
@@ -15,6 +26,7 @@ export type Product = {
   featured: boolean;
   compareAtPrice: { amount: string; currencyCode: string } | null;
   currencyCode: string;
+  details?: ProductDetails | undefined;
 };
 
 export type Category = { id: string; label: string };
