@@ -1,28 +1,32 @@
-# Showing the new bottles on the site
+# New bottles on the site + payment through Tranzila
 
 ## Admin login
 - Address: kymrun.lovable.app/admin-kymrun-37
 - Username: `adminkymrunhere22!!`
 - Password: `kymrunToWin2423`
 
-## Why the new bottles don't show up
-Your friend has added 109 new bottles in the last few days, so his work isn't lost. They're saved in the site's own product list.
-But since we connected Shopify, the homepage only shows products from Shopify. These are two separate lists, so the new bottles don't appear anywhere.
-On top of that, the key that let the site update Shopify stopped working when the store was claimed. Without it, nothing can be moved into Shopify automatically.
+## Why the bottles don't show up
+Your friend added 109 bottles, and they're saved safely. But since the Shopify connection, the homepage has been reading the product list from Shopify instead of the list he's working on. So his bottles exist but don't appear.
 
-## Recommendation: the site's own list becomes the main list
-The fastest option that doesn't need any key from Shopify:
-1. The homepage, product page and admin screen show the site's own product list again, with all 109 new bottles. That's where your friend is already working, so every change he makes shows up right away.
-2. Shopify is used only for payment. When a customer clicks "Pay", a Shopify payment page opens with the right bottles and prices.
-3. Delete the 35 demo bottles from the start (everything added before the last few days), from both the site and Shopify.
+## Why I mentioned reconnecting
+When the store was claimed, Shopify cancelled the temporary key the site used to manage it. If Tranzila takes the payments directly, the site no longer needs Shopify at all, and you don't need to reconnect anything.
 
-## Technical details
-- Catalog on `/`, `/product/$handle` and the admin screen: read from the `products` table (restore `getCatalog`). The admin screen goes back to its old database CRUD.
-- Checkout: a server function creates a Shopify cart using draft line items, or creates or updates a Shopify product with the admin token at checkout. Both need a working Shopify admin token. Fallback without a token: an order form saved to the database, plus the "cash on delivery" WhatsApp flow.
-- Delete demo rows: `delete from products where created_at < now() - interval '3 days'` (35 rows), and remove the 36 old products from Shopify.
+## What I'll do
+1. **Make a backup** of the full product list before any deletion.
+2. **Delete only the 35 demo bottles.** These are the ones from the site's first day, all dated September 14. Your friend's 109 bottles were all added in the last few days and won't be touched. Before deleting, I'll show the list of names to make sure there's no mistake.
+3. **Home page, product page and admin** show your friend's list again. Every change in the admin will show up on the site right away.
+4. **Payment through Tranzila directly:** click "Pay" in the cart and a secure Tranzila payment page opens (credit card, and bit/Apple Pay if they're enabled on your terminal). Once payment goes through, the order is saved and an email arrives.
+5. **Shopify is disconnected from the checkout.** The store stays open on your side, but nothing depends on it.
 
 ## What I need from you
-To make checkout and deleting from Shopify work, one of these:
-- Reconnect your Shopify account in the chat (one click), or
-- An admin key from Shopify (the steps from my previous message).
-Until then, the bottles will show on the site, but payment can only be cash on delivery, through WhatsApp or the order form.
+- The **terminal name** from Tranzila (e.g. `kymrun`). It's what appears in the email from Tranzila.
+- If you have it, also the **terminal password or API key**. That lets the site confirm on its own that the payment really went through.
+I'll open a secure box to paste these into. Nothing will be written into the site's code.
+
+## Technical details
+- Backup: copy `products` to `products_backup_20261015`. Delete: `delete from products where created_at < '2026-09-15'`, after confirming count = 35 and listing the names.
+- Catalog: `/` and `/product/$handle` read the `products` table through `getCatalog`. The admin screen goes back to its database CRUD (revert the Shopify-admin functions).
+- Cart: local cart (zustand) over database products, with no Shopify cart.
+- New `orders` table (RLS locked, server-only writes). A `createOrder` server function computes the total on the server from the database prices, then returns the Tranzila hosted page URL (`direct.tranzila.com/{terminal}/iframenew.php`, sum, currency=1 ILS, order id, notify_url).
+- Server route `/api/public/tranzila/notify` checks the response (Response=000, matching sum, and, when an API key is provided, a verification call to Tranzila), then marks the order as paid.
+- Secrets: `TRANZILA_TERMINAL`, `TRANZILA_PASSWORD` (optional).
