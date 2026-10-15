@@ -20,10 +20,13 @@ export function BrandLockup({ compact = false }: { compact?: boolean }) {
           }
         />
       )}
-      <span className="font-display text-lg font-bold tracking-[0.18em]">
+      <span
+        className={`font-display font-medium tracking-[0.32em] ${compact ? "text-lg" : "text-2xl"}`}
+        style={{ marginInlineEnd: "-0.32em" }}
+      >
         KYMRUN
       </span>
-      <span className="mt-1 block text-[10px] tracking-widest text-muted-foreground">
+      <span className="mt-1 block text-[10px] tracking-[0.1em] text-gold/90">
         משקאות פרימיום · כשר
       </span>
     </span>

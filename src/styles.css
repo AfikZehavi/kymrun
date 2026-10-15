@@ -5,15 +5,16 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "Rubik", "Heebo", sans-serif;
-  --font-display: "Rubik", "Heebo", sans-serif;
+  --font-sans: "Heebo", "Rubik", sans-serif;
+  --font-display: "Frank Ruhl Libre", "Heebo", serif;
   --font-mono: "JetBrains Mono", "Space Mono", monospace;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-xl: calc(var(--radius) + 2px);
+  --radius-2xl: calc(var(--radius) + 4px);
+  --radius-3xl: calc(var(--radius) + 6px);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -30,6 +31,9 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-gold: var(--gold);
+  --color-wine: var(--wine);
+  --color-wine-foreground: var(--wine-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
@@ -37,68 +41,77 @@
   --color-ring: var(--ring);
 }
 
+/* Dark is the house look: warm ink, champagne gold, a touch of wine. */
 :root,
 .dark {
-  --photo: oklch(0.97 0.004 85);
-  --radius: 1rem;
+  --photo: oklch(0.965 0.008 85);
+  --radius: 0.5rem;
 
-  --background: oklch(0.158 0.018 260);
-  --foreground: oklch(0.95 0.005 80);
+  --background: oklch(0.145 0.008 65);
+  --foreground: oklch(0.94 0.012 85);
 
-  --card: oklch(0.21 0.016 260);
-  --card-foreground: oklch(0.95 0.005 80);
+  --card: oklch(0.182 0.009 65);
+  --card-foreground: oklch(0.94 0.012 85);
 
-  --popover: oklch(0.21 0.016 260);
-  --popover-foreground: oklch(0.95 0.005 80);
+  --popover: oklch(0.182 0.009 65);
+  --popover-foreground: oklch(0.94 0.012 85);
 
-  --primary: oklch(0.82 0.07 235);
-  --primary-foreground: oklch(0.13 0.02 260);
+  --primary: oklch(0.8 0.09 82);
+  --primary-foreground: oklch(0.16 0.01 65);
 
-  --secondary: oklch(0.23 0.02 260);
-  --secondary-foreground: oklch(0.93 0.005 80);
+  --secondary: oklch(0.22 0.01 65);
+  --secondary-foreground: oklch(0.93 0.012 85);
 
-  --muted: oklch(0.27 0.015 260);
-  --muted-foreground: oklch(0.65 0.015 260);
+  --muted: oklch(0.24 0.01 65);
+  --muted-foreground: oklch(0.7 0.018 80);
 
-  --accent: oklch(0.78 0.08 75);
-  --accent-foreground: oklch(0.13 0.02 260);
+  --accent: oklch(0.24 0.012 70);
+  --accent-foreground: oklch(0.94 0.012 85);
 
-  --destructive: oklch(0.61 0.2 25);
+  --gold: oklch(0.8 0.09 82);
+  --wine: oklch(0.48 0.14 18);
+  --wine-foreground: oklch(0.97 0.01 85);
+
+  --destructive: oklch(0.62 0.19 25);
   --destructive-foreground: oklch(0.98 0.005 80);
 
-  --border: oklch(0.35 0.012 260 / 30%);
-  --input: oklch(0.35 0.012 260 / 40%);
-  --ring: oklch(0.82 0.07 235);
+  --border: oklch(0.8 0.05 82 / 14%);
+  --input: oklch(0.8 0.05 82 / 22%);
+  --ring: oklch(0.8 0.09 82);
 }
 
 .light {
-  --background: oklch(0.985 0.004 95);
-  --foreground: oklch(0.22 0.02 260);
+  --background: oklch(0.975 0.008 85);
+  --foreground: oklch(0.2 0.012 60);
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.02 260);
+  --card: oklch(0.993 0.004 85);
+  --card-foreground: oklch(0.2 0.012 60);
 
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.02 260);
+  --popover: oklch(0.993 0.004 85);
+  --popover-foreground: oklch(0.2 0.012 60);
 
-  --primary: oklch(0.52 0.09 235);
-  --primary-foreground: oklch(0.99 0.004 95);
+  --primary: oklch(0.22 0.014 60);
+  --primary-foreground: oklch(0.96 0.02 85);
 
-  --secondary: oklch(0.95 0.008 260);
-  --secondary-foreground: oklch(0.26 0.02 260);
+  --secondary: oklch(0.94 0.01 85);
+  --secondary-foreground: oklch(0.24 0.012 60);
 
-  --muted: oklch(0.94 0.008 260);
-  --muted-foreground: oklch(0.5 0.015 260);
+  --muted: oklch(0.935 0.01 85);
+  --muted-foreground: oklch(0.47 0.016 65);
 
-  --accent: oklch(0.72 0.1 75);
-  --accent-foreground: oklch(0.2 0.02 260);
+  --accent: oklch(0.93 0.014 85);
+  --accent-foreground: oklch(0.22 0.014 60);
 
-  --destructive: oklch(0.58 0.2 25);
+  --gold: oklch(0.6 0.11 75);
+  --wine: oklch(0.45 0.14 18);
+  --wine-foreground: oklch(0.98 0.008 85);
+
+  --destructive: oklch(0.56 0.2 25);
   --destructive-foreground: oklch(0.99 0.004 95);
 
-  --border: oklch(0.5 0.012 260 / 22%);
-  --input: oklch(0.5 0.012 260 / 30%);
-  --ring: oklch(0.52 0.09 235);
+  --border: oklch(0.45 0.03 70 / 16%);
+  --input: oklch(0.45 0.03 70 / 26%);
+  --ring: oklch(0.6 0.11 75);
 }
 
 @layer base {
@@ -116,7 +129,40 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "kern", "liga";
   }
+
+  ::selection {
+    background: color-mix(in oklch, var(--gold) 35%, transparent);
+  }
+}
+
+/* Small caps-style label that sits above section titles. */
+@utility eyebrow {
+  font-size: 12px;
+  font-weight: 500;
+  /* Hebrew has no capitals; wide tracking breaks words apart, so keep it light. */
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+/* Hairline that fades out at both ends — used under titles and between blocks. */
+@utility gold-rule {
+  height: 1px;
+  background: linear-gradient(
+    to left,
+    transparent,
+    color-mix(in oklch, var(--gold) 70%, transparent),
+    transparent
+  );
+}
+
+/* Quiet warm glow behind dark surfaces so flat black doesn't read as empty. */
+@utility surface-glow {
+  background-image:
+    radial-gradient(120% 80% at 100% 0%, color-mix(in oklch, var(--gold) 9%, transparent), transparent 60%),
+    radial-gradient(90% 70% at 0% 100%, color-mix(in oklch, var(--wine) 10%, transparent), transparent 60%);
 }
 
 @keyframes slide-in-bottom {

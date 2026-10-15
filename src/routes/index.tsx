@@ -1,21 +1,17 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
-import {
-  Minus,
-  ShoppingBag,
-  Plus,
+  ArrowLeft,
+  ArrowRight,
+  BadgeCheck,
   Check,
+  Clock,
   Gift,
   ShieldCheck,
-  Truck,
+  ShoppingBag,
   Sparkles,
   Search,
+  Truck,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -30,31 +26,25 @@ import {
 
 import { useQuery, queryOptions } from "@tanstack/react-query";
 
-
 import heroBottles from "@/assets/hero-bottles.webp";
 import heroBottlesLight from "@/assets/hero-bottles-light.webp";
 import heritageCrest from "@/assets/kymrun-heritage-crest.png";
-const heroTitleLight = "/hero-title-light.png";
-const heroTitleDark = "/hero-title-dark.png";
 import type { ShopifyProduct } from "@/lib/shopify";
 import { getStoreProducts } from "@/lib/store.functions";
 import { useCartStore, useCartSync } from "@/lib/use-shopify-cart";
 import { deliverySpeeds } from "@/lib/delivery";
 import type { Product, Category, ProductDetails } from "@/lib/types";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { WhatsappButton } from "@/components/whatsapp-button";
 import { SiteFooter } from "@/components/site-footer";
 import { ZoneChecker } from "@/components/zone-checker";
 import { ProductImage } from "@/components/product-image";
+import { ProductCard, ProductCardSkeleton } from "@/components/product-card";
+import { QuantityStepper } from "@/components/quantity-stepper";
+import { SectionHeading } from "@/components/section-heading";
+import { SiteHeader, navLinkClass } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { GOLD_ENABLED } from "@/lib/gold";
 import { SECRET_ROOM_ENABLED } from "@/lib/use-secret-gift";
 import { GoldBand } from "@/components/gold-band";
-import { BrandLockup } from "@/components/brand-lockup";
-
-
-
-
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -71,8 +61,7 @@ export const Route = createFileRoute("/")({
       },
       {
         property: "og:description",
-        content:
-          "KYMRUN: כל המשקאות כשרים. יין, וויסקי וספיריטים פרימיום עם משלוח עד הבית.",
+        content: "KYMRUN: כל המשקאות כשרים. יין, וויסקי וספיריטים פרימיום עם משלוח עד הבית.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -85,7 +74,8 @@ export const Route = createFileRoute("/")({
 
 const catalogQuery = queryOptions({
   queryKey: ["store-catalog"],
-  queryFn: (): Promise<(ShopifyProduct["node"] & { details?: ProductDetails })[]> => getStoreProducts(),
+  queryFn: (): Promise<(ShopifyProduct["node"] & { details?: ProductDetails })[]> =>
+    getStoreProducts(),
   staleTime: 5 * 60 * 1000,
   gcTime: 30 * 60 * 1000,
   retry: 1,
@@ -154,11 +144,9 @@ function Home() {
   useCartSync();
   const navigate = useNavigate({ from: "/" });
   const addShopifyItem = useCartStore((s) => s.addItem);
-  const cartCount = useCartStore(
-    (s) => s.items.reduce((sum, i) => sum + i.quantity, 0),
-  );
-  const subtotal = useCartStore(
-    (s) => s.items.reduce((sum, i) => sum + i.quantity * parseFloat(i.price.amount), 0),
+  const cartCount = useCartStore((s) => s.items.reduce((sum, i) => sum + i.quantity, 0));
+  const subtotal = useCartStore((s) =>
+    s.items.reduce((sum, i) => sum + i.quantity * parseFloat(i.price.amount), 0),
   );
 
   const loaderData = Route.useLoaderData();
@@ -174,12 +162,9 @@ function Home() {
       const tags = node.tags ?? [];
       const group = tags.find((t) => !/%$/.test(t) && t !== "featured") ?? "all";
       const abvTag = tags.find((t) => /^\d+(\.\d+)?%$/.test(t));
-      const compareAt = variant?.compareAtPrice
-        ? parseFloat(variant.compareAtPrice.amount)
-        : 0;
+      const compareAt = variant?.compareAtPrice ? parseFloat(variant.compareAtPrice.amount) : 0;
       const price = parseFloat(variant?.price.amount ?? "0");
-      const discount =
-        compareAt > price ? Math.round((1 - price / compareAt) * 100) : 0;
+      const discount = compareAt > price ? Math.round((1 - price / compareAt) * 100) : 0;
       return {
         id: node.id,
         handle: node.handle,
@@ -226,7 +211,11 @@ function Home() {
   useEffect(() => setPage(1), [filter, search]);
   const visible = useMemo(
     () =>
-      allProducts.filter((p) => (filter === "all" || p.group === filter) && p.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase())),
+      allProducts.filter(
+        (p) =>
+          (filter === "all" || p.group === filter) &&
+          p.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()),
+      ),
     [filter, search, allProducts],
   );
   const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
@@ -248,22 +237,31 @@ function Home() {
           description: product.note,
           productType: product.category,
           tags: [],
-          priceRange: { minVariantPrice: { amount: String(product.price), currencyCode: product.currencyCode } },
+          priceRange: {
+            minVariantPrice: { amount: String(product.price), currencyCode: product.currencyCode },
+          },
           compareAtPriceRange: product.compareAtPrice
             ? { minVariantPrice: product.compareAtPrice }
-            : { minVariantPrice: { amount: String(product.price), currencyCode: product.currencyCode } },
+            : {
+                minVariantPrice: {
+                  amount: String(product.price),
+                  currencyCode: product.currencyCode,
+                },
+              },
           images: { edges: [{ node: { url: product.image, altText: product.name } }] },
           variants: {
-            edges: [{
-              node: {
-                id: product.variantId,
-                title: "Default Title",
-                price: { amount: String(product.price), currencyCode: product.currencyCode },
-                compareAtPrice: product.compareAtPrice ?? null,
-                availableForSale: product.inStock,
-                selectedOptions: [],
+            edges: [
+              {
+                node: {
+                  id: product.variantId,
+                  title: "Default Title",
+                  price: { amount: String(product.price), currencyCode: product.currencyCode },
+                  compareAtPrice: product.compareAtPrice ?? null,
+                  availableForSale: product.inStock,
+                  selectedOptions: [],
+                },
               },
-            }],
+            ],
           },
           options: [],
         },
@@ -278,37 +276,36 @@ function Home() {
       (id) => (
         <div
           dir="rtl"
-          className="pointer-events-auto flex w-[min(92vw,380px)] items-center gap-3 rounded-2xl border border-primary/25 bg-card/95 p-3 text-right shadow-2xl shadow-black/50 backdrop-blur-xl"
+          className="pointer-events-auto flex w-[min(92vw,380px)] items-center gap-3 rounded-lg border border-gold/25 bg-card/95 p-3 text-right shadow-2xl shadow-black/50 backdrop-blur-xl"
         >
-          <ProductImage src={product.image} alt="" containerClassName="size-14 shrink-0 rounded-xl ring-1 ring-border" />
+          <ProductImage
+            src={product.image}
+            alt=""
+            containerClassName="size-14 shrink-0 rounded-md ring-1 ring-border"
+            className="p-1.5"
+          />
           <div className="min-w-0 flex-1">
-            <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-primary">
+            <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-gold">
               <Check className="size-3.5" />
               נוסף לסל
             </p>
-            <p className="mt-0.5 truncate text-sm font-semibold">
-              {product.name}
-            </p>
-            <p className="mt-0.5 font-display text-sm font-bold text-muted-foreground">
-              ₪{product.price}
-            </p>
+            <p className="mt-0.5 truncate font-display text-[15px] font-medium">{product.name}</p>
+            <p className="mt-0.5 text-sm text-muted-foreground">₪{product.price}</p>
           </div>
           <button
             onClick={() => {
               toast.dismiss(id);
               navigate({ to: "/cart" });
             }}
-            className="shrink-0 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
+            className="shrink-0 rounded-md bg-primary px-4 py-2.5 text-xs font-semibold tracking-wide text-primary-foreground"
           >
             לסל
           </button>
-
         </div>
       ),
       { duration: 3200 },
     );
   }
-
 
   function selectPath(id: string) {
     const path = activePaths.find((p) => p.id === id) ?? activePaths[0];
@@ -319,9 +316,7 @@ function Home() {
     }
     setFilter(path.filter);
     toast(path.label, { description: path.toast });
-    document
-      .getElementById("shelf")
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById("shelf")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function goToCart() {
@@ -332,182 +327,162 @@ function Home() {
     navigate({ to: "/cart" });
   }
 
-
   return (
     <div dir="rtl" className="min-h-screen bg-background text-foreground">
-      <Header
+      <SiteHeader
         count={cartCount}
         onCart={goToCart}
-        filter={filter}
-        onFilter={setFilter}
-        categories={categories}
+        nav={
+          <>
+            {categories.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => {
+                  setFilter(c.id);
+                  document
+                    .getElementById("shelf")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className={navLinkClass(filter === c.id)}
+              >
+                {c.label}
+              </button>
+            ))}
+            <Link to="/events" className={navLinkClass()}>
+              אירועים
+            </Link>
+            <Link to="/contact" className={navLinkClass()}>
+              יצירת קשר
+            </Link>
+          </>
+        }
       />
 
+      <HeroSection onGift={() => selectPath("gift")} />
 
-      <main className="mx-auto max-w-md px-5 pb-40 md:max-w-3xl md:px-8 md:pb-32 lg:max-w-6xl lg:pb-28">
-        <HeroSection onGift={() => selectPath("gift")} />
-
-        <Reveal as="section" className="mt-8 lg:mt-16">
-          <div className="mb-3 flex items-end justify-between">
-            <h2 className="font-display text-xl font-bold lg:text-3xl">
-              בחר מה שהכי תרצה היום
-            </h2>
-            <span className="text-xs tracking-widest text-muted-foreground">
-              {activePaths.length} דרכים
-            </span>
-          </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 pt-1 snap-x md:grid md:grid-cols-3 md:gap-5 md:overflow-visible lg:grid-cols-5">
-            {activePaths.map((path) => (
+      <main className="mx-auto max-w-6xl px-5 pb-40 md:px-8 md:pb-32 lg:pb-28">
+        <Reveal as="section" className="mt-16 lg:mt-24">
+          <SectionHeading
+            eyebrow="איך נוכל לעזור"
+            title="בחרו את הדרך שלכם"
+            description="מתנה מוכנה, ערב יין בבית או בקבוק לאספנים — כל מסלול מוביל לבחירה המדויקת."
+            align="center"
+          />
+          <div className="-mx-5 flex snap-x gap-3 overflow-x-auto px-5 pb-2 md:mx-0 md:grid md:grid-cols-3 md:gap-px md:overflow-visible md:rounded-lg md:bg-border md:px-0 md:pb-0 md:ring-1 md:ring-border lg:grid-cols-[repeat(auto-fit,minmax(160px,1fr))]">
+            {activePaths.map((path, i) => (
               <button
                 key={path.id}
                 onClick={() => selectPath(path.id)}
-                className="group shrink-0 basis-[44%] snap-start rounded-2xl border border-border bg-card p-4 text-right transition-all hover:border-primary/30 hover:-translate-y-0.5 active:scale-[0.98] md:basis-auto md:p-6"
+                className="group relative flex shrink-0 basis-[62%] snap-start flex-col rounded-lg border border-border bg-card p-5 text-right transition-colors hover:bg-secondary md:basis-auto md:rounded-none md:border-0 md:p-7"
               >
-                <p className="font-display text-lg font-bold">{path.label}</p>
-                <p className="mt-1 text-xs leading-snug text-muted-foreground">
+                <span className="font-display text-sm text-gold">0{i + 1}</span>
+                <p className="mt-6 font-display text-xl font-medium md:text-2xl">{path.label}</p>
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
                   {path.description}
                 </p>
-                <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary">
-                  בחר
-                  <Plus className="size-3.5" />
+                <span className="mt-6 inline-flex items-center gap-2 text-[11px] font-semibold tracking-wide text-gold">
+                  לגלות
+                  <ArrowLeft className="size-3.5 transition-transform duration-300 group-hover:-translate-x-1" />
                 </span>
               </button>
             ))}
           </div>
         </Reveal>
 
-        <Reveal as="section" id="shelf" className="mt-10 scroll-mt-24 lg:mt-20">
-          <div className="mb-3 flex items-end justify-between">
-            <h2 className="font-display text-xl font-bold lg:text-3xl">
-              בחירות מהמדף
-            </h2>
-            <span className="text-xs tracking-widest text-muted-foreground">
-              {visible.length} פריטים
-            </span>
-          </div>
+        <Reveal as="section" id="shelf" className="mt-20 scroll-mt-32 lg:mt-28">
+          <SectionHeading
+            eyebrow="המרתף שלנו"
+            title="בחירות מהמדף"
+            aside={
+              <span className="text-xs tracking-widest text-muted-foreground">
+                {visible.length} פריטים
+              </span>
+            }
+          />
 
-          <div className="relative mb-4">
-            <Search className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
-            <input type="search" aria-label="חיפוש לפי שם בקבוק" placeholder="חיפוש לפי שם בקבוק" maxLength={150} value={search} onChange={(e) => setSearch(e.target.value)} className="h-12 w-full rounded-lg border border-border bg-card pr-12 pl-12 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary [&::-webkit-search-cancel-button]:hidden" />
-            {search && <Button variant="ghost" size="icon" aria-label="נקה חיפוש" title="נקה חיפוש" onClick={() => setSearch("")} className="absolute left-2 top-1/2 -translate-y-1/2"><X /></Button>}
-          </div>
-          <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
-            {categories.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setFilter(c.id)}
-                className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
-                  filter === c.id
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-card text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {c.id === "gift" ? (
-                  <span className="inline-flex items-center gap-1.5">
-                    <Gift className="size-3.5" />
-                    {c.label}
-                  </span>
-                ) : (
-                  c.label
-                )}
-              </button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
-            {pageItems.map((product) => (
-              <article
-                key={product.id}
-                className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card p-3"
-              >
+          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 md:mx-0 md:flex-wrap md:px-0 md:pb-0">
+              {categories.map((c) => (
                 <button
-                  onClick={() => setSelected(product)}
-                  className="text-right transition-transform active:scale-[0.98]"
-                  aria-label={`פרטי ${product.name}`}
+                  key={c.id}
+                  onClick={() => setFilter(c.id)}
+                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-[13px] font-medium transition-colors ${
+                    filter === c.id
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border text-muted-foreground hover:border-gold/50 hover:text-foreground"
+                  }`}
                 >
-                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-photo">
-                    <ProductImage src={product.image} alt={product.name} width={768} height={960} containerClassName="h-full w-full" className="transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-                    <span className="absolute top-2 right-2 rounded-lg bg-background/70 px-2 py-1 text-[10px] font-medium backdrop-blur-sm">
-                      {product.abv}
-                    </span>
-                    {product.group === "gift" && (
-                      <span className="absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-lg bg-accent px-2 py-1 text-[10px] font-semibold text-accent-foreground">
-                        <Gift className="size-3" />
-                        מארז
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-3 text-[10px] tracking-wider text-muted-foreground">
-                    {product.category}
-                  </p>
-                  <h3 className="mt-1 text-[15px] font-semibold leading-tight">
-                    {product.name}
-                  </h3>
+                  {c.id === "gift" && <Gift className="size-3.5" />}
+                  {c.label}
                 </button>
-
-                <div className="mt-auto flex items-center justify-between gap-2 pt-3">
-                  <span className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="font-display text-lg font-bold">
-                      ₪{product.price}
-                    </span>
-                    {product.discount > 0 && (
-                      <>
-                        <span className="text-xs text-muted-foreground line-through">
-                          ₪{product.basePrice}
-                        </span>
-                        <span className="rounded-md bg-accent px-1.5 py-0.5 text-[10px] font-bold text-accent-foreground">
-                          -{product.discount}%
-                        </span>
-                      </>
-                    )}
-                  </span>
-                  <button
-                    onClick={() => addProduct(product)}
-                    disabled={!product.inStock}
-                    aria-label={`הוסף ${product.name} לסל`}
-                    className="grid size-9 place-items-center rounded-full border border-border bg-secondary text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground disabled:opacity-40"
-                  >
-                    <Plus className="size-4" />
-                  </button>
-                </div>
-              </article>
-            ))}
-
-            {isPending &&
-              Array.from({ length: 8 }).map((_, i) => (
-                <div
-                  key={`s${i}`}
-                  className="flex flex-col rounded-2xl border border-border bg-card p-3"
-                >
-                  <div className="aspect-[4/5] w-full animate-pulse rounded-xl bg-muted" />
-                  <div className="mt-3 h-3 w-1/2 animate-pulse rounded bg-muted" />
-                  <div className="mt-2 h-4 w-3/4 animate-pulse rounded bg-muted" />
-                  <div className="mt-4 h-5 w-1/3 animate-pulse rounded bg-muted" />
-                </div>
               ))}
+            </div>
+            <div className="relative md:w-72">
+              <Search className="pointer-events-none absolute right-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="search"
+                aria-label="חיפוש לפי שם בקבוק"
+                placeholder="חיפוש בקבוק"
+                maxLength={150}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="h-11 w-full rounded-full border border-border bg-transparent pr-10 pl-10 text-sm outline-none transition-colors placeholder:text-muted-foreground/80 focus:border-gold/70 [&::-webkit-search-cancel-button]:hidden"
+              />
+              {search && (
+                <button
+                  aria-label="נקה חיפוש"
+                  title="נקה חיפוש"
+                  onClick={() => setSearch("")}
+                  className="absolute left-2 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-full text-muted-foreground hover:text-foreground"
+                >
+                  <X className="size-4" />
+                </button>
+              )}
+            </div>
           </div>
-          {!isPending && !isError && visible.length === 0 && <p role="status" className="py-10 text-center text-sm text-muted-foreground">לא נמצאו בקבוקים התואמים לחיפוש.</p>}
+
+          <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 md:gap-x-6 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-14">
+            {pageItems.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onOpen={() => setSelected(product)}
+                onAdd={() => addProduct(product)}
+              />
+            ))}
+            {isPending &&
+              Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={`s${i}`} />)}
+          </div>
+          {!isPending && !isError && visible.length === 0 && (
+            <p
+              role="status"
+              className="py-16 text-center font-display text-lg text-muted-foreground"
+            >
+              לא נמצאו בקבוקים התואמים לחיפוש.
+            </p>
+          )}
           {pageCount > 1 && (
-            <nav aria-label="עמודים" className="mt-8 flex items-center justify-center gap-2">
+            <nav aria-label="עמודים" className="mt-14 flex items-center justify-center gap-2">
               <button
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium disabled:opacity-40"
+                className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-30"
               >
+                <ArrowRight className="size-4" />
                 הקודם
               </button>
               <span className="px-3 text-sm text-muted-foreground md:hidden">
-                עמוד {currentPage} מתוך {pageCount}
+                {currentPage} / {pageCount}
               </span>
               {Array.from({ length: pageCount }, (_, k) => k + 1).map((n) => (
                 <button
                   key={n}
                   onClick={() => goToPage(n)}
                   aria-current={n === currentPage ? "page" : undefined}
-                  className={`hidden size-10 rounded-full text-sm font-semibold md:inline-block ${
+                  className={`hidden size-10 rounded-full font-display text-sm transition-colors md:inline-block ${
                     n === currentPage
-                      ? "bg-primary text-primary-foreground"
-                      : "border border-border bg-card text-muted-foreground"
+                      ? "border border-gold text-gold"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {n}
@@ -516,157 +491,144 @@ function Home() {
               <button
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === pageCount}
-                className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium disabled:opacity-40"
+                className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-30"
               >
                 הבא
+                <ArrowLeft className="size-4" />
               </button>
             </nav>
           )}
 
           {isError && (
-            <div className="rounded-2xl border border-border bg-card p-6 text-center">
-              <p className="text-sm text-muted-foreground">
-                לא הצלחנו לטעון את המדף כרגע.
-              </p>
-              <button
-                onClick={() => refetch()}
-                className="mt-3 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
-              >
+            <div className="rounded-lg border border-border bg-card p-8 text-center">
+              <p className="text-sm text-muted-foreground">לא הצלחנו לטעון את המדף כרגע.</p>
+              <Button onClick={() => refetch()} className="mt-4 h-11 px-6">
                 נסה שוב
-              </button>
+              </Button>
             </div>
           )}
         </Reveal>
 
-        <Reveal as="section" id="delivery" className="mt-12 scroll-mt-24 lg:mt-20">
-          <div className="mb-3 flex items-end justify-between">
-            <h2 className="font-display text-xl font-bold lg:text-3xl">
-              מתי זה יגיע אליך
-            </h2>
-            <Link
-              to="/shipping"
-              className="text-xs font-medium text-primary hover:underline"
-            >
-              כל אזורי החלוקה
-            </Link>
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-3">
-            {deliverySpeeds.map((s) => (
+        <Reveal as="section" className="mt-20 lg:mt-28">
+          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg bg-border ring-1 ring-border md:grid-cols-4">
+            {[
+              { icon: ShieldCheck, t: "כל המשקאות כשרים", d: "ללא יוצא מן הכלל" },
+              { icon: Clock, t: "אספקה עד 4 שעות", d: "אקספרס באזורים נבחרים" },
+              { icon: Truck, t: "משלוח עד הבית", d: "חינם מעל ₪550" },
+              { icon: BadgeCheck, t: "מכירה מגיל 18", d: "תעודה מזהה במסירה" },
+            ].map(({ icon: Icon, t, d }) => (
               <div
-                key={s.id}
-                className="rounded-2xl border border-border bg-card p-5"
+                key={t}
+                className="flex flex-col items-center bg-card px-4 py-7 text-center md:py-9"
               >
-                <Truck className="size-5 text-primary" />
-                <p className="mt-3 font-display text-xl font-bold">{s.label}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{s.window}</p>
-                <p className="mt-3 text-sm font-semibold">₪{s.price}</p>
-                <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
-                  {s.note}
-                </p>
+                <Icon className="size-5 text-gold" strokeWidth={1.5} />
+                <p className="mt-3 font-display text-[15px] font-medium md:text-base">{t}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{d}</p>
               </div>
             ))}
           </div>
+        </Reveal>
 
-          <div className="mt-4">
+        <Reveal as="section" id="delivery" className="mt-20 scroll-mt-32 lg:mt-28">
+          <SectionHeading
+            eyebrow="משלוחים"
+            title="מתי זה יגיע אליכם"
+            aside={
+              <Link
+                to="/shipping"
+                className="text-xs font-medium tracking-wide text-gold hover:underline"
+              >
+                כל אזורי החלוקה
+              </Link>
+            }
+          />
+
+          <div className="grid gap-4 lg:grid-cols-[1fr_1fr_1fr_1.35fr]">
+            {deliverySpeeds.map((s) => (
+              <div key={s.id} className="rounded-lg border border-border bg-card p-6">
+                <p className="eyebrow">{s.window}</p>
+                <p className="mt-3 font-display text-2xl font-medium">{s.label}</p>
+                <div className="gold-rule my-4 opacity-60" />
+                <p className="font-display text-lg">₪{s.price}</p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{s.note}</p>
+              </div>
+            ))}
             <ZoneChecker />
           </div>
         </Reveal>
 
         {SECRET_ROOM_ENABLED && (
-        <Reveal as="section" className="mt-12 lg:mt-20">
-          <div className="overflow-hidden rounded-3xl border border-primary/25 bg-gradient-to-bl from-card via-card to-primary/10 p-6 lg:p-10">
-            <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 px-3 py-1 text-[11px] font-semibold tracking-wide text-primary">
-              <Sparkles className="size-3.5" />
-              החדר הסודי
-            </span>
-            <h2 className="mt-4 font-display text-2xl font-bold leading-tight lg:text-4xl">
-              טריוויית הבקבוקים — ענה נכון, קבל מתנה
-            </h2>
-            <p className="mt-3 max-w-[56ch] text-sm leading-relaxed text-muted-foreground lg:text-base">
-              56 שאלות על שימור יין, טעמי יין ועולם הוויסקי. כל סבב מגריל 7
-              שאלות — 6 נכונות ומעלה פותחות מתנה שתצורף להזמנה שלך.
-            </p>
+          <Reveal as="section" className="mt-20 lg:mt-28">
+            <div className="surface-glow overflow-hidden rounded-lg border border-gold/25 bg-card p-7 md:p-12">
+              <span className="eyebrow inline-flex items-center gap-2">
+                <Sparkles className="size-3.5" />
+                החדר הסודי
+              </span>
+              <h2 className="mt-4 max-w-[22ch] font-display text-3xl font-medium leading-tight lg:text-[2.75rem]">
+                טריוויית הבקבוקים — ענו נכון, קבלו מתנה
+              </h2>
+              <p className="mt-4 max-w-[56ch] text-sm leading-relaxed text-muted-foreground lg:text-base">
+                56 שאלות על שימור יין, טעמי יין ועולם הוויסקי. כל סבב מגריל 7 שאלות — 6 נכונות ומעלה
+                פותחות מתנה שתצורף להזמנה שלך.
+              </p>
 
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              {[
-                { t: "שימור", d: "מרתף, טמפרטורה ופקקים" },
-                { t: "יין", d: "טאנינים, ארומות והתאמות" },
-                { t: "וויסקי", d: "חביות, פיט וסינגל מאלט" },
-              ].map((c) => (
-                <div
-                  key={c.t}
-                  className="rounded-2xl border border-border bg-background/60 p-4 backdrop-blur-md"
-                >
-                  <p className="font-display text-base font-bold">{c.t}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{c.d}</p>
-                </div>
-              ))}
+              <div className="mt-8 grid gap-px overflow-hidden rounded-md bg-border sm:grid-cols-3">
+                {[
+                  { t: "שימור", d: "מרתף, טמפרטורה ופקקים" },
+                  { t: "יין", d: "טאנינים, ארומות והתאמות" },
+                  { t: "וויסקי", d: "חביות, פיט וסינגל מאלט" },
+                ].map((c) => (
+                  <div key={c.t} className="bg-background/70 p-5 backdrop-blur-md">
+                    <p className="font-display text-lg font-medium">{c.t}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{c.d}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Button asChild className="h-12 px-7 text-[15px]">
+                  <Link to="/secret-room">לשחק ולזכות במתנה</Link>
+                </Button>
+                <Button asChild variant="outline" className="h-12 px-7 text-[15px]">
+                  <Link to="/events" hash="tasting">
+                    טעימת יין פרטית בבית או בעסק
+                  </Link>
+                </Button>
+              </div>
             </div>
-
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <Link
-                to="/secret-room"
-                className="rounded-2xl bg-primary px-6 py-3.5 text-center text-base font-semibold text-primary-foreground transition-transform active:scale-[0.98]"
-              >
-                לשחק ולזכות במתנה
-              </Link>
-              <Link
-                to="/events"
-                hash="tasting"
-                className="rounded-2xl border border-border bg-background px-6 py-3.5 text-center text-base font-semibold transition-colors hover:border-primary/40"
-              >
-                טעימת יין פרטית בבית או בעסק
-              </Link>
-            </div>
-          </div>
-        </Reveal>
-
+          </Reveal>
         )}
 
-        {GOLD_ENABLED && <Reveal as="section" className="mt-12 lg:mt-20"><GoldBand /></Reveal>}
+        {GOLD_ENABLED && (
+          <Reveal as="section" className="mt-20 lg:mt-28">
+            <GoldBand />
+          </Reveal>
+        )}
 
-        <Reveal as="section" className="mt-12 lg:mt-20">
-          <div className="grid gap-3 rounded-3xl border border-border bg-card p-5 md:grid-cols-4 lg:p-8">
-            {[
-              { t: "כל המשקאות כשרים", d: "ללא יוצא מן הכלל — כל בקבוק במדף" },
-              { t: "אספקה עד 4 שעות", d: "אקספרס באזורי שירות נבחרים" },
-              { t: "משלוח עד הבית", d: "חינם בהזמנה מעל ₪550" },
-              { t: "מכירה מגיל 18", d: "הצגת תעודת זהות בפני השליח" },
-            ].map((item) => (
-              <div key={item.t} className="flex items-start gap-3">
-                <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" />
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold">{item.t}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{item.d}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Reveal>
-
-        <Reveal as="section" className="mt-12 lg:mt-20">
-          <div className="grid gap-4 md:grid-cols-3">
+        <Reveal as="section" className="mt-20 lg:mt-28">
+          <SectionHeading eyebrow="הבית שלנו" title="מה שמבדיל את קמרון" align="center" />
+          <div className="grid gap-10 md:grid-cols-3 md:gap-0 md:divide-x md:divide-x-reverse md:divide-border">
             {[
               {
+                n: "I",
                 t: "בחירה של בן אדם",
                 d: "כל בקבוק נבחר ונטעם אצלנו לפני שהוא מגיע למדף. אין כאן מלאי אקראי.",
               },
               {
+                n: "II",
                 t: "אחסון מבוקר",
                 d: "טמפרטורה ולחות קבועות, אריזה ממוגנת לכל משלוח — הבקבוק מגיע כמו שיצא.",
               },
               {
+                n: "III",
                 t: "שירות אישי",
                 d: "לא בטוחים? נמליץ לפי האירוע, הטעם והתקציב. גם בוואטסאפ.",
               },
             ].map((c) => (
-              <div
-                key={c.t}
-                className="rounded-3xl border border-border bg-card p-6"
-              >
-                <p className="font-display text-lg font-bold">{c.t}</p>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              <div key={c.t} className="text-center md:px-10">
+                <span className="font-display text-sm tracking-[0.3em] text-gold">{c.n}</span>
+                <p className="mt-4 font-display text-xl font-medium">{c.t}</p>
+                <p className="mx-auto mt-3 max-w-[32ch] text-sm leading-relaxed text-muted-foreground">
                   {c.d}
                 </p>
               </div>
@@ -677,14 +639,8 @@ function Home() {
 
       <SiteFooter />
 
-
       {cartCount > 0 && (
-        <CartBar
-          count={cartCount}
-          subtotal={subtotal}
-          onOpen={goToCart}
-          onCheckout={goToCart}
-        />
+        <CartBar count={cartCount} subtotal={subtotal} onOpen={goToCart} onCheckout={goToCart} />
       )}
 
       <ProductDialog
@@ -748,85 +704,9 @@ function Reveal({
   );
 }
 
-function Header({
-  count,
-  onCart,
-  filter,
-  onFilter,
-  categories,
-}: {
-  count: number;
-  onCart: () => void;
-  filter: string;
-  onFilter: (id: string) => void;
-  categories: Category[];
-}) {
-  return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-white dark:bg-background/85 backdrop-blur-md">
-      <div className="mx-auto grid h-16 max-w-md grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 md:h-[4.5rem] md:max-w-3xl md:px-8 lg:max-w-6xl">
-        <div className="flex min-w-0 items-center gap-2.5">
-          <Link to="/" aria-label="KYMRUN — דף הבית" className="shrink-0">
-            <BrandLockup compact />
-          </Link>
-
-          <nav className="ms-8 hidden items-center gap-1 lg:flex">
-            {categories.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => {
-                  onFilter(c.id);
-                  document
-                    .getElementById("shelf")
-                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
-                }}
-                className={`rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${
-                  filter === c.id
-                    ? "bg-secondary text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {c.label}
-              </button>
-            ))}
-            <Link
-              to="/events"
-              className="rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              אירועים
-            </Link>
-            <Link
-              to="/contact"
-              className="rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              יצירת קשר
-            </Link>
-          </nav>
-        </div>
-
-        <div className="flex shrink-0 items-center gap-2">
-          <ThemeToggle />
-          <WhatsappButton />
-          <button
-            onClick={onCart}
-            aria-label="עגלת קניות"
-            className="relative grid size-11 shrink-0 place-items-center rounded-full border border-border bg-muted text-foreground transition-transform active:scale-95 dark:bg-card"
-          >
-            <ShoppingBag className="size-5" />
-            {count > 0 && (
-              <span className="absolute -top-1 -left-1 grid size-5 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                {count}
-              </span>
-            )}
-          </button>
-        </div>
-      </div>
-    </header>
-  );
-}
-
 function HeroSection({ onGift }: { onGift: () => void }) {
   return (
-    <section className="relative w-[100dvw] max-w-none [margin-inline:calc(50%-50dvw)] min-h-[78vh] overflow-hidden md:min-h-[62vh] lg:min-h-[70vh]">
+    <section className="relative min-h-[82svh] overflow-hidden md:min-h-[68vh] lg:min-h-[78vh]">
       <img
         src={heroBottles}
         alt=""
@@ -848,11 +728,11 @@ function HeroSection({ onGift }: { onGift: () => void }) {
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/25 md:bg-gradient-to-r md:from-background md:via-background/75 md:to-background/20"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/75 to-background/20 md:bg-gradient-to-r md:from-background/10 md:via-background/70 md:to-background"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-background/25 md:hidden"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-background to-transparent"
       />
 
       <img
@@ -861,12 +741,12 @@ function HeroSection({ onGift }: { onGift: () => void }) {
         aria-hidden="true"
         width={1093}
         height={432}
-        className="pointer-events-none absolute left-[4%] top-1/2 z-[1] hidden w-[clamp(13rem,22vw,22rem)] -translate-y-1/2 object-contain opacity-[0.13] mix-blend-multiply md:block dark:invert dark:mix-blend-screen dark:opacity-[0.16]"
+        className="pointer-events-none absolute left-[5%] top-1/2 z-[1] hidden w-[clamp(13rem,22vw,22rem)] -translate-y-1/2 object-contain opacity-[0.12] mix-blend-multiply md:block dark:invert dark:mix-blend-screen dark:opacity-[0.14]"
         loading="eager"
         decoding="async"
       />
 
-      <div className="relative z-10 mx-auto flex min-h-[78vh] w-full max-w-md items-end px-5 pb-12 pt-24 md:min-h-[62vh] md:max-w-3xl md:items-center md:px-8 md:py-14 lg:min-h-[70vh] lg:max-w-6xl lg:py-12">
+      <div className="relative z-10 mx-auto flex min-h-[82svh] w-full max-w-6xl items-end px-5 pb-14 pt-24 md:min-h-[68vh] md:items-center md:px-8 md:py-16 lg:min-h-[78vh]">
         <div className="w-full max-w-xl">
           <HeroCopy onGift={onGift} />
         </div>
@@ -878,56 +758,44 @@ function HeroSection({ onGift }: { onGift: () => void }) {
 function HeroCopy({ onGift }: { onGift: () => void }) {
   return (
     <div>
-      <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-[11px] font-medium tracking-wide text-foreground/80 backdrop-blur-md">
-        <span className="size-1.5 rounded-full bg-primary" />
-        כל המשקאות אצלנו כשרים — איכות ללא פשרות
+      <span className="eyebrow inline-flex items-center gap-3">
+        <span aria-hidden className="h-px w-8 bg-gold" />
+        בית למשקאות פרימיום כשרים
       </span>
-      <h1 className="sr-only">קִמְרוּן כְּשֶׁיַּיִן וַחֲוָיָה נִפְגָּשִׁים</h1>
-      <div className="mt-3">
-        <img
-          src={heroTitleLight}
-          alt=""
-          aria-hidden="true"
-          className="block w-full max-w-[min(340px,72vw)] dark:hidden md:max-w-[min(400px,60vw)] lg:max-w-[min(460px,52vw)]"
-          style={{ height: "auto" }}
-        />
-        <img
-          src={heroTitleDark}
-          alt=""
-          aria-hidden="true"
-          className="hidden w-full max-w-[min(340px,72vw)] dark:block md:max-w-[min(400px,60vw)] lg:max-w-[min(460px,52vw)]"
-          style={{ height: "auto" }}
-        />
-      </div>
-      <p className="mt-3 max-w-[34ch] text-[15px] font-medium leading-relaxed text-foreground/85 dark:[text-shadow:0_1px_10px_rgba(0,0,0,0.6)] md:text-base lg:text-lg">
-        יין, וויסקי וספיריטים פרימיום — כולם כשרים. בחר מסלול, ונמליץ תוך שניות.
+      <h1 className="mt-5 font-display dark:[text-shadow:0_2px_24px_rgba(0,0,0,0.55)]">
+        <span className="block text-[3.75rem] font-medium leading-none md:text-7xl lg:text-[5.5rem]">
+          קִמְרוּן
+        </span>
+        <span className="mt-3 block text-[1.6rem] font-normal leading-tight text-gold md:text-4xl lg:text-[2.6rem]">
+          כְּשֶׁיַּיִן וַחֲוָיָה נִפְגָּשִׁים
+        </span>
+      </h1>
+      <p className="mt-5 max-w-[36ch] text-[15px] leading-relaxed text-foreground/85 dark:[text-shadow:0_1px_12px_rgba(0,0,0,0.6)] md:text-lg">
+        יין, וויסקי וספיריטים נבחרים — כולם כשרים. בחרו מסלול, ונמליץ על הבקבוק המדויק.
       </p>
+
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+        <Button onClick={onGift} className="h-12 px-8 text-[15px]">
+          <Gift className="size-4" />
+          בחירת מתנה
+        </Button>
+        <Button
+          asChild
+          variant="outline"
+          className="h-12 bg-background/40 px-8 text-[15px] backdrop-blur-md"
+        >
+          <Link to="/events">אירוע או טעימה פרטית</Link>
+        </Button>
+      </div>
 
       <a
         href="#delivery"
-        className="mt-4 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-background/70 px-3.5 py-1.5 text-[11px] font-semibold backdrop-blur-md"
+        className="mt-6 inline-flex items-center gap-2 text-xs text-foreground/75 transition-colors hover:text-gold"
       >
-        <Truck className="size-3.5 text-primary" />
+        <Truck className="size-3.5 text-gold" />
         משלוח אקספרס עד 4 שעות — בדקו אם זמין אצלכם
+        <ArrowLeft className="size-3" />
       </a>
-
-      <div className="mt-5 flex flex-col gap-3 md:max-w-sm">
-        <button
-          onClick={onGift}
-          className="w-full rounded-2xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/15 transition-transform hover:scale-[1.01] active:scale-[0.98]"
-        >
-          בחר מתנה
-        </button>
-        <Link
-          to="/events"
-          className="w-full rounded-2xl border border-border bg-background/70 px-6 py-3 text-center text-sm font-semibold backdrop-blur-md transition-colors hover:border-primary/40"
-        >
-          אירוע או טעימה פרטית
-        </Link>
-        <p className="text-center text-xs text-foreground/70 md:text-right">
-          כשר · משלוח עד הבית · מגיל 18
-        </p>
-      </div>
     </div>
   );
 }
@@ -956,59 +824,104 @@ function ProductDialog({
         { label: "כשר לפסח", value: details?.kosher_passover ? "כן" : "" },
       ].filter((item) => item.value)
     : [];
-  const money = (n: number) => new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS" }).format(n);
+  const money = (n: number) =>
+    new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS" }).format(n);
   const volume = details?.volume_ml ?? 0;
   return (
     <Dialog open={!!product} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent dir="rtl" className="w-[calc(100%-2rem)] max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto gap-0 rounded-lg p-0 text-right [&>button]:bg-primary [&>button]:text-primary-foreground [&>button]:opacity-100 [&>button]:p-2">
+      <DialogContent
+        dir="rtl"
+        className="max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-3xl gap-0 overflow-y-auto rounded-lg border-border p-0 text-right md:grid md:h-[min(86dvh,620px)] md:grid-cols-2 md:grid-rows-[minmax(0,1fr)] md:overflow-hidden [&>button]:left-3 [&>button]:right-auto [&>button]:top-3 [&>button]:z-10 [&>button]:rounded-full [&>button]:bg-background/80 [&>button]:p-1.5 [&>button]:opacity-100 [&>button]:backdrop-blur"
+      >
         {product && (
           <>
-            <ProductImage src={product.image} alt={product.name} width={768} height={960} loading="eager" containerClassName="h-[min(38dvh,340px)] w-full shrink-0 rounded-t-lg" />
-            <div className="space-y-3 p-5">
-              <DialogHeader className="space-y-1 text-right">
-                <DialogTitle className="font-display text-xl">
+            <ProductImage
+              src={product.image}
+              alt={product.name}
+              width={768}
+              height={960}
+              loading="eager"
+              containerClassName="h-[min(40dvh,360px)] w-full shrink-0 md:h-full"
+              className="p-8"
+            />
+            <div className="flex flex-col p-6 md:min-h-0 md:overflow-y-auto md:p-8">
+              <DialogHeader className="space-y-1 text-right sm:text-right">
+                <span className="eyebrow">{product.category}</span>
+                <DialogTitle className="pt-1 font-display text-2xl font-medium leading-snug md:text-[1.75rem]">
                   {product.name}
                 </DialogTitle>
-                {details?.english_name && <p dir="ltr" className="text-xs text-muted-foreground">{details.english_name}</p>}
-                <DialogDescription>
-                  {product.category}{product.abv ? ` · ${product.abv}` : ""}
+                {details?.english_name && (
+                  <p dir="ltr" className="text-right text-xs tracking-wide text-muted-foreground">
+                    {details.english_name}
+                  </p>
+                )}
+                <DialogDescription className="sr-only">
+                  {product.category}
+                  {product.abv ? ` · ${product.abv}` : ""}
                 </DialogDescription>
               </DialogHeader>
-              <div className="flex flex-wrap items-baseline gap-2">
-                <span className="font-display text-2xl font-bold">{money(product.price)}</span>
+              <div className="mt-4 flex flex-wrap items-baseline gap-2.5">
+                <span className="font-display text-3xl">{money(product.price)}</span>
                 {product.discount > 0 && (
                   <>
-                    <span className="text-sm text-muted-foreground line-through">{money(product.basePrice)}</span>
-                    <span className="rounded-md bg-accent px-1.5 py-0.5 text-[10px] font-bold text-accent-foreground">-{product.discount}%</span>
+                    <span className="text-sm text-muted-foreground line-through">
+                      {money(product.basePrice)}
+                    </span>
+                    <span className="rounded-sm bg-wine px-1.5 py-0.5 text-[10px] font-semibold text-wine-foreground">
+                      ‎-{product.discount}%
+                    </span>
                   </>
                 )}
               </div>
-              {volume > 0 && <p className="text-xs text-muted-foreground">{volume} מ״ל · {money((product.price / volume) * 100)} ל־100 מ״ל</p>}
-              {product.note && <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{product.note}</p>}
-              {info.length > 0 && (
-                <section className="border-t border-border pt-3">
-                  <h3 className="font-display text-base font-bold">מידע נוסף</h3>
-                  <dl className="mt-1">
-                    {info.map((item) => (
-                      <div key={item.label} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-4 border-b border-border py-2.5 text-sm">
-                        <dt className="text-muted-foreground">{item.label}</dt>
-                        <dd className="break-words text-left">{item.value}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </section>
+              {volume > 0 && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {volume} מ״ל · {money((product.price / volume) * 100)} ל־100 מ״ל
+                </p>
               )}
-              <p className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Truck className="size-4 shrink-0 text-primary" />
-                משלוח עד הבית · בדיקת תעודה מזהה במסירה
-              </p>
-              <div className="flex items-center gap-3 pt-1">
-                <div className="grid h-12 shrink-0 grid-cols-[40px_32px_40px] items-center rounded-lg border border-border">
-                  <Button variant="ghost" size="icon" aria-label="הפחת כמות" disabled={quantity <= 1} onClick={() => setQuantity((q) => q - 1)}><Minus className="size-4" /></Button>
-                  <output className="text-center text-sm font-medium">{quantity}</output>
-                  <Button variant="ghost" size="icon" aria-label="הגדל כמות" disabled={quantity >= 50} onClick={() => setQuantity((q) => q + 1)}><Plus className="size-4" /></Button>
+              {product.note && (
+                <p className="mt-5 whitespace-pre-line text-sm leading-7 text-muted-foreground">
+                  {product.note}
+                </p>
+              )}
+              {info.length > 0 && (
+                <dl className="mt-6 border-t border-border">
+                  {info.map((item) => (
+                    <div
+                      key={item.label}
+                      className="flex justify-between gap-4 border-b border-border py-2.5 text-sm"
+                    >
+                      <dt className="text-muted-foreground">{item.label}</dt>
+                      <dd className="break-words text-left font-medium">{item.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+              <div className="mt-auto pt-6">
+                <div className="flex items-center gap-3">
+                  <QuantityStepper value={quantity} onChange={setQuantity} />
+                  <Button
+                    onClick={() => onAdd(product, quantity)}
+                    disabled={!product.inStock}
+                    className="h-12 flex-1 text-[15px]"
+                  >
+                    <ShoppingBag className="size-4" />
+                    {product.inStock ? "הוספה לסל" : "אזל מהמלאי"}
+                  </Button>
                 </div>
-                <Button onClick={() => onAdd(product, quantity)} disabled={!product.inStock} className="h-12 flex-1 text-base">{product.inStock ? "הוסף לסל" : "אזל מהמלאי"}</Button>
+                <div className="mt-4 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                  <span className="inline-flex items-center gap-1.5">
+                    <Truck className="size-3.5 text-gold" />
+                    משלוח עד הבית
+                  </span>
+                  <Link
+                    to="/product/$handle"
+                    params={{ handle: product.handle }}
+                    className="inline-flex items-center gap-1 font-medium text-gold hover:underline"
+                  >
+                    לעמוד המלא
+                    <ArrowLeft className="size-3" />
+                  </Link>
+                </div>
               </div>
             </div>
           </>
@@ -1032,35 +945,43 @@ function CartBar({
   const freeShippingFrom = 550;
   const progress = Math.min((subtotal / freeShippingFrom) * 100, 100);
   const remaining = Math.max(freeShippingFrom - subtotal, 0);
-  const formatMoney = (value: number) => new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS", maximumFractionDigits: 2 }).format(value);
+  const formatMoney = (value: number) =>
+    new Intl.NumberFormat("he-IL", {
+      style: "currency",
+      currency: "ILS",
+      maximumFractionDigits: 2,
+    }).format(value);
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 animate-slide-in-bottom">
-      <div className="mx-auto max-w-md px-4 pb-4 md:max-w-xl lg:max-w-2xl">
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-2xl shadow-black/40 backdrop-blur-xl">
-          <div className="mb-3">
-            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-muted-foreground">
-              <span>
-                {remaining > 0
-                  ? `עוד ${formatMoney(remaining)} למשלוח חינם`
-                  : "משלוח חינם — מגיע אליך"}
+      <div className="mx-auto max-w-md px-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:max-w-xl lg:max-w-2xl">
+        <div className="rounded-lg border border-gold/25 bg-card/95 p-4 shadow-[0_24px_60px_-12px_rgb(0_0_0/0.55)] backdrop-blur-xl">
+          <div className="flex items-center gap-4">
+            <button onClick={onOpen} className="min-w-0 flex-1 text-right">
+              <span className="block text-[11px] tracking-wide text-muted-foreground">
+                {count} פריטים בסל
               </span>
-              <span className="whitespace-nowrap font-mono" dir="ltr">{formatMoney(subtotal)} / {formatMoney(freeShippingFrom)}</span>
-            </div>
-            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <span className="block whitespace-nowrap font-display text-xl">
+                {formatMoney(subtotal)}
+              </span>
+            </button>
+            <Button onClick={onCheckout} className="h-12 shrink-0 px-8 text-[15px]">
+              לתשלום
+              <ArrowLeft className="size-4" />
+            </Button>
+          </div>
+          <div className="mt-3">
+            <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
               <div
-                className="h-full rounded-full bg-primary transition-all"
+                className="h-full rounded-full bg-gold transition-all"
                 style={{ width: `${progress}%` }}
               />
             </div>
-          </div>
-
-          <div className="grid grid-cols-[minmax(0,1fr)_minmax(100px,1fr)] items-center gap-3">
-            <Button variant="ghost" onClick={onOpen} className="h-auto min-w-0 flex-col items-start px-0 text-right">
-              <span className="text-xs text-muted-foreground">{count} פריטים</span>
-              <span className="whitespace-nowrap font-display text-xl font-bold">{formatMoney(subtotal)}</span>
-            </Button>
-            <Button onClick={onCheckout} className="h-12 w-full text-base">לתשלום</Button>
+            <p className="mt-1.5 text-[11px] text-muted-foreground">
+              {remaining > 0
+                ? `עוד ${formatMoney(remaining)} למשלוח חינם`
+                : "משלוח חינם — מגיע אליך"}
+            </p>
           </div>
         </div>
       </div>

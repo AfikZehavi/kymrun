@@ -2,12 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   ArrowRight,
+  BadgeCheck,
   Check,
   Crown,
   Loader2,
-  Minus,
-  Plus,
+  Lock,
   Gift,
+  ShieldCheck,
   ShoppingBag,
   Trash2,
   Truck,
@@ -22,8 +23,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useCartStore, useCartSync } from "@/lib/use-shopify-cart";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { BrandLockup } from "@/components/brand-lockup";
+import { SiteHeader } from "@/components/site-header";
+import { QuantityStepper } from "@/components/quantity-stepper";
+import { Button } from "@/components/ui/button";
 import { lookupCustomer, saveCustomer } from "@/lib/customers.functions";
 import { toast } from "sonner";
 import { createOrder } from "@/lib/store.functions";
@@ -69,10 +71,7 @@ function CartPage() {
   const [orderPlaced, setOrderPlaced] = useState(false);
 
   const count = items.reduce((sum, i) => sum + i.quantity, 0);
-  const subtotal = items.reduce(
-    (sum, i) => sum + i.quantity * parseFloat(i.price.amount),
-    0,
-  );
+  const subtotal = items.reduce((sum, i) => sum + i.quantity * parseFloat(i.price.amount), 0);
 
   useEffect(() => {
     setMounted(true);
@@ -82,9 +81,7 @@ function CartPage() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [lookup, setLookup] = useState<"idle" | "loading" | "found" | "new">(
-    "idle",
-  );
+  const [lookup, setLookup] = useState<"idle" | "loading" | "found" | "new">("idle");
   const [submitting, setSubmitting] = useState(false);
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
@@ -163,9 +160,9 @@ function CartPage() {
   if (!mounted) {
     return (
       <div dir="rtl" className="min-h-screen bg-background text-foreground">
-        <CartHeader />
-        <main className="mx-auto max-w-md px-5 py-8 md:max-w-2xl lg:max-w-4xl">
-          <div className="h-8 w-40 animate-pulse rounded bg-muted" />
+        <SiteHeader count={0} />
+        <main className="mx-auto max-w-6xl px-5 py-10 md:px-8">
+          <div className="h-10 w-48 animate-pulse rounded bg-muted" />
         </main>
       </div>
     );
@@ -173,127 +170,137 @@ function CartPage() {
 
   return (
     <div dir="rtl" className="min-h-screen bg-background text-foreground">
-      <CartHeader />
+      <SiteHeader count={count} />
 
-      <main className="mx-auto max-w-md px-5 py-6 pb-32 md:max-w-2xl md:py-10 lg:max-w-4xl">
-        <div className="mb-6 flex items-center gap-3">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowRight className="size-4" />
-            חזרה לחנות
-          </Link>
+      <main className="mx-auto max-w-6xl px-5 pt-8 pb-32 md:px-8 md:pt-12">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-gold"
+        >
+          <ArrowRight className="size-3.5" />
+          המשך בקניות
+        </Link>
+
+        <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <span className="eyebrow">הזמנה</span>
+            <h1 className="mt-2 font-display text-4xl font-medium md:text-5xl">הסל שלך</h1>
+          </div>
+          {items.length > 0 && (
+            <ol className="flex items-center gap-3 text-xs text-muted-foreground">
+              {["סל", "פרטים", "תשלום"].map((step, i) => (
+                <li key={step} className="flex items-center gap-3">
+                  {i > 0 && <span aria-hidden className="h-px w-6 bg-border" />}
+                  <span className={`flex items-center gap-1.5 ${i < 2 ? "text-foreground" : ""}`}>
+                    <span
+                      className={`grid size-5 place-items-center rounded-full border font-display text-[11px] ${
+                        i < 2 ? "border-gold text-gold" : "border-border"
+                      }`}
+                    >
+                      {i + 1}
+                    </span>
+                    {step}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          )}
         </div>
-
-        <h1 className="font-display text-2xl font-bold md:text-3xl">
-          הסל שלך
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {count === 0 ? "הסל ריק — הוסיפו בקבוק מהמדף" : `${count} פריטים בסל`}
-        </p>
+        <div className="gold-rule mt-6" />
 
         {items.length === 0 ? (
-          <div className="mt-8 flex flex-col items-center rounded-3xl border border-border bg-card p-10 text-center">
-            <div className="grid size-16 place-items-center rounded-full bg-muted">
-              <ShoppingBag className="size-7 text-muted-foreground" />
+          <div className="surface-glow mx-auto mt-12 flex max-w-lg flex-col items-center rounded-lg border border-border bg-card px-6 py-14 text-center">
+            <div className="grid size-16 place-items-center rounded-full border border-gold/40">
+              <ShoppingBag className="size-6 text-gold" strokeWidth={1.5} />
             </div>
-            <h2 className="mt-4 font-display text-lg font-semibold">
-              הסל שלך ריק
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <h2 className="mt-5 font-display text-2xl font-medium">הסל שלך ריק</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
               בחרו יין, וויסקי או מארז מתנה ונתחיל.
             </p>
-            <Link
-              to="/"
-              className="mt-5 inline-flex items-center justify-center rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.01] active:scale-[0.98]"
-            >
-              המשך לחנות
-            </Link>
+            <Button asChild className="mt-8 h-12 px-8 text-[15px]">
+              <Link to="/">לחנות</Link>
+            </Button>
           </div>
         ) : (
-          <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_360px] lg:items-start">
-            <section className="space-y-3">
-              {items.map((line) => {
-                const img = line.product.node.images.edges[0]?.node.url ?? "";
-                const unit = parseFloat(line.price.amount);
-                return (
-                <article
-                  key={line.variantId}
-                  className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3"
+          <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-14">
+            <div className="min-w-0">
+              <section aria-label="פריטים בסל">
+                <ul className="divide-y divide-border border-y border-border">
+                  {items.map((line) => {
+                    const img = line.product.node.images.edges[0]?.node.url ?? "";
+                    const unit = parseFloat(line.price.amount);
+                    return (
+                      <li key={line.variantId} className="flex gap-4 py-5 md:gap-6">
+                        {img ? (
+                          <ProductImage
+                            src={img}
+                            alt={line.product.node.title}
+                            width={768}
+                            height={960}
+                            loading="lazy"
+                            containerClassName="h-28 w-[5.5rem] shrink-0 rounded-md ring-1 ring-border md:h-32 md:w-24"
+                            className="p-2"
+                          />
+                        ) : (
+                          <div className="grid h-28 w-[5.5rem] shrink-0 place-items-center rounded-md bg-muted md:h-32 md:w-24">
+                            <ShoppingBag className="size-6 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="flex min-w-0 flex-1 flex-col">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="text-[11px] tracking-wide text-gold/90">
+                                {line.product.node.productType}
+                              </p>
+                              <p className="mt-1 line-clamp-2 font-display text-base font-medium leading-snug md:text-lg">
+                                {line.product.node.title}
+                              </p>
+                              <p className="mt-1 text-xs text-muted-foreground">
+                                ₪{fmt(unit)} ליחידה
+                              </p>
+                            </div>
+                            <p className="shrink-0 font-display text-lg">
+                              ₪{fmt(unit * line.quantity)}
+                            </p>
+                          </div>
+                          <div className="mt-auto flex items-center justify-between gap-3 pt-3">
+                            <QuantityStepper
+                              size="sm"
+                              value={line.quantity}
+                              onChange={(q) => updateQuantity(line.variantId, q)}
+                            />
+                            <button
+                              onClick={() => removeItem(line.variantId)}
+                              aria-label={`הסר ${line.product.node.title} מהסל`}
+                              className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-destructive"
+                            >
+                              <Trash2 className="size-3.5" />
+                              הסרה
+                            </button>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <button
+                  onClick={clearCart}
+                  className="mt-3 text-xs text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
                 >
-                  {img ? (
-                    <ProductImage src={img} alt={line.product.node.title} width={768} height={960} loading="lazy" containerClassName="size-20 shrink-0 rounded-xl md:size-24" />
-                  ) : (
-                    <div className="grid size-20 place-items-center rounded-xl bg-muted md:size-24">
-                      <ShoppingBag className="size-6 text-muted-foreground" />
-                    </div>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold md:text-base">
-                      {line.product.node.title}
-                    </p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {line.product.node.productType}
-                    </p>
-                    <p className="mt-2 font-display text-base font-bold md:text-lg">
-                      ₪{Math.round(unit * line.quantity)}
-                    </p>
-                  </div>
+                  רוקן את הסל
+                </button>
+              </section>
 
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="flex items-center gap-2">
-                      <button
-                        aria-label="הפחת"
-                        onClick={() => updateQuantity(line.variantId, line.quantity - 1)}
-                        className="grid size-8 place-items-center rounded-full border border-border bg-secondary transition-colors hover:bg-primary/10"
-                      >
-                        <Minus className="size-3.5" />
-                      </button>
-                      <span className="w-5 text-center text-sm font-semibold">
-                        {line.quantity}
-                      </span>
-                      <button
-                        aria-label="הוסף"
-                        onClick={() => updateQuantity(line.variantId, line.quantity + 1)}
-                        className="grid size-8 place-items-center rounded-full border border-border bg-secondary transition-colors hover:bg-primary/10"
-                      >
-                        <Plus className="size-3.5" />
-                      </button>
-                    </div>
-                    <button
-                      onClick={() => removeItem(line.variantId)}
-                      aria-label={`הסר ${line.product.node.title} מהסל`}
-                      className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-destructive"
-                    >
-                      <Trash2 className="size-3.5" />
-                      הסר
-                    </button>
-                  </div>
-                </article>
-                );
-              })}
-
-              <button
-                onClick={clearCart}
-                className="mt-2 text-sm text-muted-foreground underline-offset-4 hover:underline"
-              >
-                רוקן את הסל
-              </button>
-              <div className="mt-5 rounded-2xl border border-border bg-card p-5 shadow-sm">
-                <h2 className="font-display text-lg font-semibold">
-                  פרטי המשלוח
-                </h2>
-                <p className="mt-1 text-sm text-muted-foreground">
+              <section className="mt-10 rounded-lg border border-border bg-card p-5 md:p-7">
+                <span className="eyebrow">שלב 2</span>
+                <h2 className="mt-1.5 font-display text-2xl font-medium">פרטי המשלוח</h2>
+                <p className="mt-1.5 text-sm text-muted-foreground">
                   נתחיל באימייל — אם כבר הזמנת אצלנו, נמלא את השאר עבורך.
                 </p>
 
-                <div className="mt-4 space-y-3">
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="mb-1.5 block text-xs font-medium text-muted-foreground"
-                    >
+                <div className="mt-6 grid gap-4 md:grid-cols-2">
+                  <div className="md:col-span-2">
+                    <label htmlFor="email" className={labelClass}>
                       אימייל
                     </label>
                     <div className="relative">
@@ -311,14 +318,14 @@ function CartPage() {
                         }}
                         onBlur={checkEmail}
                         placeholder="you@example.com"
-                        className="w-full rounded-xl border border-border bg-background px-4 py-3 text-right text-sm outline-none transition-colors focus:border-primary"
+                        className={`${fieldClass} text-right`}
                       />
                       {lookup === "loading" && (
                         <Loader2 className="absolute left-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
                       )}
                     </div>
                     {lookup === "found" && (
-                      <p className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-primary">
+                      <p className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-gold">
                         <UserCheck className="size-3.5" />
                         טוב לראות אותך שוב — מילאנו את הפרטים שלך
                       </p>
@@ -329,17 +336,12 @@ function CartPage() {
                       </p>
                     )}
                     {email.length > 0 && !emailValid && (
-                      <p className="mt-1.5 text-xs text-destructive">
-                        כתובת אימייל לא תקינה
-                      </p>
+                      <p className="mt-1.5 text-xs text-destructive">כתובת אימייל לא תקינה</p>
                     )}
                   </div>
 
                   <div>
-                    <label
-                      htmlFor="fullName"
-                      className="mb-1.5 block text-xs font-medium text-muted-foreground"
-                    >
+                    <label htmlFor="fullName" className={labelClass}>
                       שם מלא
                     </label>
                     <input
@@ -349,15 +351,12 @@ function CartPage() {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="ישראל ישראלי"
-                      className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
+                      className={fieldClass}
                     />
                   </div>
 
                   <div>
-                    <label
-                      htmlFor="phone"
-                      className="mb-1.5 block text-xs font-medium text-muted-foreground"
-                    >
+                    <label htmlFor="phone" className={labelClass}>
                       טלפון
                     </label>
                     <input
@@ -370,15 +369,12 @@ function CartPage() {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="050-0000000"
-                      className="w-full rounded-xl border border-border bg-background px-4 py-3 text-right text-sm outline-none transition-colors focus:border-primary"
+                      className={`${fieldClass} text-right`}
                     />
                   </div>
 
-                  <div>
-                    <label
-                      htmlFor="address"
-                      className="mb-1.5 block text-xs font-medium text-muted-foreground"
-                    >
+                  <div className="md:col-span-2">
+                    <label htmlFor="address" className={labelClass}>
                       כתובת למשלוח
                     </label>
                     <input
@@ -388,164 +384,149 @@ function CartPage() {
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       placeholder="רחוב, מספר, עיר"
-                      className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
+                      className={fieldClass}
                     />
                   </div>
                 </div>
-              </div>
-            </section>
+              </section>
+            </div>
 
-            <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-              <h2 className="font-display text-lg font-semibold">
-                סיכום הזמנה
-              </h2>
+            <aside className="lg:sticky lg:top-32">
+              <section className="surface-glow rounded-lg border border-gold/25 bg-card p-6 md:p-7">
+                <h2 className="font-display text-2xl font-medium">סיכום הזמנה</h2>
 
-              <div className="mt-4 space-y-2 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">סכום ביניים</span>
-                  <span className="font-display font-semibold">₪{subtotal}</span>
-                </div>
-                {goldDiscount > 0 && (
+                <dl className="mt-5 space-y-3 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">
-                      הנחת GOLD (15%)
-                    </span>
-                    <span className="font-display font-semibold text-amber-500 dark:text-amber-300">
-                      −₪{goldDiscount}
-                    </span>
+                    <dt className="text-muted-foreground">סכום ביניים · {count} פריטים</dt>
+                    <dd className="font-display">₪{fmt(subtotal)}</dd>
                   </div>
-                )}
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">משלוח</span>
-                  <span className="font-display font-semibold">
-                    {shipping > 0 ? `₪${shipping}` : "חינם"}
-                  </span>
+                  {goldDiscount > 0 && (
+                    <div className="flex items-center justify-between">
+                      <dt className="text-muted-foreground">הנחת GOLD (15%)</dt>
+                      <dd className="font-display text-gold">−₪{fmt(goldDiscount)}</dd>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <dt className="text-muted-foreground">משלוח</dt>
+                    <dd className="font-display">{shipping > 0 ? `₪${shipping}` : "חינם"}</dd>
+                  </div>
+                </dl>
+                <div className="gold-rule my-5" />
+                <div className="flex items-baseline justify-between">
+                  <span className="whitespace-nowrap text-sm font-medium">סה״כ לתשלום</span>
+                  <span className="font-display text-3xl">₪{fmt(total)}</span>
                 </div>
-                <div className="flex items-center justify-between border-t border-border pt-3 text-base font-bold">
-                  <span>סה"כ לתשלום</span>
-                  <span className="font-display">₪{total}</span>
-                </div>
-              </div>
+                <p className="mt-1 text-[11px] text-muted-foreground">המחירים כוללים מע״מ</p>
 
-              {goldActive ? (
-                <div className="mt-5 flex items-start gap-3 rounded-xl border border-amber-400/35 bg-amber-400/10 p-4">
-                  <Crown className="mt-0.5 size-4 shrink-0 text-amber-500 dark:text-amber-300" />
-                  <p className="text-xs leading-relaxed">
-                    חברות KYMRUN GOLD פעילה
-                    {goldMember?.name ? ` · ${goldMember.name}` : ""} — משלוח
-                    חינם ו-15% על משקאות ייחודיים.
-                  </p>
-                </div>
-              ) : (
-                <div className="mt-5 rounded-xl bg-muted/60 p-4">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Truck className="size-4" />
-                    {remaining > 0 ? (
-                      <span>עוד ₪{remaining} למשלוח חינם</span>
-                    ) : (
-                      <span>משלוח חינם — מגיע אליך</span>
+                {goldActive ? (
+                  <div className="mt-5 flex items-start gap-3 rounded-md border border-gold/35 bg-gold/10 p-4">
+                    <Crown className="mt-0.5 size-4 shrink-0 text-gold" />
+                    <p className="text-xs leading-relaxed">
+                      חברות KYMRUN GOLD פעילה
+                      {goldMember?.name ? ` · ${goldMember.name}` : ""} — משלוח חינם ו-15% על משקאות
+                      ייחודיים.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-5 rounded-md border border-border bg-background/50 p-4">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Truck className="size-4 text-gold" strokeWidth={1.5} />
+                      {remaining > 0 ? (
+                        <span>עוד ₪{fmt(remaining)} למשלוח חינם</span>
+                      ) : (
+                        <span>משלוח חינם — מגיע אליך</span>
+                      )}
+                    </div>
+                    <div className="mt-2.5 h-1 w-full overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full bg-gold transition-all"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                    {GOLD_ENABLED && (
+                      <Link
+                        to="/gold"
+                        className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-gold hover:underline"
+                      >
+                        <Crown className="size-3.5" />
+                        חברי GOLD לא משלמים על משלוח — להצטרפות
+                      </Link>
                     )}
                   </div>
-                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
-                    <div
-                      className="h-full rounded-full bg-primary transition-all"
-                      style={{ width: `${progress}%` }}
-                    />
+                )}
+
+                {SECRET_ROOM_ENABLED && gift && (
+                  <div className="mt-4 flex items-start gap-3 rounded-md border border-gold/35 bg-gold/10 p-4">
+                    <Gift className="mt-0.5 size-4 shrink-0 text-gold" />
+                    <p className="text-xs leading-relaxed">
+                      זכית במתנה בחדר הסודי — קוד{" "}
+                      <span className="font-mono font-bold">{gift.code}</span>. המתנה תצורף להזמנה
+                      הזו.
+                    </p>
                   </div>
-                  {GOLD_ENABLED && (
-                    <Link
-                      to="/gold"
-                      className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 hover:underline dark:text-amber-300"
-                    >
-                      <Crown className="size-3.5" />
-                      חברי GOLD לא משלמים על משלוח — להצטרפות
-                    </Link>
+                )}
+
+                <Button
+                  onClick={placeOrder}
+                  disabled={!ready}
+                  className="mt-6 h-[3.25rem] w-full text-base"
+                >
+                  {submitting ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Lock className="size-4" />
                   )}
-                </div>
-              )}
-
-              {SECRET_ROOM_ENABLED && gift && (
-                <div className="mt-4 flex items-start gap-3 rounded-xl border border-primary/35 bg-primary/10 p-4">
-                  <Gift className="mt-0.5 size-4 shrink-0 text-primary" />
-                  <p className="text-xs leading-relaxed">
-                    זכית במתנה בחדר הסודי — קוד{" "}
-                    <span className="font-mono font-bold">{gift.code}</span>.
-                    המתנה תצורף להזמנה הזו.
+                  לתשלום מאובטח · ₪{fmt(total)}
+                </Button>
+                {!detailsValid && (
+                  <p className="mt-2.5 text-center text-[11px] text-muted-foreground">
+                    מלאו את פרטי המשלוח כדי להמשיך
                   </p>
-                </div>
-              )}
+                )}
 
-              <button
-                onClick={placeOrder}
-                disabled={!ready}
-                className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-base font-semibold text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-50"
-              >
-                {submitting && <Loader2 className="size-4 animate-spin" />}
-                לתשלום · ₪{total}
-              </button>
-
-              <p className="mt-3 text-center text-xs text-muted-foreground">
-                מכירה לגיל 18 ומעלה · אימות גיל במסירה
-              </p>
-            </section>
+                <ul className="mt-5 space-y-2 border-t border-border pt-5 text-xs text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <ShieldCheck className="size-3.5 text-gold" />
+                    תשלום מאובטח בדף סליקה מוצפן
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <BadgeCheck className="size-3.5 text-gold" />
+                    מכירה לגיל 18 ומעלה · אימות גיל במסירה
+                  </li>
+                </ul>
+              </section>
+            </aside>
           </div>
         )}
       </main>
 
       <Dialog open={orderPlaced} onOpenChange={setOrderPlaced}>
-        <DialogContent dir="rtl" className="max-w-sm text-right">
+        <DialogContent dir="rtl" className="max-w-sm rounded-lg text-right">
           <DialogHeader className="items-center text-center">
-            <div className="mb-2 grid size-14 place-items-center rounded-full bg-primary text-primary-foreground">
-              <Check className="size-7" />
+            <div className="mb-2 grid size-14 place-items-center rounded-full border border-gold/50 text-gold">
+              <Check className="size-6" />
             </div>
-            <DialogTitle className="font-display text-xl">
-              ההזמנה התקבלה
-            </DialogTitle>
-            <DialogDescription>
-              נחזור אליך בטלפון לתיאום התשלום והמשלוח.
-            </DialogDescription>
+            <DialogTitle className="font-display text-2xl font-medium">ההזמנה התקבלה</DialogTitle>
+            <DialogDescription>נחזור אליך בטלפון לתיאום התשלום והמשלוח.</DialogDescription>
           </DialogHeader>
-          <button
+          <Button
             onClick={() => {
               setOrderPlaced(false);
               clearCart();
             }}
-            className="mt-2 w-full rounded-2xl bg-primary py-3 text-base font-semibold text-primary-foreground"
+            className="mt-2 h-12 w-full text-base"
           >
             מעולה
-          </button>
+          </Button>
         </DialogContent>
       </Dialog>
     </div>
   );
 }
 
-function CartHeader() {
-  const items = useCartStore((s) => s.items);
-  const count = items.reduce((sum, i) => sum + i.quantity, 0);
-  return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-white dark:bg-background/85 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-md items-center justify-between gap-4 px-5 md:h-[4.5rem] md:max-w-2xl md:px-8 lg:max-w-4xl">
-        <Link to="/" aria-label="KYMRUN — דף הבית" className="min-w-0">
-          <BrandLockup compact />
-        </Link>
+const labelClass = "mb-1.5 block text-xs font-medium text-muted-foreground";
+const fieldClass =
+  "h-12 w-full rounded-md border border-input bg-background/60 px-4 text-sm outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-gold/70 focus:ring-1 focus:ring-gold/30";
 
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <Link
-            to="/cart"
-            aria-label="עגלת קניות"
-            className="relative grid size-11 shrink-0 place-items-center rounded-full border border-border bg-muted text-foreground transition-transform active:scale-95 dark:bg-card"
-          >
-            <ShoppingBag className="size-5" />
-            {count > 0 && (
-              <span className="absolute -top-1 -left-1 grid size-5 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                {count}
-              </span>
-            )}
-          </Link>
-        </div>
-      </div>
-    </header>
-  );
-}
+/** Display-only: cart math is float, so round for humans (server recomputes totals). */
+const fmt = (n: number) => n.toLocaleString("he-IL", { maximumFractionDigits: 2 });

@@ -3,84 +3,92 @@ import { Link } from "@tanstack/react-router";
 import { PHONE_DISPLAY, PHONE_TEL, WHATSAPP_URL } from "@/lib/contact";
 import { BrandLockup } from "@/components/brand-lockup";
 
+const linkClass = "text-muted-foreground transition-colors hover:text-gold";
+
 export function SiteFooter() {
   return (
-    <footer className="mt-16 border-t border-border bg-card/40">
-      <div className="mx-auto max-w-md px-5 py-10 md:max-w-3xl md:px-8 lg:max-w-6xl">
-        <div className="grid gap-8 md:grid-cols-3">
+    <footer className="mt-24 border-t border-border bg-card/50">
+      <div className="mx-auto max-w-6xl px-5 pt-14 pb-10 md:px-8">
+        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
           <div>
             <div className="flex justify-start">
               <BrandLockup />
             </div>
-            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-              בית למשקאות פרימיום כשרים. בחירה קפדנית, אחסון מבוקר ושירות אישי —
-              מהמדף שלנו לשולחן שלך.
+            <p className="mt-5 max-w-[38ch] text-sm leading-relaxed text-muted-foreground">
+              בית למשקאות פרימיום כשרים. בחירה קפדנית, אחסון מבוקר ושירות אישי — מהמדף שלנו לשולחן
+              שלך.
             </p>
           </div>
 
-          <nav className="grid gap-2 text-sm">
-            <Link to="/events" className="text-muted-foreground hover:text-foreground">
-              אירועים וטעימות פרטיות
-            </Link>
-            <Link to="/shipping" className="text-muted-foreground hover:text-foreground">
-              משלוחים ואזורי חלוקה
-            </Link>
-            <Link to="/contact" className="text-muted-foreground hover:text-foreground">
-              יצירת קשר
-            </Link>
-            <Link to="/terms" className="text-muted-foreground hover:text-foreground">
-              תקנון, ביטולים והחזרות
-            </Link>
+          <nav className="text-sm">
+            <p className="eyebrow">החנות</p>
+            <div className="mt-4 grid gap-2.5">
+              <Link to="/events" className={linkClass}>
+                אירועים וטעימות פרטיות
+              </Link>
+              <Link to="/shipping" className={linkClass}>
+                משלוחים ואזורי חלוקה
+              </Link>
+              <Link to="/contact" className={linkClass}>
+                יצירת קשר
+              </Link>
+              <Link to="/terms" className={linkClass}>
+                תקנון, ביטולים והחזרות
+              </Link>
+            </div>
           </nav>
 
-          <div className="text-xs leading-relaxed text-muted-foreground">
-            <p className="font-semibold text-foreground">שירות לקוחות</p>
-            <p className="mt-2">א׳–ה׳ 09:00–18:00 · ו׳ 09:00–13:00</p>
-            <p className="mt-1">
-              <a href={`tel:${PHONE_TEL}`} className="hover:text-foreground">
+          <div className="text-sm">
+            <p className="eyebrow">שירות לקוחות</p>
+            <div className="mt-4 grid gap-2.5 text-muted-foreground">
+              <p>א׳–ה׳ 09:00–18:00 · ו׳ 09:00–13:00</p>
+              <a href={`tel:${PHONE_TEL}`} className={linkClass}>
                 {PHONE_DISPLAY}
               </a>
-            </p>
-            <p className="mt-1">
               <a
                 href={WHATSAPP_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-foreground"
+                className={linkClass}
               >
                 וואטסאפ · {PHONE_DISPLAY}
               </a>
-            </p>
-            <p className="mt-1">service@kymrun.co.il</p>
+              <a href="mailto:service@kymrun.co.il" className={linkClass}>
+                service@kymrun.co.il
+              </a>
+            </div>
           </div>
         </div>
 
-        <div className="mt-8 space-y-2 border-t border-border pt-6 text-[11px] leading-relaxed text-muted-foreground">
+        <div className="gold-rule mt-12 opacity-50" />
+
+        <div className="mt-8 space-y-2 text-[11px] leading-relaxed text-muted-foreground/80">
           <p>
-            אזהרה: צריכה מופרזת של אלכוהול מסכנת חיים ומזיקה לבריאות. אין למכור
-            או לספק משקאות משכרים לקטינים מתחת לגיל 18. אין לשתות ולנהוג.
+            אזהרה: צריכה מופרזת של אלכוהול מסכנת חיים ומזיקה לבריאות. אין למכור או לספק משקאות
+            משכרים לקטינים מתחת לגיל 18. אין לשתות ולנהוג.
           </p>
           <p>
-            מסירת המשלוח מותנית בהצגת תעודת זהות בפני השליח. שליח רשאי לסרב
-            למסור הזמנה למי שאינו מציג תעודה מזהה, למי שנראה מתחת לגיל 18 או למי
-            שנראה שיכור. במקרה של סירוב מסירה תיגבה עלות המשלוח.
+            מסירת המשלוח מותנית בהצגת תעודת זהות בפני השליח. שליח רשאי לסרב למסור הזמנה למי שאינו
+            מציג תעודה מזהה, למי שנראה מתחת לגיל 18 או למי שנראה שיכור. במקרה של סירוב מסירה תיגבה
+            עלות המשלוח.
           </p>
           <p>
-            ביטול עסקה בהתאם לחוק הגנת הצרכן, התשמ״א־1981 ותקנותיו: ניתן לבטל
-            עד 14 ימים ממועד קבלת המוצר או מסמך פרטי העסקה, בבקבוקים סגורים,
-            שלמים ובאריזתם המקורית בלבד. דמי ביטול עד 5% ממחיר העסקה או ₪100,
-            הנמוך מביניהם. מוצרים שנפתחו, נפגמו או הותאמו אישית (חריטה, הקדשה,
+            ביטול עסקה בהתאם לחוק הגנת הצרכן, התשמ״א־1981 ותקנותיו: ניתן לבטל עד 14 ימים ממועד קבלת
+            המוצר או מסמך פרטי העסקה, בבקבוקים סגורים, שלמים ובאריזתם המקורית בלבד. דמי ביטול עד 5%
+            ממחיר העסקה או ₪100, הנמוך מביניהם. מוצרים שנפתחו, נפגמו או הותאמו אישית (חריטה, הקדשה,
             מארז בהרכבה אישית) אינם ניתנים להחזרה.
           </p>
           <p>
-            התמונות להמחשה בלבד. המחירים כוללים מע״מ. אספקה בכפוף לזמינות מלאי
-            ולאזורי השירות. ט.ל.ח. © {new Date().getFullYear()} KYMRUN.
+            התמונות להמחשה בלבד. המחירים כוללים מע״מ. אספקה בכפוף לזמינות מלאי ולאזורי השירות.
+            ט.ל.ח.
           </p>
-          <p>
-            <Link to="/terms" className="underline hover:text-foreground">
-              לתקנון המלא ולמדיניות ההחזרות
-            </Link>
-          </p>
+        </div>
+
+        <div className="mt-8 flex flex-col gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} KYMRUN · כל הזכויות שמורות</p>
+          <Link to="/terms" className={`${linkClass} underline-offset-4 hover:underline`}>
+            לתקנון המלא ולמדיניות ההחזרות
+          </Link>
         </div>
       </div>
     </footer>
