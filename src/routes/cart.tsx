@@ -25,6 +25,8 @@ import { useCartStore, useCartSync } from "@/lib/use-shopify-cart";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { BrandLockup } from "@/components/brand-lockup";
 import { lookupCustomer, saveCustomer } from "@/lib/customers.functions";
+import { toast } from "sonner";
+import { createOrder } from "@/lib/store.functions";
 import { useSecretGift } from "@/lib/use-secret-gift";
 import { GOLD_ENABLED, goldDiscountForItems, useGold } from "@/lib/gold";
 
@@ -58,7 +60,6 @@ function CartPage() {
   const { active: goldActive, member: goldMember } = useGold();
   useCartSync();
   const items = useCartStore((s) => s.items);
-  const checkoutUrl = useCartStore((s) => s.checkoutUrl);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
   const clearCart = useCartStore((s) => s.clearCart);
@@ -134,12 +135,24 @@ function CartPage() {
           address: address.trim(),
         },
       });
-      if (checkoutUrl) {
-        window.open(checkoutUrl, "_blank");
+      const res = await createOrder({
+        data: {
+          email: email.trim().toLowerCase(),
+          full_name: fullName.trim(),
+          phone: phone.trim(),
+          address: address.trim(),
+          shipping,
+          items: items.map((i) => ({ id: i.variantId, qty: i.quantity })),
+        },
+      });
+      clearCart();
+      if (res.paymentUrl) {
+        window.location.href = res.paymentUrl;
+        return;
       }
       setOrderPlaced(true);
     } catch {
-      setOrderPlaced(true);
+      toast.error("לא הצלחנו לשלוח את ההזמנה, נסו שוב או התקשרו 050-4001575");
     } finally {
       setSubmitting(false);
     }
