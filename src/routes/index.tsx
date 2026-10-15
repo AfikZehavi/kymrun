@@ -941,7 +941,7 @@ function ProductDialog({
 }) {
   return (
     <Dialog open={!!product} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent dir="rtl" className="w-[calc(100%-2rem)] max-w-sm max-h-[calc(100dvh-2rem)] overflow-y-auto gap-0 rounded-lg p-0 text-right">
+      <DialogContent dir="rtl" className="w-[calc(100%-2rem)] max-w-sm max-h-[calc(100dvh-2rem)] overflow-y-auto gap-0 rounded-lg p-0 text-right [&>button]:bg-primary [&>button]:text-primary-foreground [&>button]:opacity-100 [&>button]:p-2">
         {product && (
           <>
             <ProductImage src={product.image} alt={product.name} width={768} height={960} loading="eager" containerClassName="h-[min(42dvh,360px)] w-full shrink-0 rounded-t-lg" />
