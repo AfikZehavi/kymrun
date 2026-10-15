@@ -6,6 +6,12 @@ export type DbProduct = {
   id: string;
   name: string;
   subtitle: string;
+  english_name: string;
+  volume_ml: number;
+  country: string;
+  producer: string;
+  grape_variety: string;
+  kosher_passover: boolean;
   category_slug: string;
   price: number;
   discount_percent: number;
@@ -44,7 +50,7 @@ export const getAdminCatalog = createServerFn({ method: "POST" })
       sb.from("categories").select("id,slug,label,sort").order("sort"),
       sb
         .from("products")
-        .select("id,name,subtitle,category_slug,price,discount_percent,image,abv,note,in_stock,featured,sort,created_at")
+        .select("id,name,subtitle,category_slug,price,discount_percent,image,abv,note,in_stock,featured,sort,created_at,english_name,volume_ml,country,producer,grape_variety,kosher_passover")
         .order("created_at", { ascending: false }),
     ]);
     if (cats.error) throw cats.error;

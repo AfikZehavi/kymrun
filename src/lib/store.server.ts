@@ -20,6 +20,12 @@ export type Row = {
   id: string;
   name: string;
   subtitle: string;
+  english_name: string;
+  volume_ml: number;
+  country: string;
+  producer: string;
+  grape_variety: string;
+  kosher_passover: boolean;
   category_slug: string;
   price: number | string;
   discount_percent: number;
@@ -40,11 +46,12 @@ export function imageUrl(r: Row) {
 }
 
 /** Maps a database row into the node shape the storefront UI already understands. */
-export function toNode(r: Row, catLabel: string): ShopifyProduct["node"] {
+export function toNode(r: Row, catLabel: string): ShopifyProduct["node"] & { details: Pick<Row, "subtitle" | "english_name" | "volume_ml" | "country" | "producer" | "grape_variety" | "kosher_passover" | "abv"> } {
   const base = Number(r.price);
   const sale = salePrice(r);
   const money = (n: number) => ({ amount: String(n), currencyCode: "ILS" });
   return {
+    details: { subtitle: r.subtitle, english_name: r.english_name, volume_ml: r.volume_ml, country: r.country, producer: r.producer, grape_variety: r.grape_variety, kosher_passover: r.kosher_passover, abv: r.abv },
     id: r.id,
     title: r.name,
     description: r.note || r.subtitle,
@@ -72,6 +79,6 @@ export function toNode(r: Row, catLabel: string): ShopifyProduct["node"] {
   };
 }
 
-export const ROW_COLS = "id,name,subtitle,category_slug,price,discount_percent,image,abv,note,in_stock,featured";
+export const ROW_COLS = "id,name,subtitle,category_slug,price,discount_percent,image,abv,note,in_stock,featured,english_name,volume_ml,country,producer,grape_variety,kosher_passover";
 // list query without the heavy image payload, image resolved via length marker
 export const LIST_COLS = "id,name,subtitle,category_slug,price,discount_percent,abv,note,in_stock,featured,sort,created_at";

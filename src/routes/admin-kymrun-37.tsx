@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Plus, Trash2, Upload } from "lucide-react";
+import { Plus, Trash2, Upload, Pencil } from "lucide-react";
 
 import {
   getAdminCatalog,
@@ -16,6 +16,7 @@ import {
   type ProductInput,
 } from "@/lib/catalog.functions";
 import { resolveImage } from "@/lib/images";
+import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export const Route = createFileRoute("/admin-kymrun-37")({
@@ -125,6 +126,12 @@ function AdminGate() {
 }
 
 const emptyForm = {
+  english_name: "",
+  volume_ml: "",
+  country: "",
+  producer: "",
+  grape_variety: "",
+  kosher_passover: false,
   name: "",
   subtitle: "",
   category_slug: "",
@@ -154,6 +161,7 @@ function AdminPage({ creds }: { creds: Creds }) {
   const cats = useMemo(() => data?.categories ?? [], [data]);
 
   const [query, setQuery] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ ...emptyForm });
   const [catLabel, setCatLabel] = useState("");
@@ -161,7 +169,8 @@ function AdminPage({ creds }: { creds: Creds }) {
 
   function refresh() {
     qc.invalidateQueries({ queryKey: ["admin-catalog"] });
-    qc.invalidateQueries({ queryKey: ["shopify-catalog"] });
+    qc.invalidateQueries({ queryKey: ["store-catalog"] });
+    qc.invalidateQueries({ queryKey: ["store-product"] });
   }
 
   const rows = useMemo(() => {
@@ -220,6 +229,13 @@ function AdminPage({ creds }: { creds: Creds }) {
         data: {
           ...creds,
           product: {
+            ...(editingId ? { id: editingId } : {}),
+            english_name: form.english_name.trim(),
+            volume_ml: Math.max(0, Math.floor(Number(form.volume_ml) || 0)),
+            country: form.country.trim(),
+            producer: form.producer.trim(),
+            grape_variety: form.grape_variety.trim(),
+            kosher_passover: form.kosher_passover,
             name: form.name.trim(),
             subtitle: form.subtitle.trim(),
             category_slug: slug,
@@ -236,11 +252,12 @@ function AdminPage({ creds }: { creds: Creds }) {
           },
         },
       });
+      setEditingId(null);
       setForm({ ...emptyForm });
       if (fileRef.current) fileRef.current.value = "";
       setShowForm(false);
       refresh();
-      toast.success("המוצר נוסף לחנות", { id: t });
+      toast.success(editingId ? "פרטי הבקבוק נשמרו" : "המוצר נוסף לחנות", { id: t });
     } catch {
       toast.error("ההוספה נכשלה", { id: t });
     }
@@ -345,7 +362,7 @@ function AdminPage({ creds }: { creds: Creds }) {
         </section>
 
         <button
-          onClick={() => setShowForm((v) => !v)}
+          onClick={() => { setEditingId(null); setForm({ ...emptyForm }); setShowForm((v) => !v); }}
           className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-base font-semibold text-primary-foreground transition-transform active:scale-[0.98]"
         >
           <Plus className="size-5" />
@@ -355,8 +372,9 @@ function AdminPage({ creds }: { creds: Creds }) {
         {showForm && (
           <form
             onSubmit={addProduct}
-            className="mt-4 rounded-2xl border border-border bg-card p-4"
+            id="bottle-form" className="mt-4 rounded-2xl border border-border bg-card p-4"
           >
+            <h2 className="mb-4 font-display text-lg font-bold">{editingId ? "עריכת פרטי בקבוק" : "בקבוק חדש"}</h2>
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="שם מוצר">
                 <input
@@ -376,6 +394,9 @@ function AdminPage({ creds }: { creds: Creds }) {
                   className={inputCls}
                 />
               </Field>
+              {([ ["english_name", "שם באנגלית"], ["country", "ארץ ייצור"], ["producer", "יצרן / יקב"], ["grape_variety", "זן ענבים"] ] as const).map(([key, label]) => <Field key={key} label={label}><input aria-label={label} value={form[key]} onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))} className={inputCls} /></Field>)}
+              <Field label='נפח (מ״ל)'><input aria-label='נפח (מ״ל)' type="number" min="0" step="1" value={form.volume_ml} onChange={(e) => setForm((f) => ({ ...f, volume_ml: e.target.value }))} className={inputCls} /></Field>
+              <Field label="כשרות"><p className="mt-2 text-sm">כשר</p><label className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" checked={form.kosher_passover} onChange={(e) => setForm((f) => ({ ...f, kosher_passover: e.target.checked }))} />כשר לפסח</label></Field>
               <Field label="קטגוריה">
                 <select
                   value={form.category_slug || cats[0]?.slug || ""}
@@ -523,7 +544,9 @@ function AdminPage({ creds }: { creds: Creds }) {
                 />
               </label>
               <div className="min-w-0">
-                <div className="truncate text-sm font-semibold">{p.name}</div>
+                <div className="flex items-start justify-between gap-2"><div className="min-w-0 text-sm font-semibold">{p.name}</div><Button variant="ghost" size="icon" aria-label={`ערוך פרטי ${p.name}`} title="ערוך פרטי בקבוק" onClick={() => {
+                  setEditingId(p.id); setForm({ ...emptyForm, name: p.name, subtitle: p.subtitle, category_slug: p.category_slug, price: String(p.price), discount_percent: String(p.discount_percent), abv: p.abv, note: p.note, in_stock: p.in_stock, english_name: p.english_name, volume_ml: p.volume_ml ? String(p.volume_ml) : "", country: p.country, producer: p.producer, grape_variety: p.grape_variety, kosher_passover: p.kosher_passover }); setShowForm(true); requestAnimationFrame(() => document.getElementById("bottle-form")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+                }}><Pencil className="size-4" /></Button></div>
                 <div className="text-xs text-muted-foreground">
                   {p.subtitle}{p.abv ? ` · ${p.abv}` : ""}
                 </div>
