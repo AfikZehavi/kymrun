@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 
 // Tranzila reports the payment result here (notify_url_address), server to server.
 // Fields may arrive in the POST body or the query string depending on the terminal's notify format.
+// This URL is public, so a "paid" report is only trusted after checking the transaction
+// with Tranzila's API (when TRANZILA_APP_KEY / TRANZILA_APP_SECRET are set).
 async function handleNotify(request: Request) {
   const fields = new URLSearchParams(new URL(request.url).search);
   if (request.method === "POST") {
@@ -20,35 +22,74 @@ async function handleNotify(request: Request) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: order } = await supabaseAdmin
     .from("orders")
-    .select("id,total,status,paid_email_sent_at")
+    .select("id,total,status")
     .eq("id", orderId)
     .maybeSingle();
   if (!order) return new Response("not found", { status: 404 });
-  // Tranzila may retry; once an order is settled, just acknowledge.
-  if ((order as any).status !== "pending") return new Response("OK");
+  const status = (order as any).status as string;
+  // Tranzila may retry; a paid order is final.
+  if (status === "paid") return new Response("OK");
 
-  const ok =
-    (response === "000" || response === "0") && Math.abs(Number((order as any).total) - sum) < 0.01;
+  const total = Number((order as any).total);
   const confirmationCode = (fields.get("ConfirmationCode") ?? "").slice(0, 100);
-  const index = (fields.get("index") ?? fields.get("TranzilaTK") ?? "").slice(0, 100);
+  const index = (fields.get("index") ?? "").slice(0, 100);
+  const reportedOk = (response === "000" || response === "0") && Math.abs(total - sum) < 0.01;
 
-  // Only the request that moves the order out of "pending" gets a row back, so the email is sent once.
+  if (!reportedOk) {
+    // Only a pending order is marked failed, and a later genuine success can still mark it paid.
+    await supabaseAdmin
+      .from("orders")
+      .update({ status: "failed", tranzila_response: response.slice(0, 20) } as never)
+      .eq("id", orderId)
+      .eq("status", "pending");
+    return new Response("OK");
+  }
+
+  const { tranzilaApiConfigured, verifyTranzilaPayment } = await import("@/lib/tranzila.server");
+  let verified = false;
+  if (tranzilaApiConfigured()) {
+    // One real transaction can't pay for two orders.
+    const { data: reused } = await supabaseAdmin
+      .from("orders")
+      .select("id")
+      .eq("tranzila_index", index)
+      .eq("status", "paid")
+      .neq("id", orderId)
+      .limit(1);
+    if (index && reused?.length) {
+      console.error(
+        "[tranzila notify] transaction index already used by another order",
+        orderId,
+        index,
+      );
+      return new Response("OK");
+    }
+    const check = await verifyTranzilaPayment(index, total);
+    if (!check.ok) {
+      console.error("[tranzila notify] payment not verified", orderId, check.reason);
+      // On a temporary problem ask Tranzila to retry; otherwise leave the order unpaid.
+      return new Response(check.retry ? "retry" : "OK", { status: check.retry ? 503 : 200 });
+    }
+    verified = true;
+  }
+
+  // Only the request that actually moves the order to "paid" gets a row back, so the email is sent once.
   const { data: updated } = await supabaseAdmin
     .from("orders")
     .update({
-      status: ok ? "paid" : "failed",
+      status: "paid",
       tranzila_response: response.slice(0, 20),
       tranzila_index: (index || confirmationCode).slice(0, 100),
     } as never)
     .eq("id", orderId)
-    .eq("status", "pending")
+    .in("status", ["pending", "failed"])
     .select("*")
     .maybeSingle();
 
-  if (ok && updated) {
+  if (updated) {
     try {
       const { sendPaidOrderEmail } = await import("@/lib/order-email.server");
-      if (await sendPaidOrderEmail(updated as any, { confirmationCode, index })) {
+      if (await sendPaidOrderEmail(updated as any, { confirmationCode, index, verified })) {
         await supabaseAdmin
           .from("orders")
           .update({ paid_email_sent_at: new Date().toISOString() } as never)

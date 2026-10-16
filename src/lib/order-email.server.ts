@@ -28,7 +28,7 @@ const ils = (n: number | string) =>
 
 export async function sendPaidOrderEmail(
   order: PaidOrder,
-  payment: { confirmationCode: string; index: string },
+  payment: { confirmationCode: string; index: string; verified: boolean },
 ) {
   const apiKey = process.env["RESEND_API_KEY"];
   const to = process.env["ORDER_EMAIL_TO"];
@@ -76,7 +76,7 @@ export async function sendPaidOrderEmail(
   </table>
   <p style="margin:24px 0 0;padding:12px;background:#f6f3ee;border-radius:6px;font-size:13px">
     טרנזילה · קוד אישור: <b>${esc(payment.confirmationCode || "—")}</b> · אינדקס: <b>${esc(payment.index || "—")}</b><br>
-    מומלץ לוודא את העסקה בממשק טרנזילה לפני שליחת המשלוח. מזהה הזמנה מלא: ${esc(order.id)}
+    ${payment.verified ? "✅ התשלום אומת ישירות מול טרנזילה (סכום וקוד אישור)." : "⚠️ התשלום לא אומת אוטומטית מול טרנזילה — יש לוודא את העסקה בממשק טרנזילה לפני שליחת המשלוח."}<br>מזהה הזמנה מלא: ${esc(order.id)}
   </p>
 </div>`;
 
