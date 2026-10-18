@@ -2,5 +2,10 @@
 // .output/server/wrangler.json at build time (main/assets are filled in by Nitro).
 // The name must match the Worker name in the Cloudflare dashboard.
 {
-  "name": "kymrun"
+  "name": "kymrun",
+  // Serve the site on the shop's own domain (the zone lives in this Cloudflare account).
+  "routes": [
+    { "pattern": "kymrun.co.il", "custom_domain": true },
+    { "pattern": "www.kymrun.co.il", "custom_domain": true }
+  ]
 }
