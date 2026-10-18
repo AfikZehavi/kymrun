@@ -107,3 +107,8 @@ ALTER TABLE public.orders
   ADD COLUMN IF NOT EXISTS shipping_method text NOT NULL DEFAULT 'standard',
   ADD COLUMN IF NOT EXISTS shipping numeric NOT NULL DEFAULT 0,
   ADD COLUMN IF NOT EXISTS paid_email_sent_at timestamptz;
+
+-- Light stand-ins for the image column so product lists don't download every photo
+ALTER TABLE public.products
+  ADD COLUMN IF NOT EXISTS image_ref text GENERATED ALWAYS AS (CASE WHEN image LIKE 'data:%' THEN NULL ELSE image END) STORED,
+  ADD COLUMN IF NOT EXISTS image_ver integer GENERATED ALWAYS AS (length(image)) STORED;

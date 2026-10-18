@@ -50,19 +50,27 @@ export const getAdminCatalog = createServerFn({ method: "POST" })
       sb.from("categories").select("id,slug,label,sort").order("sort"),
       sb
         .from("products")
-        .select("id,name,subtitle,category_slug,price,discount_percent,image,abv,note,in_stock,featured,sort,created_at,english_name,volume_ml,country,producer,grape_variety,kosher_passover")
+        .select(
+          "id,name,subtitle,category_slug,price,discount_percent,image_ref,image_ver,abv,note,in_stock,featured,sort,created_at,english_name,volume_ml,country,producer,grape_variety,kosher_passover",
+        )
         .order("created_at", { ascending: false }),
     ]);
     if (cats.error) throw cats.error;
     if (prods.error) throw prods.error;
+    type ListRow = Omit<DbProduct, "image"> & {
+      image_ref: string | null;
+      image_ver: number | null;
+    };
     return {
       categories: (cats.data ?? []) as DbCategory[],
-      products: ((prods.data ?? []) as unknown as DbProduct[]).map((p) => ({
-        ...p,
-        price: Number(p.price),
-        // show images through the image route so the list stays light
-        image: p.image?.startsWith("data:") ? `/api/public/product-image/${p.id}?v=${p.image.length}` : p.image,
-      })),
+      // image_ref / image_ver are light generated columns, so the list never downloads the photos themselves
+      products: ((prods.data ?? []) as unknown as ListRow[]).map(
+        ({ image_ref, image_ver, ...p }) => ({
+          ...p,
+          price: Number(p.price),
+          image: image_ref ?? (image_ver ? `/api/public/product-image/${p.id}?v=${image_ver}` : ""),
+        }),
+      ),
     };
   });
 
@@ -75,7 +83,10 @@ export const saveProduct = createServerFn({ method: "POST" })
     delete row["image"];
     if (imageData) row["image"] = imageData;
     if (id) {
-      const { error } = await sb.from("products").update(row as never).eq("id", id);
+      const { error } = await sb
+        .from("products")
+        .update(row as never)
+        .eq("id", id);
       if (error) throw error;
     } else {
       const { error } = await sb.from("products").insert(row as never);

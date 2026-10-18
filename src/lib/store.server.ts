@@ -34,7 +34,12 @@ export type Row = {
   category_slug: string;
   price: number | string;
   discount_percent: number;
-  image: string;
+  /** Full image (often a base64 data URL); lists select image_ref/image_ver instead. */
+  image?: string;
+  /** Image URL/name when it isn't embedded data (generated column). */
+  image_ref?: string | null;
+  /** Length of the stored image, used as a cache-busting version (generated column). */
+  image_ver?: number | null;
   abv: string;
   note: string;
   in_stock: boolean;
@@ -47,9 +52,14 @@ export const salePrice = (r: Row) =>
   ) / 100;
 
 export function imageUrl(r: Row) {
-  if (!r.image) return "hero-bottle";
-  if (r.image.startsWith("data:")) return `/api/public/product-image/${r.id}?v=${r.image.length}`;
-  return r.image;
+  if (r.image !== undefined) {
+    if (!r.image) return "hero-bottle";
+    if (r.image.startsWith("data:")) return `/api/public/product-image/${r.id}?v=${r.image.length}`;
+    return r.image;
+  }
+  if (r.image_ref) return r.image_ref;
+  if (r.image_ver) return `/api/public/product-image/${r.id}?v=${r.image_ver}`;
+  return "hero-bottle";
 }
 
 /** Maps a database row into the node shape the storefront UI already understands. */
@@ -111,7 +121,7 @@ export function toNode(
 }
 
 export const ROW_COLS =
-  "id,name,subtitle,category_slug,price,discount_percent,image,abv,note,in_stock,featured,english_name,volume_ml,country,producer,grape_variety,kosher_passover";
+  "id,name,subtitle,category_slug,price,discount_percent,image_ref,image_ver,abv,note,in_stock,featured,english_name,volume_ml,country,producer,grape_variety,kosher_passover";
 // list query without the heavy image payload, image resolved via length marker
 export const LIST_COLS =
   "id,name,subtitle,category_slug,price,discount_percent,abv,note,in_stock,featured,sort,created_at";

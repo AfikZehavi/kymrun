@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Plus, Trash2, Upload, Pencil } from "lucide-react";
+import { Loader2, Plus, Trash2, Upload, Pencil } from "lucide-react";
 
 import {
   getAdminCatalog,
@@ -84,9 +84,7 @@ function AdminGate() {
         className="w-full max-w-sm space-y-4 rounded-3xl border border-border bg-card p-6 text-right shadow-2xl shadow-black/40"
       >
         <div>
-          <h1 className="font-display text-2xl font-bold tracking-[0.18em]">
-            KYMRUN
-          </h1>
+          <h1 className="font-display text-2xl font-bold tracking-[0.18em]">KYMRUN</h1>
           <p className="mt-1 text-sm text-muted-foreground">כניסת מנהל</p>
         </div>
         <input
@@ -110,9 +108,7 @@ function AdminGate() {
           autoComplete="current-password"
           className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary"
         />
-        {error && (
-          <p className="text-sm text-destructive">שם משתמש או סיסמה שגויים</p>
-        )}
+        {error && <p className="text-sm text-destructive">שם משתמש או סיסמה שגויים</p>}
         <button
           type="submit"
           disabled={checking}
@@ -152,9 +148,10 @@ function AdminPage({ creds }: { creds: Creds }) {
   const doSaveCategory = useServerFn(saveCategory);
   const doDeleteCategory = useServerFn(deleteCategory);
 
-  const { data } = useQuery({
+  const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["admin-catalog"],
     queryFn: () => fetchCatalog({ data: creds }),
+    retry: 2,
   });
 
   const products = useMemo(() => data?.products ?? [], [data]);
@@ -176,9 +173,7 @@ function AdminPage({ creds }: { creds: Creds }) {
   const rows = useMemo(() => {
     if (!query.trim()) return products;
     const q = query.trim();
-    return products.filter(
-      (p) => p.name.includes(q) || p.subtitle.includes(q),
-    );
+    return products.filter((p) => p.name.includes(q) || p.subtitle.includes(q));
   }, [products, query]);
 
   async function patch(p: DbProduct, next: ProductInput) {
@@ -240,10 +235,7 @@ function AdminPage({ creds }: { creds: Creds }) {
             subtitle: form.subtitle.trim(),
             category_slug: slug,
             price: Number(form.price) || 0,
-            discount_percent: Math.min(
-              95,
-              Math.max(0, Number(form.discount_percent) || 0),
-            ),
+            discount_percent: Math.min(95, Math.max(0, Number(form.discount_percent) || 0)),
             imageData: form.imageFile || form.imageUrl.trim() || undefined,
             abv: form.abv.trim(),
             note: form.note.trim(),
@@ -300,9 +292,7 @@ function AdminPage({ creds }: { creds: Creds }) {
       <div className="mx-auto max-w-5xl">
         <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
           <div className="min-w-0">
-            <h1 className="font-display text-2xl font-bold tracking-[0.14em]">
-              KYMRUN · ניהול
-            </h1>
+            <h1 className="font-display text-2xl font-bold tracking-[0.14em]">KYMRUN · ניהול</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               כל שינוי נשמר ישירות בחנות ומופיע באתר תוך דקה.
             </p>
@@ -316,10 +306,7 @@ function AdminPage({ creds }: { creds: Creds }) {
             { label: "במלאי", value: active },
             { label: "מחיר ממוצע", value: `₪${avg}` },
           ].map((s) => (
-            <div
-              key={s.label}
-              className="rounded-2xl border border-border bg-card px-4 py-3"
-            >
+            <div key={s.label} className="rounded-2xl border border-border bg-card px-4 py-3">
               <div className="text-xs text-muted-foreground">{s.label}</div>
               <div className="mt-1 font-display text-xl font-bold">{s.value}</div>
             </div>
@@ -362,7 +349,11 @@ function AdminPage({ creds }: { creds: Creds }) {
         </section>
 
         <button
-          onClick={() => { setEditingId(null); setForm({ ...emptyForm }); setShowForm((v) => !v); }}
+          onClick={() => {
+            setEditingId(null);
+            setForm({ ...emptyForm });
+            setShowForm((v) => !v);
+          }}
           className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-base font-semibold text-primary-foreground transition-transform active:scale-[0.98]"
         >
           <Plus className="size-5" />
@@ -372,9 +363,12 @@ function AdminPage({ creds }: { creds: Creds }) {
         {showForm && (
           <form
             onSubmit={addProduct}
-            id="bottle-form" className="mt-4 rounded-2xl border border-border bg-card p-4"
+            id="bottle-form"
+            className="mt-4 rounded-2xl border border-border bg-card p-4"
           >
-            <h2 className="mb-4 font-display text-lg font-bold">{editingId ? "עריכת פרטי בקבוק" : "בקבוק חדש"}</h2>
+            <h2 className="mb-4 font-display text-lg font-bold">
+              {editingId ? "עריכת פרטי בקבוק" : "בקבוק חדש"}
+            </h2>
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="שם מוצר">
                 <input
@@ -387,22 +381,54 @@ function AdminPage({ creds }: { creds: Creds }) {
               <Field label="תיאור קצר">
                 <input
                   value={form.subtitle}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, subtitle: e.target.value }))
-                  }
+                  onChange={(e) => setForm((f) => ({ ...f, subtitle: e.target.value }))}
                   placeholder="למשל: יין אדום · ישראל"
                   className={inputCls}
                 />
               </Field>
-              {([ ["english_name", "שם באנגלית"], ["country", "ארץ ייצור"], ["producer", "יצרן / יקב"], ["grape_variety", "זן ענבים"] ] as const).map(([key, label]) => <Field key={key} label={label}><input aria-label={label} value={form[key]} onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))} className={inputCls} /></Field>)}
-              <Field label='נפח (מ״ל)'><input aria-label='נפח (מ״ל)' type="number" min="0" step="1" value={form.volume_ml} onChange={(e) => setForm((f) => ({ ...f, volume_ml: e.target.value }))} className={inputCls} /></Field>
-              <Field label="כשרות"><p className="mt-2 text-sm">כשר</p><label className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" checked={form.kosher_passover} onChange={(e) => setForm((f) => ({ ...f, kosher_passover: e.target.checked }))} />כשר לפסח</label></Field>
+              {(
+                [
+                  ["english_name", "שם באנגלית"],
+                  ["country", "ארץ ייצור"],
+                  ["producer", "יצרן / יקב"],
+                  ["grape_variety", "זן ענבים"],
+                ] as const
+              ).map(([key, label]) => (
+                <Field key={key} label={label}>
+                  <input
+                    aria-label={label}
+                    value={form[key]}
+                    onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
+                    className={inputCls}
+                  />
+                </Field>
+              ))}
+              <Field label="נפח (מ״ל)">
+                <input
+                  aria-label="נפח (מ״ל)"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={form.volume_ml}
+                  onChange={(e) => setForm((f) => ({ ...f, volume_ml: e.target.value }))}
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="כשרות">
+                <p className="mt-2 text-sm">כשר</p>
+                <label className="mt-2 flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={form.kosher_passover}
+                    onChange={(e) => setForm((f) => ({ ...f, kosher_passover: e.target.checked }))}
+                  />
+                  כשר לפסח
+                </label>
+              </Field>
               <Field label="קטגוריה">
                 <select
                   value={form.category_slug || cats[0]?.slug || ""}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, category_slug: e.target.value }))
-                  }
+                  onChange={(e) => setForm((f) => ({ ...f, category_slug: e.target.value }))}
                   className={inputCls}
                 >
                   {cats.map((c) => (
@@ -425,9 +451,7 @@ function AdminPage({ creds }: { creds: Creds }) {
                 <input
                   type="number"
                   value={form.discount_percent}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, discount_percent: e.target.value }))
-                  }
+                  onChange={(e) => setForm((f) => ({ ...f, discount_percent: e.target.value }))}
                   className={inputCls}
                 />
               </Field>
@@ -452,16 +476,12 @@ function AdminPage({ creds }: { creds: Creds }) {
             </div>
 
             <div className="mt-4">
-              <label className="block text-xs text-muted-foreground">
-                תמונה — קישור או העלאה
-              </label>
+              <label className="block text-xs text-muted-foreground">תמונה — קישור או העלאה</label>
               <div className="mt-1 flex flex-col gap-3 md:flex-row md:items-start">
                 <input
                   type="url"
                   value={form.imageUrl}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, imageUrl: e.target.value }))
-                  }
+                  onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
                   placeholder="https://... או השאר ריק לתמונה כללית"
                   className="flex-1 rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
                 />
@@ -490,9 +510,7 @@ function AdminPage({ creds }: { creds: Creds }) {
               <input
                 type="checkbox"
                 checked={form.in_stock}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, in_stock: e.target.checked }))
-                }
+                onChange={(e) => setForm((f) => ({ ...f, in_stock: e.target.checked }))}
                 className="size-4 accent-primary"
               />
               במלאי
@@ -513,6 +531,27 @@ function AdminPage({ creds }: { creds: Creds }) {
           placeholder="חיפוש מוצר או קטגוריה"
           className="mt-6 w-full rounded-2xl border border-input bg-card px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring"
         />
+
+        {isPending && (
+          <div
+            role="status"
+            className="mt-4 flex items-center justify-center gap-2 rounded-2xl border border-border bg-card p-8 text-sm text-muted-foreground"
+          >
+            <Loader2 className="size-4 animate-spin" />
+            טוען את המוצרים...
+          </div>
+        )}
+        {isError && (
+          <div
+            role="alert"
+            className="mt-4 rounded-2xl border border-destructive/40 bg-card p-6 text-center text-sm"
+          >
+            <p>לא הצלחנו לטעון את המוצרים.</p>
+            <Button className="mt-3" onClick={() => refetch()}>
+              נסה שוב
+            </Button>
+          </div>
+        )}
 
         <div className="mt-4 space-y-3">
           {rows.map((p) => (
@@ -544,11 +583,46 @@ function AdminPage({ creds }: { creds: Creds }) {
                 />
               </label>
               <div className="min-w-0">
-                <div className="flex items-start justify-between gap-2"><div className="min-w-0 text-sm font-semibold">{p.name}</div><Button variant="ghost" size="icon" aria-label={`ערוך פרטי ${p.name}`} title="ערוך פרטי בקבוק" onClick={() => {
-                  setEditingId(p.id); setForm({ ...emptyForm, name: p.name, subtitle: p.subtitle, category_slug: p.category_slug, price: String(p.price), discount_percent: String(p.discount_percent), abv: p.abv, note: p.note, in_stock: p.in_stock, english_name: p.english_name, volume_ml: p.volume_ml ? String(p.volume_ml) : "", country: p.country, producer: p.producer, grape_variety: p.grape_variety, kosher_passover: p.kosher_passover }); setShowForm(true); requestAnimationFrame(() => document.getElementById("bottle-form")?.scrollIntoView({ behavior: "smooth", block: "start" }));
-                }}><Pencil className="size-4" /></Button></div>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 text-sm font-semibold">{p.name}</div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={`ערוך פרטי ${p.name}`}
+                    title="ערוך פרטי בקבוק"
+                    onClick={() => {
+                      setEditingId(p.id);
+                      setForm({
+                        ...emptyForm,
+                        name: p.name,
+                        subtitle: p.subtitle,
+                        category_slug: p.category_slug,
+                        price: String(p.price),
+                        discount_percent: String(p.discount_percent),
+                        abv: p.abv,
+                        note: p.note,
+                        in_stock: p.in_stock,
+                        english_name: p.english_name,
+                        volume_ml: p.volume_ml ? String(p.volume_ml) : "",
+                        country: p.country,
+                        producer: p.producer,
+                        grape_variety: p.grape_variety,
+                        kosher_passover: p.kosher_passover,
+                      });
+                      setShowForm(true);
+                      requestAnimationFrame(() =>
+                        document
+                          .getElementById("bottle-form")
+                          ?.scrollIntoView({ behavior: "smooth", block: "start" }),
+                      );
+                    }}
+                  >
+                    <Pencil className="size-4" />
+                  </Button>
+                </div>
                 <div className="text-xs text-muted-foreground">
-                  {p.subtitle}{p.abv ? ` · ${p.abv}` : ""}
+                  {p.subtitle}
+                  {p.abv ? ` · ${p.abv}` : ""}
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <label className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -556,9 +630,7 @@ function AdminPage({ creds }: { creds: Creds }) {
                     <input
                       type="number"
                       defaultValue={Number(p.price)}
-                      onBlur={(e) =>
-                        patch(p, { price: Number(e.target.value) || 0 })
-                      }
+                      onBlur={(e) => patch(p, { price: Number(e.target.value) || 0 })}
                       className="w-24 rounded-lg border border-input bg-background px-2 py-1 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
                     />
                   </label>
@@ -569,10 +641,7 @@ function AdminPage({ creds }: { creds: Creds }) {
                       defaultValue={p.discount_percent}
                       onBlur={(e) =>
                         patch(p, {
-                          discount_percent: Math.min(
-                            95,
-                            Math.max(0, Number(e.target.value) || 0),
-                          ),
+                          discount_percent: Math.min(95, Math.max(0, Number(e.target.value) || 0)),
                         })
                       }
                       className="w-20 rounded-lg border border-input bg-background px-2 py-1 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
@@ -629,13 +698,7 @@ function AdminPage({ creds }: { creds: Creds }) {
 const inputCls =
   "mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring";
 
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
       <label className="block text-xs text-muted-foreground">{label}</label>
