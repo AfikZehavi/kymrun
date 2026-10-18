@@ -53,6 +53,22 @@ function headers(appKey: string, time: string, n: string, token: string) {
   };
 }
 
+/** POSTs JSON to a Tranzila API with the signed headers, remembering whichever signing form works. */
+async function signedPost(url: string, payload: unknown): Promise<Response> {
+  const appKey = process.env["TRANZILA_APP_KEY"]!;
+  const secret = process.env["TRANZILA_APP_SECRET"]!;
+  const body = JSON.stringify(payload);
+  let res: Response | undefined;
+  for (const sign of workingSigner ? [workingSigner] : signers) {
+    res = await fetch(url, { method: "POST", headers: await sign(appKey, secret), body });
+    if (res.status !== 401 && res.status !== 403) {
+      workingSigner = sign;
+      break;
+    }
+  }
+  return res!;
+}
+
 export function tranzilaApiConfigured() {
   return Boolean(process.env["TRANZILA_APP_KEY"] && process.env["TRANZILA_APP_SECRET"]);
 }
@@ -66,25 +82,15 @@ export async function verifyTranzilaPayment(
   index: string,
   expectedAmount: number,
 ): Promise<VerifyResult> {
-  const appKey = process.env["TRANZILA_APP_KEY"]!;
-  const secret = process.env["TRANZILA_APP_SECRET"]!;
   const terminal = process.env["TRANZILA_TERMINAL"]!;
   if (!/^\d+$/.test(index)) return { ok: false, reason: "missing transaction index", retry: false };
 
-  const body = JSON.stringify({ terminal_name: terminal, transaction_index: Number(index) });
-  let res: Response | undefined;
-  for (const sign of workingSigner ? [workingSigner] : signers) {
-    try {
-      res = await fetch(API_URL, { method: "POST", headers: await sign(appKey, secret), body });
-    } catch (e) {
-      return { ok: false, reason: `network error: ${String(e)}`, retry: true };
-    }
-    if (res.status !== 401 && res.status !== 403) {
-      workingSigner = sign;
-      break;
-    }
+  let res: Response;
+  try {
+    res = await signedPost(API_URL, { terminal_name: terminal, transaction_index: Number(index) });
+  } catch (e) {
+    return { ok: false, reason: `network error: ${String(e)}`, retry: true };
   }
-  if (!res) return { ok: false, reason: "no response", retry: true };
   if (res.status === 401 || res.status === 403)
     return { ok: false, reason: "Tranzila API rejected the API keys", retry: true };
   if (!res.ok)
@@ -112,4 +118,105 @@ export async function verifyTranzilaPayment(
     };
   }
   return { ok: true, amount, responseCode };
+}
+
+// Tranzila Invoices API (https://docs.tranzila.com/docs/invoices/invoices-api): same keys and signed headers.
+const INVOICE_URL = "https://billing5.tranzila.com/api/documents_db/create_document";
+const INVOICE_PDF_URL = "https://my.tranzila.com/api/get_financial_document/";
+
+type InvoiceOrder = {
+  id: string;
+  full_name: string;
+  email: string;
+  address: string;
+  items: { name: string; qty: number; price: number }[];
+  shipping: number | string;
+  shipping_method: string;
+  total: number | string;
+};
+
+export type InvoiceResult =
+  | { ok: true; number: string; url: string }
+  | { ok: false; reason: string };
+
+/** Issues a tax invoice/receipt (IR) for a paid order and binds it to the Tranzila transaction. */
+export async function createTranzilaInvoice(
+  order: InvoiceOrder,
+  index: string,
+  shippingLabel: string,
+): Promise<InvoiceResult> {
+  const terminal = process.env["TRANZILA_TERMINAL"]!;
+  const r2 = (n: number) => Math.round(n * 100) / 100;
+  const items = (order.items ?? []).map((l) => ({
+    type: "I",
+    name: l.name.slice(0, 100),
+    price_type: "G", // prices on the site include VAT
+    unit_price: r2(Number(l.price)),
+    units_number: l.qty,
+    currency_code: "ILS",
+  }));
+  if (Number(order.shipping) > 0) {
+    items.push({
+      type: "I",
+      name: `משלוח · ${shippingLabel}`.slice(0, 100),
+      price_type: "G",
+      unit_price: r2(Number(order.shipping)),
+      units_number: 1,
+      currency_code: "ILS",
+    });
+  }
+  const payload = {
+    terminal_name: terminal,
+    document_type: "IR",
+    action: 1,
+    document_language: "heb",
+    response_language: "eng",
+    document_currency_code: "ILS",
+    client_name: order.full_name.slice(0, 100),
+    client_email: order.email,
+    client_address_line_1: order.address.slice(0, 100),
+    items,
+    payments: [
+      {
+        payment_method: 1,
+        amount: r2(Number(order.total)),
+        currency_code: "ILS",
+        ...(/^\d+$/.test(index) ? { txnindex: Number(index) } : {}),
+      },
+    ],
+    created_by_system: `kymrun.co.il order ${order.id}`,
+  };
+
+  let res: Response;
+  try {
+    res = await signedPost(INVOICE_URL, payload);
+  } catch (e) {
+    return { ok: false, reason: `network error: ${String(e)}` };
+  }
+  const data = (await res.json().catch(() => null)) as {
+    status_code?: number;
+    status_msg?: string;
+    document?: { number?: string | number; retrieval_key?: string };
+  } | null;
+  if (!res.ok || !data || data.status_code !== 0 || !data.document?.retrieval_key) {
+    return {
+      ok: false,
+      reason: `HTTP ${res.status} code ${data?.status_code ?? "?"} ${data?.status_msg ?? ""}`.trim(),
+    };
+  }
+  return {
+    ok: true,
+    number: String(data.document.number ?? ""),
+    url: INVOICE_PDF_URL + data.document.retrieval_key,
+  };
+}
+
+/** Calls the invoice API with a terminal name that doesn't exist: checks the keys work without issuing anything. */
+export async function probeInvoiceApi() {
+  const res = await signedPost(INVOICE_URL, {
+    terminal_name: "kymrun-probe-no-such-terminal",
+    items: [{ name: "probe", unit_price: 1 }],
+    payments: [{ payment_method: 1, amount: 1 }],
+  });
+  return { http: res.status, body: (await res.text()).slice(0, 200) };
 }

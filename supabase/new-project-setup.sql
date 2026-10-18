@@ -112,3 +112,17 @@ ALTER TABLE public.orders
 ALTER TABLE public.products
   ADD COLUMN IF NOT EXISTS image_ref text GENERATED ALWAYS AS (CASE WHEN image LIKE 'data:%' THEN NULL ELSE image END) STORED,
   ADD COLUMN IF NOT EXISTS image_ver integer GENERATED ALWAYS AS (length(image)) STORED;
+
+-- Tranzila tax invoice/receipt issued after a verified payment
+ALTER TABLE public.orders
+  ADD COLUMN IF NOT EXISTS invoice_number text,
+  ADD COLUMN IF NOT EXISTS invoice_url text;
+
+-- Original product photos kept before bulk edits (service role only)
+CREATE TABLE IF NOT EXISTS public.product_image_backup (
+  product_id uuid NOT NULL,
+  image text NOT NULL,
+  reason text NOT NULL,
+  saved_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.product_image_backup ENABLE ROW LEVEL SECURITY;

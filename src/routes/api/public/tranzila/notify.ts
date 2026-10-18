@@ -45,7 +45,9 @@ async function handleNotify(request: Request) {
     return new Response("OK");
   }
 
-  const { tranzilaApiConfigured, verifyTranzilaPayment } = await import("@/lib/tranzila.server");
+  const { tranzilaApiConfigured, verifyTranzilaPayment, createTranzilaInvoice } = await import(
+    "@/lib/tranzila.server"
+  );
   let verified = false;
   if (tranzilaApiConfigured()) {
     // One real transaction can't pay for two orders.
@@ -67,8 +69,18 @@ async function handleNotify(request: Request) {
     const check = await verifyTranzilaPayment(index, total);
     if (!check.ok) {
       console.error("[tranzila notify] payment not verified", orderId, check.reason);
-      // On a temporary problem ask Tranzila to retry; otherwise leave the order unpaid.
-      return new Response(check.retry ? "retry" : "OK", { status: check.retry ? 503 : 200 });
+      // On a temporary problem ask Tranzila to retry.
+      if (check.retry) return new Response("retry", { status: 503 });
+      // Otherwise leave the order unpaid, but still tell the owner so a real payment that failed
+      // the automatic check isn't missed (the email says to check it in Tranzila first).
+      try {
+        const { data: full } = await supabaseAdmin.from("orders").select("*").eq("id", orderId).single();
+        const { sendPaidOrderEmail } = await import("@/lib/order-email.server");
+        if (full) await sendPaidOrderEmail(full as any, { confirmationCode, index, verified: false });
+      } catch (e) {
+        console.error("[tranzila notify] warning email failed", e);
+      }
+      return new Response("OK");
     }
     verified = true;
   }
@@ -87,9 +99,34 @@ async function handleNotify(request: Request) {
     .maybeSingle();
 
   if (updated) {
+    const order = updated as any;
+    // Tax invoice/receipt, only for a payment Tranzila confirmed (a failure here never blocks the emails).
+    let invoice: { number: string; url: string } | { error: string } | undefined;
+    if (verified) {
+      try {
+        const { speedById } = await import("@/lib/delivery");
+        const shipLabel = speedById(order.shipping_method)?.label ?? order.shipping_method;
+        const r = await createTranzilaInvoice(order, index, shipLabel);
+        if (r.ok) {
+          invoice = { number: r.number, url: r.url };
+          order.invoice_number = r.number;
+          order.invoice_url = r.url;
+          await supabaseAdmin
+            .from("orders")
+            .update({ invoice_number: r.number, invoice_url: r.url } as never)
+            .eq("id", orderId);
+        } else {
+          console.error("[tranzila notify] invoice failed", orderId, r.reason);
+          invoice = { error: r.reason };
+        }
+      } catch (e) {
+        console.error("[tranzila notify] invoice failed", orderId, e);
+        invoice = { error: String(e) };
+      }
+    }
     try {
       const { sendPaidOrderEmail } = await import("@/lib/order-email.server");
-      if (await sendPaidOrderEmail(updated as any, { confirmationCode, index, verified })) {
+      if (await sendPaidOrderEmail(order, { confirmationCode, index, verified, invoice })) {
         await supabaseAdmin
           .from("orders")
           .update({ paid_email_sent_at: new Date().toISOString() } as never)
@@ -98,6 +135,12 @@ async function handleNotify(request: Request) {
     } catch (e) {
       // A mail outage must not make Tranzila think the notification failed.
       console.error("[tranzila notify] email failed", e);
+    }
+    try {
+      const { sendCustomerConfirmation } = await import("@/lib/order-email.server");
+      await sendCustomerConfirmation(order);
+    } catch (e) {
+      console.error("[tranzila notify] customer email failed", e);
     }
   }
   return new Response("OK");
