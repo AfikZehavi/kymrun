@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   ArrowLeft,
-  ArrowRight,
   BadgeCheck,
   Check,
   Clock,
@@ -45,6 +44,7 @@ import { Button } from "@/components/ui/button";
 import { GOLD_ENABLED } from "@/lib/gold";
 import { SECRET_ROOM_ENABLED } from "@/lib/use-secret-gift";
 import { GoldBand } from "@/components/gold-band";
+import { Pagination } from "@/components/pagination";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -461,43 +461,7 @@ function Home() {
               לא נמצאו בקבוקים התואמים לחיפוש.
             </p>
           )}
-          {pageCount > 1 && (
-            <nav aria-label="עמודים" className="mt-14 flex items-center justify-center gap-2">
-              <button
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-30"
-              >
-                <ArrowRight className="size-4" />
-                הקודם
-              </button>
-              <span className="px-3 text-sm text-muted-foreground md:hidden">
-                {currentPage} / {pageCount}
-              </span>
-              {Array.from({ length: pageCount }, (_, k) => k + 1).map((n) => (
-                <button
-                  key={n}
-                  onClick={() => goToPage(n)}
-                  aria-current={n === currentPage ? "page" : undefined}
-                  className={`hidden size-10 rounded-full font-display text-sm transition-colors md:inline-block ${
-                    n === currentPage
-                      ? "border border-gold text-gold"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {n}
-                </button>
-              ))}
-              <button
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage === pageCount}
-                className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-30"
-              >
-                הבא
-                <ArrowLeft className="size-4" />
-              </button>
-            </nav>
-          )}
+          <Pagination page={currentPage} count={pageCount} onPage={goToPage} className="mt-14" />
 
           {isError && (
             <div className="rounded-lg border border-border bg-card p-8 text-center">

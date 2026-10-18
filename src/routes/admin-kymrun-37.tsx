@@ -18,6 +18,7 @@ import {
 import { resolveImage } from "@/lib/images";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Pagination } from "@/components/pagination";
 
 export const Route = createFileRoute("/admin-kymrun-37")({
   head: () => ({
@@ -175,6 +176,17 @@ function AdminPage({ creds }: { creds: Creds }) {
     const q = query.trim();
     return products.filter((p) => p.name.includes(q) || p.subtitle.includes(q));
   }, [products, query]);
+
+  const ADMIN_PAGE_SIZE = 20;
+  const [page, setPage] = useState(1);
+  useEffect(() => setPage(1), [query]);
+  const pageCount = Math.max(1, Math.ceil(rows.length / ADMIN_PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pageRows = rows.slice((currentPage - 1) * ADMIN_PAGE_SIZE, currentPage * ADMIN_PAGE_SIZE);
+  function goToPage(n: number) {
+    setPage(n);
+    document.getElementById("admin-list")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   async function patch(p: DbProduct, next: ProductInput) {
     const t = toast.loading("שומר...");
@@ -553,8 +565,8 @@ function AdminPage({ creds }: { creds: Creds }) {
           </div>
         )}
 
-        <div className="mt-4 space-y-3">
-          {rows.map((p) => (
+        <div id="admin-list" className="mt-4 scroll-mt-4 space-y-3">
+          {pageRows.map((p) => (
             <div
               key={p.id}
               className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-4 rounded-2xl border border-border bg-card p-3"
@@ -690,6 +702,7 @@ function AdminPage({ creds }: { creds: Creds }) {
             </div>
           ))}
         </div>
+        <Pagination page={currentPage} count={pageCount} onPage={goToPage} className="mt-6" />
       </div>
     </div>
   );
