@@ -13,7 +13,7 @@ export function AnnouncementBar() {
       <div className="mx-auto flex h-8 max-w-6xl items-center justify-center gap-3 px-5 md:px-8">
         <span>כל המשקאות כשרים</span>
         <span aria-hidden className="size-1 rounded-full bg-gold/70" />
-        <span>משלוח חינם מעל ₪550</span>
+        <span>משלוח חינם מעל ₪350</span>
         <span aria-hidden className="hidden size-1 rounded-full bg-gold/70 sm:block" />
         <span className="hidden sm:inline">אקספרס עד 4 שעות</span>
       </div>

@@ -22,10 +22,13 @@ export function InquiryForm({
   kind,
   submitLabel,
   withEvent = true,
+  eventTypes,
 }: {
   kind: InquiryKind;
   submitLabel: string;
   withEvent?: boolean;
+  /** When given, the customer picks one; a tasting is saved as a "tasting" inquiry. */
+  eventTypes?: { label: string; kind: InquiryKind }[];
 }) {
   const send = useServerFn(submitInquiry);
   const [busy, setBusy] = useState(false);
@@ -34,8 +37,10 @@ export function InquiryForm({
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
+    const picked = eventTypes?.find((t) => t.label === form.get("event_type"));
+    const message = String(form.get("message") ?? "");
     const payload = {
-      kind,
+      kind: picked?.kind ?? kind,
       full_name: String(form.get("full_name") ?? ""),
       email: String(form.get("email") ?? ""),
       phone: String(form.get("phone") ?? ""),
@@ -43,7 +48,7 @@ export function InquiryForm({
       event_date: String(form.get("event_date") ?? ""),
       guests: Number(form.get("guests") ?? 0) || 0,
       budget: String(form.get("budget") ?? ""),
-      message: String(form.get("message") ?? ""),
+      message: picked ? `סוג האירוע: ${picked.label}\n${message}` : message,
     };
     setBusy(true);
     try {
@@ -96,6 +101,18 @@ export function InquiryForm({
         />
         <input name="city" placeholder="עיר / כתובת האירוע" className={field} />
       </div>
+      {eventTypes && (
+        <select name="event_type" required defaultValue="" className={field}>
+          <option value="" disabled>
+            סוג האירוע
+          </option>
+          {eventTypes.map((t) => (
+            <option key={t.label} value={t.label}>
+              {t.label}
+            </option>
+          ))}
+        </select>
+      )}
       {withEvent && (
         <div className="grid gap-3 md:grid-cols-3">
           <input name="event_date" placeholder="תאריך מבוקש" className={field} />

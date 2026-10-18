@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Clock, GlassWater, Sparkles, Users } from "lucide-react";
 
 import { InquiryForm, quotePromise } from "@/components/inquiry-form";
+import type { InquiryKind } from "@/lib/inquiries.functions";
 import { SiteFooter } from "@/components/site-footer";
 
 export const Route = createFileRoute("/events")({
@@ -42,6 +43,13 @@ const offers = [
     title: "מתנות לעובדים ולקוחות",
     body: "מארזים ממותגים, הקדשה אישית וחלוקה לכתובות שונות. כמויות מ-10 יחידות.",
   },
+];
+
+const eventTypes: { label: string; kind: InquiryKind }[] = [
+  { label: "טעימת יין פרטית", kind: "tasting" },
+  { label: "בר לאירוע", kind: "event" },
+  { label: "מתנות לעובדים ולקוחות", kind: "event" },
+  { label: "אחר", kind: "event" },
 ];
 
 function EventsPage() {
@@ -87,23 +95,10 @@ function EventsPage() {
             ספרו לנו על האירוע
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            נשמח לדעת מה חוגגים, כמה אתם, ומה אתם אוהבים לשתות.
+            השאירו פרטים, ספרו לנו מה מתכננים ונחזור אליכם.
           </p>
           <div className="mt-5">
-            <InquiryForm kind="event" submitLabel="קבלו הצעת מחיר" />
-          </div>
-        </section>
-
-        <section id="tasting" className="mt-14 scroll-mt-20">
-          <h2 className="font-display text-2xl font-bold lg:text-3xl">
-            הזמנת טעימת יין פרטית
-          </h2>
-          <p className="mt-2 max-w-[56ch] text-sm leading-relaxed text-muted-foreground">
-            בבית או בעסק, מ-6 משתתפים. כולל מומחה יין, 6 יינות כשרים, כוסות
-            מקצועיות והתאמת אוכל. ניתן לשדרג לוויסקי או לשמפניה.
-          </p>
-          <div className="mt-5">
-            <InquiryForm kind="tasting" submitLabel="להזמנת טעימה פרטית" />
+            <InquiryForm kind="event" submitLabel="שלחו ונחזור אליכם" eventTypes={eventTypes} />
           </div>
         </section>
       </div>

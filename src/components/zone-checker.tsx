@@ -55,7 +55,7 @@ export function ZoneChecker() {
                 );
               })}
             </ul>
-            <p className="mt-3 text-xs text-muted-foreground">משלוח חינם בהזמנה מעל ₪550.</p>
+            <p className="mt-3 text-xs text-muted-foreground">משלוח חינם בהזמנה מעל ₪350.</p>
           </div>
         ) : (
           <div className="mt-4 rounded-md border border-border bg-background/60 p-4 text-sm text-muted-foreground">

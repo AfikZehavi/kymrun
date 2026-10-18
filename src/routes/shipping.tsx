@@ -16,7 +16,7 @@ export const Route = createFileRoute("/shipping")({
       { property: "og:title", content: "משלוחים ואזורי חלוקה | KYMRUN" },
       {
         property: "og:description",
-        content: "אקספרס עד 4 שעות ומשלוח חינם מעל ₪550. בדקו את האזור שלכם.",
+        content: "אקספרס עד 4 שעות ומשלוח חינם מעל ₪350. בדקו את האזור שלכם.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -38,7 +38,7 @@ function ShippingPage() {
         </h1>
         <p className="mt-4 max-w-[52ch] text-[15px] leading-relaxed text-muted-foreground">
           אריזה ממוגנת, נהגים שלנו וזמנים שאפשר לסמוך עליהם. משלוח חינם בהזמנה
-          מעל ₪550.
+          מעל ₪350.
         </p>
 
         <div className="mt-8 grid gap-3 md:grid-cols-3">

@@ -514,7 +514,7 @@ function Home() {
             {[
               { icon: ShieldCheck, t: "כל המשקאות כשרים", d: "ללא יוצא מן הכלל" },
               { icon: Clock, t: "אספקה עד 4 שעות", d: "אקספרס באזורים נבחרים" },
-              { icon: Truck, t: "משלוח עד הבית", d: "חינם מעל ₪550" },
+              { icon: Truck, t: "משלוח עד הבית", d: "חינם מעל ₪350" },
               { icon: BadgeCheck, t: "מכירה מגיל 18", d: "תעודה מזהה במסירה" },
             ].map(({ icon: Icon, t, d }) => (
               <div
@@ -590,7 +590,7 @@ function Home() {
                   <Link to="/secret-room">לשחק ולזכות במתנה</Link>
                 </Button>
                 <Button asChild variant="outline" className="h-12 px-7 text-[15px]">
-                  <Link to="/events" hash="tasting">
+                  <Link to="/events" hash="request">
                     טעימת יין פרטית בבית או בעסק
                   </Link>
                 </Button>
@@ -942,7 +942,7 @@ function CartBar({
   onOpen: () => void;
   onCheckout: () => void;
 }) {
-  const freeShippingFrom = 550;
+  const freeShippingFrom = 350;
   const progress = Math.min((subtotal / freeShippingFrom) * 100, 100);
   const remaining = Math.max(freeShippingFrom - subtotal, 0);
   const formatMoney = (value: number) =>

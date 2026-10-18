@@ -26,7 +26,7 @@ export const deliverySpeeds: DeliverySpeed[] = [
     label: "עד 48 שעות",
     window: "משלוח רגיל",
     price: 35,
-    note: "חינם בהזמנה מעל ₪550",
+    note: "חינם בהזמנה מעל ₪350",
   },
 ];
 
@@ -84,7 +84,7 @@ export function speedById(id: string): DeliverySpeed | undefined {
   return deliverySpeeds.find((s) => s.id === id);
 }
 
-export const FREE_SHIPPING_FROM = 550;
+export const FREE_SHIPPING_FROM = 350;
 
 /** Price of a delivery method for a given subtotal. Regular (48h) delivery is free above FREE_SHIPPING_FROM. */
 export function shippingPrice(methodId: string, subtotal: number): number {

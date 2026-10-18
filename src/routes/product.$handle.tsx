@@ -201,7 +201,7 @@ function ProductPage() {
                 <ul className="mt-6 grid gap-2.5 rounded-lg border border-border bg-card p-4 text-xs text-muted-foreground sm:grid-cols-2">
                   <li className="flex items-center gap-2">
                     <Truck className="size-4 shrink-0 text-gold" strokeWidth={1.5} />
-                    משלוח עד הבית · חינם מעל ₪550
+                    משלוח עד הבית · חינם מעל ₪350
                   </li>
                   <li className="flex items-center gap-2">
                     <BadgeCheck className="size-4 shrink-0 text-gold" strokeWidth={1.5} />
