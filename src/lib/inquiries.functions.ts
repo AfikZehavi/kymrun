@@ -28,5 +28,12 @@ export const submitInquiry = createServerFn({ method: "POST" })
       email: data.email.toLowerCase(),
     } as never);
     if (error) throw error;
+    try {
+      const { sendInquiryEmail } = await import("./inquiry-email.server");
+      await sendInquiryEmail(data);
+    } catch (e) {
+      // The inquiry is already saved; a mail outage must not show the customer an error.
+      console.error("[inquiry] email failed", e);
+    }
     return { ok: true };
   });
