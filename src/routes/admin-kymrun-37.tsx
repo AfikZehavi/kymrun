@@ -478,13 +478,19 @@ function AdminPage({ creds }: { creds: Creds }) {
             </div>
 
             <div className="mt-4">
-              <label className="block text-xs text-muted-foreground">תיאור</label>
+              <label htmlFor="bottle-note" className="block text-xs text-muted-foreground">
+                תיאור הבקבוק (מופיע בעמוד המוצר)
+              </label>
               <textarea
+                id="bottle-note"
                 value={form.note}
                 onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))}
-                rows={2}
+                rows={4}
+                maxLength={600}
+                placeholder="2 עד 3 משפטים: היקב והסדרה, הזן, הטעמים העיקריים ולמה הוא מתאים. למשל: קברנה סוביניון של יקב… יין מלא עם פרי שחור ותבלינים. מתאים לסטייק ולבשר על האש."
                 className={inputCls}
               />
+              <p className="mt-1 text-[11px] text-muted-foreground">{form.note.length} / 600 תווים</p>
             </div>
 
             <div className="mt-4">
@@ -596,7 +602,14 @@ function AdminPage({ creds }: { creds: Creds }) {
               </label>
               <div className="min-w-0">
                 <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0 text-sm font-semibold">{p.name}</div>
+                  <div className="min-w-0 text-sm font-semibold">
+                    {p.name}
+                    {!p.note?.trim() && (
+                      <span className="ms-2 rounded bg-muted px-1.5 py-0.5 text-[10px] font-normal text-muted-foreground">
+                        אין תיאור
+                      </span>
+                    )}
+                  </div>
                   <Button
                     variant="ghost"
                     size="icon"
