@@ -195,7 +195,7 @@ function AdminPage({ creds }: { creds: Creds }) {
         data: { ...creds, product: { id: p.id, ...next } },
       });
       refresh();
-      toast.success("נשמר — מופיע באתר", { id: t });
+      toast.success("נשמר ומופיע באתר", { id: t });
     } catch {
       toast.error("השמירה נכשלה", { id: t });
     }
@@ -386,7 +386,7 @@ function AdminPage({ creds }: { creds: Creds }) {
                 <input
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="למשל: KYMRUN — רוזה ריזרב"
+                  placeholder="למשל: KYMRUN רוזה ריזרב"
                   className={inputCls}
                 />
               </Field>
@@ -488,7 +488,7 @@ function AdminPage({ creds }: { creds: Creds }) {
             </div>
 
             <div className="mt-4">
-              <label className="block text-xs text-muted-foreground">תמונה — קישור או העלאה</label>
+              <label className="block text-xs text-muted-foreground">תמונה: קישור או העלאה</label>
               <div className="mt-1 flex flex-col gap-3 md:flex-row md:items-start">
                 <input
                   type="url"

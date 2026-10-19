@@ -82,7 +82,7 @@ function ContactPage() {
         </div>
 
         <p className="mt-4 text-xs text-muted-foreground">
-          מעדיפים לדבר? {PHONE_DISPLAY} — טלפון או וואטסאפ.
+          מעדיפים לדבר? {PHONE_DISPLAY}, בטלפון או בוואטסאפ.
         </p>
       </div>
 

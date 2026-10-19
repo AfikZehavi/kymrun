@@ -49,15 +49,15 @@ import { Pagination } from "@/components/pagination";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "KYMRUN — יין, וויסקי ומשקאות פרימיום כשרים" },
+      { title: "KYMRUN | יין, וויסקי ומשקאות פרימיום כשרים" },
       {
         name: "description",
         content:
-          "KYMRUN: יין, וויסקי, ג'ין ורום פרימיום — כל המשקאות כשרים, משלוח מהיר עד הבית ובחירה בכמה קליקים.",
+          "KYMRUN: יין, וויסקי, ג'ין ורום פרימיום. כל המשקאות כשרים, משלוח מהיר עד הבית ובחירה בכמה קליקים.",
       },
       {
         property: "og:title",
-        content: "KYMRUN — יין, וויסקי ומשקאות פרימיום כשרים",
+        content: "KYMRUN | יין, וויסקי ומשקאות פרימיום כשרים",
       },
       {
         property: "og:description",
@@ -120,7 +120,7 @@ const paths: {
   {
     id: "secret",
     label: "החדר הסודי",
-    description: "טריוויית יין ווויסקי — עונים נכון, מקבלים מתנה",
+    description: "טריוויית יין ווויסקי: עונים נכון, מקבלים מתנה",
     filter: "secret",
     toast: "פתחנו לך את הדלת לחדר הסודי",
     to: "/secret-room" as const,
@@ -365,7 +365,7 @@ function Home() {
           <SectionHeading
             eyebrow="איך נוכל לעזור"
             title="בחרו את הדרך שלכם"
-            description="מתנה מוכנה, ערב יין בבית או בקבוק לאספנים — כל מסלול מוביל לבחירה המדויקת."
+            description="מתנה מוכנה, ערב יין בבית או בקבוק לאספנים. כל מסלול מוביל לבחירה המדויקת."
             align="center"
           />
           <div className="-mx-5 flex snap-x gap-3 overflow-x-auto px-5 pb-2 md:mx-0 md:grid md:grid-cols-3 md:gap-px md:overflow-visible md:rounded-lg md:bg-border md:px-0 md:pb-0 md:ring-1 md:ring-border lg:grid-cols-[repeat(auto-fit,minmax(160px,1fr))]">
@@ -529,10 +529,10 @@ function Home() {
                 החדר הסודי
               </span>
               <h2 className="mt-4 max-w-[22ch] font-display text-3xl font-medium leading-tight lg:text-[2.75rem]">
-                טריוויית הבקבוקים — ענו נכון, קבלו מתנה
+                טריוויית הבקבוקים: ענו נכון, קבלו מתנה
               </h2>
               <p className="mt-4 max-w-[56ch] text-sm leading-relaxed text-muted-foreground lg:text-base">
-                56 שאלות על שימור יין, טעמי יין ועולם הוויסקי. כל סבב מגריל 7 שאלות — 6 נכונות ומעלה
+                56 שאלות על שימור יין, טעמי יין ועולם הוויסקי. כל סבב מגריל 7 שאלות, ו־6 נכונות ומעלה
                 פותחות מתנה שתצורף להזמנה שלך.
               </p>
 
@@ -581,7 +581,7 @@ function Home() {
               {
                 n: "II",
                 t: "אחסון מבוקר",
-                d: "טמפרטורה ולחות קבועות, אריזה ממוגנת לכל משלוח — הבקבוק מגיע כמו שיצא.",
+                d: "טמפרטורה ולחות קבועות, אריזה ממוגנת לכל משלוח, כך שהבקבוק מגיע כמו שיצא.",
               },
               {
                 n: "III",
@@ -735,7 +735,7 @@ function HeroCopy({ onGift }: { onGift: () => void }) {
         </span>
       </h1>
       <p className="mt-5 max-w-[36ch] text-[15px] leading-relaxed text-foreground/85 dark:[text-shadow:0_1px_12px_rgba(0,0,0,0.6)] md:text-lg">
-        יין, וויסקי וספיריטים נבחרים — כולם כשרים. בחרו מסלול, ונמליץ על הבקבוק המדויק.
+        יין, וויסקי וספיריטים נבחרים, כולם כשרים. בחרו מסלול, ונמליץ על הבקבוק המדויק.
       </p>
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -748,7 +748,7 @@ function HeroCopy({ onGift }: { onGift: () => void }) {
           variant="outline"
           className="h-12 bg-background/40 px-8 text-[15px] backdrop-blur-md"
         >
-          <Link to="/events">אירוע או טעימה פרטית</Link>
+          <Link to="/events">🥂 אירועים, בר לאירוע וטעימות יין</Link>
         </Button>
       </div>
 
@@ -757,7 +757,7 @@ function HeroCopy({ onGift }: { onGift: () => void }) {
         className="mt-6 inline-flex items-center gap-2 text-xs text-foreground/75 transition-colors hover:text-gold"
       >
         <Truck className="size-3.5 text-gold" />
-        משלוח אקספרס עד 4 שעות — בדקו אם זמין אצלכם
+        משלוח אקספרס עד 4 שעות. בדקו אם זמין אצלכם
         <ArrowLeft className="size-3" />
       </a>
     </div>
@@ -944,7 +944,7 @@ function CartBar({
             <p className="mt-1.5 text-[11px] text-muted-foreground">
               {remaining > 0
                 ? `עוד ${formatMoney(remaining)} למשלוח חינם`
-                : "משלוח חינם — מגיע אליך"}
+                : "משלוח חינם, מגיע אליך"}
             </p>
           </div>
         </div>

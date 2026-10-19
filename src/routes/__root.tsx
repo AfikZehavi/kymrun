@@ -10,6 +10,7 @@ import { useEffect, type ReactNode } from "react";
 
 import { AgeGate } from "@/components/age-gate";
 import { Toaster } from "@/components/ui/sonner";
+import { AccessibilityMenu } from "@/components/accessibility-menu";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -122,7 +123,7 @@ function RootShell({ children }: { children: ReactNode }) {
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{var t=localStorage.getItem('kymrun-theme')||'dark';document.documentElement.classList.remove('dark','light');document.documentElement.classList.add(t);}catch(e){}",
+              "try{var t=localStorage.getItem('kymrun-theme')||'dark';var c=document.documentElement.classList;c.remove('dark','light');c.add(t);var a=JSON.parse(localStorage.getItem('kymrun-a11y')||'null');if(a){if(a.text===1)c.add('a11y-text-1');if(a.text===2)c.add('a11y-text-2');if(a.contrast)c.add('a11y-contrast');if(a.links)c.add('a11y-links');if(a.font)c.add('a11y-font');if(a.motion)c.add('a11y-motion');}}catch(e){}",
           }}
         />
       </head>
@@ -139,6 +140,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <AccessibilityMenu />
       <Outlet />
       <AgeGate />
       <Toaster position="top-center" richColors />

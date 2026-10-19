@@ -6,7 +6,7 @@ export function WhatsappButton({ className = "" }: { className?: string }) {
       href={WHATSAPP_URL}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="וואטסאפ — 050-4001575"
+      aria-label="וואטסאפ 050-4001575"
       title="וואטסאפ 050-4001575"
       className={`grid size-10 shrink-0 place-items-center rounded-full border border-border text-foreground transition-colors hover:border-gold/60 hover:text-gold active:scale-95 ${className}`}
     >

@@ -49,7 +49,7 @@ export async function sendPaidOrderEmail(
   }
   const from = process.env["ORDER_EMAIL_FROM"] || "KYMRUN <onboarding@resend.dev>";
   const speed = speedById(order.shipping_method);
-  const shipLabel = speed ? `${speed.label} — ${speed.window}` : order.shipping_method;
+  const shipLabel = speed ? `${speed.label} (${speed.window})` : order.shipping_method;
   const shortId = order.id.slice(0, 8).toUpperCase();
   const when = new Date(order.created_at).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" });
 
@@ -65,7 +65,7 @@ export async function sendPaidOrderEmail(
     `<tr><td style="padding:6px 0;color:#777;width:130px">${k}</td><td style="padding:6px 0;font-weight:600">${v}</td></tr>`;
 
   const html = `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:620px;margin:auto;color:#222">
-  <h2 style="margin:0 0 4px">${payment.verified ? `הזמנה חדשה שולמה ✅ #${shortId}` : `⚠️ הזמנה #${shortId} — לבדוק בטרנזילה לפני משלוח`}</h2>
+  <h2 style="margin:0 0 4px">${payment.verified ? `הזמנה חדשה שולמה ✅ #${shortId}` : `⚠️ הזמנה #${shortId} : לבדוק בטרנזילה לפני משלוח`}</h2>
   <p style="margin:0 0 20px;color:#777">${esc(when)}</p>
   <h3 style="margin:0 0 8px">משלוח</h3>
   <table style="width:100%;border-collapse:collapse">
@@ -83,13 +83,13 @@ export async function sendPaidOrderEmail(
     <tr><td style="padding:8px;font-weight:700">סה״כ שולם</td><td></td><td style="padding:8px;text-align:left;font-weight:700">${ils(order.total)}</td></tr>
   </table>
   <p style="margin:24px 0 0;padding:12px;background:#f6f3ee;border-radius:6px;font-size:13px">
-    טרנזילה · קוד אישור: <b>${esc(payment.confirmationCode || "—")}</b> · אינדקס: <b>${esc(payment.index || "—")}</b><br>
-    ${payment.verified ? "✅ התשלום אומת ישירות מול טרנזילה (סכום וקוד אישור)." : "⚠️ התשלום לא אומת אוטומטית מול טרנזילה — יש לוודא את העסקה בממשק טרנזילה לפני שליחת המשלוח."}<br>
+    טרנזילה · קוד אישור: <b>${esc(payment.confirmationCode || "אין")}</b> · אינדקס: <b>${esc(payment.index || "אין")}</b><br>
+    ${payment.verified ? "✅ התשלום אומת ישירות מול טרנזילה (סכום וקוד אישור)." : "⚠️ התשלום לא אומת אוטומטית מול טרנזילה. יש לוודא את העסקה בממשק טרנזילה לפני שליחת המשלוח."}<br>
     ${
       payment.invoice && "url" in payment.invoice
         ? `🧾 חשבונית מס/קבלה ${esc(payment.invoice.number)} הופקה (קישור אליה נשלח ללקוח במייל האישור) · <a href="${esc(payment.invoice.url)}">צפייה בחשבונית</a><br>`
         : payment.invoice
-          ? `⚠️ הפקת החשבונית נכשלה (${esc(payment.invoice.error)}) — יש להפיק ידנית בטרנזילה.<br>`
+          ? `⚠️ הפקת החשבונית נכשלה (${esc(payment.invoice.error)}). יש להפיק ידנית בטרנזילה.<br>`
           : ""
     }מזהה הזמנה מלא: ${esc(order.id)}
   </p>
@@ -158,8 +158,8 @@ export async function sendCustomerConfirmation(order: PaidOrder) {
   const text = [
     `תודה ${firstName}, ההזמנה התקבלה.`,
     `מספר הזמנה: #${shortId}`,
-    ...(order.items ?? []).map((l) => `${l.name} × ${l.qty} — ${ils(l.price * l.qty)}`),
-    `משלוח: ${speed?.label ?? order.shipping_method} — ${Number(order.shipping) ? ils(order.shipping) : "חינם"}`,
+    ...(order.items ?? []).map((l) => `${l.name} × ${l.qty}: ${ils(l.price * l.qty)}`),
+    `משלוח: ${speed?.label ?? order.shipping_method}: ${Number(order.shipping) ? ils(order.shipping) : "חינם"}`,
     `סה״כ שולם: ${ils(order.total)}`,
     `כתובת: ${order.address}`,
     ...(order.invoice_url ? [`חשבונית מס/קבלה: ${order.invoice_url}`] : []),

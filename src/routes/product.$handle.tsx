@@ -20,9 +20,9 @@ const productQuery = (handle: string) =>
 export const Route = createFileRoute("/product/$handle")({
   loader: ({ context, params }) => context.queryClient.ensureQueryData(productQuery(params.handle)),
   head: ({ loaderData }) => {
-    const title = loaderData ? `${loaderData.title} — KYMRUN` : "הבקבוק לא נמצא — KYMRUN";
+    const title = loaderData ? `${loaderData.title} | KYMRUN` : "הבקבוק לא נמצא | KYMRUN";
     const description = loaderData
-      ? `${loaderData.title} — ${loaderData.productType}, כשר. ${loaderData.description.slice(0, 140)}`
+      ? `${loaderData.title}, ${loaderData.productType} כשר. ${loaderData.description.slice(0, 140)}`
       : "בקבוקי פרימיום כשרים בחנות KYMRUN.";
     return {
       meta: [

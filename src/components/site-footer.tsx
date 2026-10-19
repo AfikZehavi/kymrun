@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 
 import { PHONE_DISPLAY, PHONE_TEL, WHATSAPP_URL } from "@/lib/contact";
 import { BrandLockup } from "@/components/brand-lockup";
+import { legalLinks } from "@/lib/legal";
 
 const linkClass = "text-muted-foreground transition-colors hover:text-gold";
 
@@ -15,7 +16,7 @@ export function SiteFooter() {
               <BrandLockup />
             </div>
             <p className="mt-5 max-w-[38ch] text-sm leading-relaxed text-muted-foreground">
-              בית למשקאות פרימיום כשרים. בחירה קפדנית, אחסון מבוקר ושירות אישי — מהמדף שלנו לשולחן
+              בית למשקאות פרימיום כשרים. בחירה קפדנית, אחסון מבוקר ושירות אישי, מהמדף שלנו לשולחן
               שלך.
             </p>
           </div>
@@ -32,16 +33,21 @@ export function SiteFooter() {
               <Link to="/contact" className={linkClass}>
                 יצירת קשר
               </Link>
-              <Link to="/terms" className={linkClass}>
-                תקנון, ביטולים והחזרות
-              </Link>
+            </div>
+            <p className="eyebrow mt-8">מידע משפטי</p>
+            <div className="mt-4 grid gap-2.5">
+              {legalLinks.map((l) => (
+                <Link key={l.to} to={l.to} className={linkClass}>
+                  {l.label}
+                </Link>
+              ))}
             </div>
           </nav>
 
           <div className="text-sm">
             <p className="eyebrow">שירות לקוחות</p>
             <div className="mt-4 grid gap-2.5 text-muted-foreground">
-              <p>א׳–ה׳ 09:00–18:00 · ו׳ 09:00–13:00</p>
+              <p>א׳ עד ה׳ 09:00 עד 18:00 · ו׳ 09:00 עד 13:00</p>
               <a href={`tel:${PHONE_TEL}`} className={linkClass}>
                 {PHONE_DISPLAY}
               </a>
@@ -62,7 +68,7 @@ export function SiteFooter() {
 
         <div className="gold-rule mt-12 opacity-50" />
 
-        <div className="mt-8 space-y-2 text-[11px] leading-relaxed text-muted-foreground/80">
+        <div className="mt-8 space-y-2 text-[11px] leading-relaxed text-muted-foreground">
           <p>
             אזהרה: צריכה מופרזת של אלכוהול מסכנת חיים ומזיקה לבריאות. אין למכור או לספק משקאות
             משכרים לקטינים מתחת לגיל 18. אין לשתות ולנהוג.
@@ -73,10 +79,8 @@ export function SiteFooter() {
             עלות המשלוח.
           </p>
           <p>
-            ביטול עסקה בהתאם לחוק הגנת הצרכן, התשמ״א־1981 ותקנותיו: ניתן לבטל עד 14 ימים ממועד קבלת
-            המוצר או מסמך פרטי העסקה, בבקבוקים סגורים, שלמים ובאריזתם המקורית בלבד. דמי ביטול עד 5%
-            ממחיר העסקה או ₪100, הנמוך מביניהם. מוצרים שנפתחו, נפגמו או הותאמו אישית (חריטה, הקדשה,
-            מארז בהרכבה אישית) אינם ניתנים להחזרה.
+            ביטול עסקה בהתאם לחוק הגנת הצרכן ותקנותיו, תוך 14 ימים, בבקבוקים סגורים ושלמים. דמי ביטול
+            עד 5% ממחיר העסקה או ₪100, הנמוך מביניהם. פרטים מלאים בעמוד ביטול עסקה.
           </p>
           <p>
             התמונות להמחשה בלבד. המחירים כוללים מע״מ. אספקה בכפוף לזמינות מלאי ולאזורי השירות.
@@ -86,8 +90,8 @@ export function SiteFooter() {
 
         <div className="mt-8 flex flex-col gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} KYMRUN · כל הזכויות שמורות</p>
-          <Link to="/terms" className={`${linkClass} underline-offset-4 hover:underline`}>
-            לתקנון המלא ולמדיניות ההחזרות
+          <Link to="/accessibility" className={`${linkClass} underline-offset-4 hover:underline`}>
+            הצהרת נגישות
           </Link>
         </div>
       </div>

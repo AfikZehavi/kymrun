@@ -20,7 +20,7 @@ export function GoldBand() {
 
       <h2 className="mt-4 font-display text-2xl font-bold leading-tight lg:text-4xl">
         {hydrated && member
-          ? "אתה חבר GOLD — ההטבות כבר פעילות"
+          ? "אתה חבר GOLD, וההטבות כבר פעילות"
           : "מועדון החברים של קמרון"}
       </h2>
       <p className="mt-3 max-w-[56ch] text-sm leading-relaxed text-muted-foreground lg:text-base">

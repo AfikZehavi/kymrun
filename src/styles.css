@@ -102,7 +102,7 @@
   --accent: oklch(0.93 0.014 85);
   --accent-foreground: oklch(0.22 0.014 60);
 
-  --gold: oklch(0.6 0.11 75);
+  --gold: oklch(0.5 0.1 72); /* dark enough for 4.5:1 text contrast on the cream background */
   --wine: oklch(0.45 0.14 18);
   --wine-foreground: oklch(0.98 0.008 85);
 
@@ -189,4 +189,48 @@
   .animate-slide-in-bottom {
     animation: none;
   }
+}
+
+/* Accessibility menu (components/accessibility-menu.tsx): classes set on <html> */
+html.a11y-text-1 {
+  font-size: 112.5%;
+}
+html.a11y-text-2 {
+  font-size: 125%;
+}
+html.a11y-contrast.dark {
+  --background: oklch(0 0 0);
+  --card: oklch(0.12 0 0);
+  --foreground: oklch(1 0 0);
+  --muted-foreground: oklch(0.93 0 0);
+  --border: oklch(1 0 0 / 55%);
+}
+html.a11y-contrast.light {
+  --background: oklch(1 0 0);
+  --card: oklch(1 0 0);
+  --foreground: oklch(0 0 0);
+  --muted-foreground: oklch(0.15 0 0);
+  --border: oklch(0 0 0 / 60%);
+}
+html.a11y-links a {
+  text-decoration: underline !important;
+  text-underline-offset: 3px;
+  outline: 2px dashed var(--gold);
+  outline-offset: 2px;
+}
+html.a11y-font,
+html.a11y-font * {
+  font-family: Arial, "Heebo", sans-serif !important;
+  letter-spacing: 0.01em !important;
+}
+html.a11y-motion *,
+html.a11y-motion *::before,
+html.a11y-motion *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
 }

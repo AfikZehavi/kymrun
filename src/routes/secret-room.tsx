@@ -16,16 +16,16 @@ export const Route = createFileRoute("/secret-room")({
   beforeLoad: () => { if (!SECRET_ROOM_ENABLED) throw redirect({ to: "/" }); },
   head: () => ({
     meta: [
-      { title: "החדר הסודי — טריוויית יין ווויסקי | KYMRUN" },
+      { title: "החדר הסודי: טריוויית יין ווויסקי | KYMRUN" },
       {
         name: "description",
         content:
-          "משחק טריוויה על שימור יין, טעמי יין ווויסקי. עונים נכון — מקבלים מתנה בהזמנה הבאה ב-KYMRUN.",
+          "משחק טריוויה על שימור יין, טעמי יין ווויסקי. עונים נכון ומקבלים מתנה בהזמנה הבאה ב-KYMRUN.",
       },
-      { property: "og:title", content: "החדר הסודי — טריוויית יין ווויסקי" },
+      { property: "og:title", content: "החדר הסודי: טריוויית יין ווויסקי" },
       {
         property: "og:description",
-        content: "56 שאלות, סבב של 7 — וזוכים במתנה בעת רכישה.",
+        content: "56 שאלות, סבב של 7, וזוכים במתנה בעת רכישה.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -142,11 +142,11 @@ function Intro({
       <h1 className="mt-4 font-display text-3xl font-bold leading-tight lg:text-5xl">
         טריוויית הבקבוקים
         <br />
-        <span className="text-primary">ענה נכון — קבל מתנה</span>
+        <span className="text-primary">ענה נכון, קבל מתנה</span>
       </h1>
       <p className="mt-4 max-w-[54ch] text-[15px] leading-relaxed text-muted-foreground">
         {triviaQuestions.length} שאלות על שימור יין, טעמי יין ועולם הוויסקי. כל
-        סבב מגריל {ROUND_SIZE} שאלות — {PASS_SCORE} תשובות נכונות ומעלה פותחות
+        סבב מגריל {ROUND_SIZE} שאלות, ו־{PASS_SCORE} תשובות נכונות ומעלה פותחות
         מתנה שתצורף להזמנה הבאה שלך.
       </p>
 
@@ -170,7 +170,7 @@ function Intro({
         <div className="mt-6 flex items-center gap-3 rounded-2xl border border-primary/35 bg-primary/10 p-4">
           <Gift className="size-5 shrink-0 text-primary" />
           <p className="text-sm">
-            כבר ניצחת — קוד המתנה שלך{" "}
+            כבר ניצחת! קוד המתנה שלך{" "}
             <span className="font-mono font-bold">{giftCode}</span> שמור ויחכה
             לך בסל.
           </p>
@@ -273,7 +273,7 @@ function Play({
         {answered && (
           <div className="mt-5 animate-in fade-in rounded-2xl bg-muted/60 p-4">
             <p className="text-sm font-semibold">
-              {correct ? "יפה מאוד 🍷" : "כמעט —"}
+              {correct ? "יפה מאוד 🍷" : "כמעט..."}
             </p>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
               {question.fact}
@@ -328,7 +328,7 @@ function Done({
               {code}
             </p>
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-              המתנה תצורף אוטומטית להזמנה הבאה שלך — הקוד מופיע גם בעמוד הסל.
+              המתנה תצורף אוטומטית להזמנה הבאה שלך, והקוד מופיע גם בעמוד הסל.
             </p>
           </div>
         )}
@@ -336,7 +336,7 @@ function Done({
         {!won && (
           <p className="mx-auto mt-4 max-w-[46ch] text-sm leading-relaxed text-muted-foreground">
             צריך {PASS_SCORE} תשובות נכונות כדי לזכות. השאלות מוגרלות מחדש בכל
-            סבב — נסה שוב.
+            סבב. נסה שוב.
           </p>
         )}
 

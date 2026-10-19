@@ -14,7 +14,7 @@ export function quotePromise(now = new Date()): string {
   const hour = now.getHours();
   const nearShabbat = (day === 5 && hour >= 12) || day === 6;
   return nearShabbat
-    ? "קיבלנו — סמוך לכניסת שבת, ונחזור אליך עם הצעת מחיר במוצאי שבת."
+    ? "קיבלנו! סמוך לכניסת שבת, ונחזור אליך עם הצעת מחיר במוצאי שבת."
     : "הצעת מחיר אצלך תוך 4 שעות.";
 }
 
@@ -23,12 +23,17 @@ export function InquiryForm({
   submitLabel,
   withEvent = true,
   eventTypes,
+  topic,
+  messagePlaceholder,
 }: {
   kind: InquiryKind;
   submitLabel: string;
   withEvent?: boolean;
   /** When given, the customer picks one; a tasting is saved as a "tasting" inquiry. */
   eventTypes?: { label: string; kind: InquiryKind }[];
+  /** Fixed subject shown as the inquiry type in the owner's email (e.g. a cancellation request). */
+  topic?: string;
+  messagePlaceholder?: string;
 }) {
   const send = useServerFn(submitInquiry);
   const [busy, setBusy] = useState(false);
@@ -48,7 +53,8 @@ export function InquiryForm({
       event_date: String(form.get("event_date") ?? ""),
       guests: Number(form.get("guests") ?? 0) || 0,
       budget: String(form.get("budget") ?? ""),
-      message: picked ? `סוג האירוע: ${picked.label}\n${message}` : message,
+      message:
+        picked || topic ? `סוג האירוע: ${picked?.label ?? topic}\n${message}` : message,
     };
     setBusy(true);
     try {
@@ -82,12 +88,13 @@ export function InquiryForm({
       className="space-y-3 rounded-3xl border border-border bg-card p-5 lg:p-7"
     >
       <div className="grid gap-3 md:grid-cols-2">
-        <input name="full_name" required placeholder="שם מלא" className={field} />
+        <input name="full_name" required placeholder="שם מלא" aria-label="שם מלא" className={field} />
         <input
           name="phone"
           required
           inputMode="tel"
           placeholder="טלפון"
+          aria-label="טלפון"
           className={field}
         />
       </div>
@@ -97,12 +104,13 @@ export function InquiryForm({
           required
           type="email"
           placeholder="אימייל"
+          aria-label="אימייל"
           className={field}
         />
-        <input name="city" placeholder="עיר / כתובת האירוע" className={field} />
+        <input name="city" placeholder="עיר / כתובת האירוע" aria-label="עיר / כתובת האירוע" className={field} />
       </div>
       {eventTypes && (
-        <select name="event_type" required defaultValue="" className={field}>
+        <select name="event_type" required defaultValue="" aria-label="סוג האירוע" className={field}>
           <option value="" disabled>
             סוג האירוע
           </option>
@@ -115,24 +123,27 @@ export function InquiryForm({
       )}
       {withEvent && (
         <div className="grid gap-3 md:grid-cols-3">
-          <input name="event_date" placeholder="תאריך מבוקש" className={field} />
+          <input name="event_date" placeholder="תאריך מבוקש" aria-label="תאריך מבוקש" className={field} />
           <input
             name="guests"
             inputMode="numeric"
             placeholder="מספר אורחים"
+            aria-label="מספר אורחים"
             className={field}
           />
-          <input name="budget" placeholder="תקציב משוער" className={field} />
+          <input name="budget" placeholder="תקציב משוער" aria-label="תקציב משוער" className={field} />
         </div>
       )}
       <textarea
         name="message"
         rows={4}
         placeholder={
-          kind === "contact"
+          messagePlaceholder ??
+          (kind === "contact"
             ? "במה נוכל לעזור?"
-            : "ספרו לנו על האירוע: אופי, קהל, העדפות טעם, סגנון אירוח"
+            : "ספרו לנו על האירוע: אופי, קהל, העדפות טעם, סגנון אירוח")
         }
+        aria-label={messagePlaceholder ?? (kind === "contact" ? "במה נוכל לעזור?" : "פרטים על האירוע")}
         className={`${field} resize-none`}
       />
       <button

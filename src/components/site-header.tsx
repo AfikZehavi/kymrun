@@ -5,17 +5,22 @@ import type { ReactNode } from "react";
 import { BrandLockup } from "@/components/brand-lockup";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { WhatsappButton } from "@/components/whatsapp-button";
+import { MobileMenu } from "@/components/mobile-menu";
 
-/** Thin service strip above the header — the promises customers ask about most. */
+/** Thin service strip above the header: the promises customers ask about most, plus events. */
 export function AnnouncementBar() {
   return (
     <div className="border-b border-border bg-background text-[11px] tracking-wide text-muted-foreground">
       <div className="mx-auto flex h-8 max-w-6xl items-center justify-center gap-3 px-5 md:px-8">
-        <span>כל המשקאות כשרים</span>
-        <span aria-hidden className="size-1 rounded-full bg-gold/70" />
+        <span className="hidden sm:inline">כל המשקאות כשרים</span>
+        <span aria-hidden className="hidden size-1 rounded-full bg-gold/70 sm:block" />
         <span>משלוח חינם מעל ₪350</span>
         <span aria-hidden className="hidden size-1 rounded-full bg-gold/70 sm:block" />
         <span className="hidden sm:inline">אקספרס עד 4 שעות</span>
+        <span aria-hidden className="size-1 rounded-full bg-gold/70" />
+        <Link to="/events" className="font-semibold text-gold underline-offset-4 hover:underline">
+          אירועים וטעימות פרטיות
+        </Link>
       </div>
     </div>
   );
@@ -51,13 +56,14 @@ export function SiteHeader({
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5 md:h-[4.5rem] md:px-8">
           <div className="flex min-w-0 items-center gap-3">
             {leading}
-            <Link to="/" aria-label="KYMRUN — דף הבית" className="shrink-0">
+            <Link to="/" aria-label="KYMRUN, דף הבית" className="shrink-0">
               <BrandLockup compact />
             </Link>
             {nav && <nav className="ms-10 hidden items-center gap-7 lg:flex">{nav}</nav>}
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
+            <MobileMenu buttonClass={headerIconClass} />
             <ThemeToggle />
             <WhatsappButton />
             {onCart ? (

@@ -37,14 +37,14 @@ import { FREE_SHIPPING_FROM, availableSpeeds, deliverySpeeds, shippingPrice } fr
 export const Route = createFileRoute("/cart")({
   head: () => ({
     meta: [
-      { title: "הסל שלך — KYMRUN" },
+      { title: "הסל שלך | KYMRUN" },
       {
         name: "description",
         content: "עגלת הקניות של KYMRUN. יין, וויסקי וספיריטים פרימיום כשרים.",
       },
       {
         property: "og:title",
-        content: "הסל שלך — KYMRUN",
+        content: "הסל שלך | KYMRUN",
       },
       {
         property: "og:description",
@@ -299,7 +299,7 @@ function CartPage() {
                 <span className="eyebrow">שלב 2</span>
                 <h2 className="mt-1.5 font-display text-2xl font-medium">פרטי המשלוח</h2>
                 <p className="mt-1.5 text-sm text-muted-foreground">
-                  נתחיל באימייל — אם כבר הזמנת אצלנו, נמלא את השאר עבורך.
+                  נתחיל באימייל. אם כבר הזמנת אצלנו, נמלא את השאר עבורך.
                 </p>
 
                 <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -331,12 +331,12 @@ function CartPage() {
                     {lookup === "found" && (
                       <p className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-gold">
                         <UserCheck className="size-3.5" />
-                        טוב לראות אותך שוב — מילאנו את הפרטים שלך
+                        טוב לראות אותך שוב, מילאנו את הפרטים שלך
                       </p>
                     )}
                     {lookup === "new" && (
                       <p className="mt-1.5 text-xs text-muted-foreground">
-                        לקוח חדש — נשמח להכיר, מלא את הפרטים למטה
+                        לקוח חדש? נשמח להכיר, מלא את הפרטים למטה
                       </p>
                     )}
                     {email.length > 0 && !emailValid && (
@@ -469,7 +469,7 @@ function CartPage() {
                     <Crown className="mt-0.5 size-4 shrink-0 text-gold" />
                     <p className="text-xs leading-relaxed">
                       חברות KYMRUN GOLD פעילה
-                      {goldMember?.name ? ` · ${goldMember.name}` : ""} — משלוח חינם ו-15% על משקאות
+                      {goldMember?.name ? ` · ${goldMember.name}` : ""}: משלוח חינם ו־15% על משקאות
                       ייחודיים.
                     </p>
                   </div>
@@ -495,7 +495,7 @@ function CartPage() {
                         className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-gold hover:underline"
                       >
                         <Crown className="size-3.5" />
-                        חברי GOLD לא משלמים על משלוח — להצטרפות
+                        חברי GOLD לא משלמים על משלוח. להצטרפות
                       </Link>
                     )}
                   </div>
@@ -505,7 +505,7 @@ function CartPage() {
                   <div className="mt-4 flex items-start gap-3 rounded-md border border-gold/35 bg-gold/10 p-4">
                     <Gift className="mt-0.5 size-4 shrink-0 text-gold" />
                     <p className="text-xs leading-relaxed">
-                      זכית במתנה בחדר הסודי — קוד{" "}
+                      זכית במתנה בחדר הסודי! קוד{" "}
                       <span className="font-mono font-bold">{gift.code}</span>. המתנה תצורף להזמנה
                       הזו.
                     </p>

@@ -13,7 +13,7 @@ export const Route = createFileRoute("/order-complete")({
     status: s["status"] === "ok" ? "ok" : "fail",
   }),
   head: () => ({
-    meta: [{ title: "סטטוס הזמנה — KYMRUN" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "סטטוס הזמנה | KYMRUN" }, { name: "robots", content: "noindex" }],
   }),
   component: OrderComplete,
 });

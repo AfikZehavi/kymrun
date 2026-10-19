@@ -13,13 +13,13 @@ export const Route = createFileRoute("/gold")({
   beforeLoad: () => { if (!GOLD_ENABLED) throw redirect({ to: "/" }); },
   head: () => ({
     meta: [
-      { title: "KYMRUN GOLD — מועדון החברים" },
+      { title: "KYMRUN GOLD | מועדון החברים" },
       {
         name: "description",
         content:
           "KYMRUN GOLD: משלוח חינם לתמיד ו-15% הנחה קבועה על משקאות ייחודיים. הצטרפות בכמה קליקים.",
       },
-      { property: "og:title", content: "KYMRUN GOLD — מועדון החברים" },
+      { property: "og:title", content: "KYMRUN GOLD | מועדון החברים" },
       {
         property: "og:description",
         content:
@@ -67,7 +67,7 @@ function GoldPage() {
     <div dir="rtl" className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-40 border-b border-border/60 bg-white backdrop-blur-md dark:bg-background/85">
         <div className="mx-auto flex h-16 max-w-md items-center justify-between gap-4 px-5 md:h-[4.5rem] md:max-w-2xl md:px-8 lg:max-w-5xl">
-          <Link to="/" aria-label="KYMRUN — דף הבית" className="min-w-0">
+          <Link to="/" aria-label="KYMRUN, דף הבית" className="min-w-0">
             <BrandLockup compact />
           </Link>
           <div className="flex items-center gap-2">
@@ -147,7 +147,7 @@ function GoldPage() {
                     החברות שלך פעילה, {member.name}
                   </h2>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    ההטבות מופיעות אוטומטית בסל — משלוח חינם ו-15% על בקבוקים
+                    ההטבות מופיעות אוטומטית בסל: משלוח חינם ו־15% על בקבוקים
                     ייחודיים.
                   </p>
                   <div className="mt-5 flex flex-wrap items-center justify-center gap-3">

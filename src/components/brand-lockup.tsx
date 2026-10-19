@@ -26,7 +26,7 @@ export function BrandLockup({ compact = false }: { compact?: boolean }) {
       >
         KYMRUN
       </span>
-      <span className="mt-1 block text-[10px] tracking-[0.1em] text-gold/90">
+      <span className="mt-1 block text-[10px] tracking-[0.1em] text-gold">
         משקאות פרימיום · כשר
       </span>
     </span>

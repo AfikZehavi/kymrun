@@ -12,7 +12,7 @@ export const deliverySpeeds: DeliverySpeed[] = [
     label: "עד 4 שעות",
     window: "אקספרס באזורי שירות נבחרים",
     price: 79,
-    note: "להזמנות שמתקבלות עד 17:00, בימים א׳–ה׳",
+    note: "להזמנות שמתקבלות עד 17:00, בימים א׳ עד ה׳",
   },
   {
     id: "next",

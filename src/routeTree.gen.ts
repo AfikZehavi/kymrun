@@ -10,12 +10,15 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccessibilityRouteImport } from './routes/accessibility'
 import { Route as AdminKymrun37RouteImport } from './routes/admin-kymrun-37'
+import { Route as CancellationRouteImport } from './routes/cancellation'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as GoldRouteImport } from './routes/gold'
 import { Route as OrderCompleteRouteImport } from './routes/order-complete'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SecretRoomRouteImport } from './routes/secret-room'
 import { Route as ShippingRouteImport } from './routes/shipping'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -29,9 +32,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccessibilityRoute = AccessibilityRouteImport.update({
+  id: '/accessibility',
+  path: '/accessibility',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminKymrun37Route = AdminKymrun37RouteImport.update({
   id: '/admin-kymrun-37',
   path: '/admin-kymrun-37',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CancellationRoute = CancellationRouteImport.update({
+  id: '/cancellation',
+  path: '/cancellation',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CartRoute = CartRouteImport.update({
@@ -57,6 +70,11 @@ const GoldRoute = GoldRouteImport.update({
 const OrderCompleteRoute = OrderCompleteRouteImport.update({
   id: '/order-complete',
   path: '/order-complete',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SecretRoomRoute = SecretRoomRouteImport.update({
@@ -97,12 +115,15 @@ const ApiPublicTranzilaReturnRoute = ApiPublicTranzilaReturnRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/accessibility': typeof AccessibilityRoute
   '/admin-kymrun-37': typeof AdminKymrun37Route
+  '/cancellation': typeof CancellationRoute
   '/cart': typeof CartRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
   '/gold': typeof GoldRoute
   '/order-complete': typeof OrderCompleteRoute
+  '/privacy': typeof PrivacyRoute
   '/secret-room': typeof SecretRoomRoute
   '/shipping': typeof ShippingRoute
   '/terms': typeof TermsRoute
@@ -113,12 +134,15 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/accessibility': typeof AccessibilityRoute
   '/admin-kymrun-37': typeof AdminKymrun37Route
+  '/cancellation': typeof CancellationRoute
   '/cart': typeof CartRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
   '/gold': typeof GoldRoute
   '/order-complete': typeof OrderCompleteRoute
+  '/privacy': typeof PrivacyRoute
   '/secret-room': typeof SecretRoomRoute
   '/shipping': typeof ShippingRoute
   '/terms': typeof TermsRoute
@@ -130,12 +154,15 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/accessibility': typeof AccessibilityRoute
   '/admin-kymrun-37': typeof AdminKymrun37Route
+  '/cancellation': typeof CancellationRoute
   '/cart': typeof CartRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
   '/gold': typeof GoldRoute
   '/order-complete': typeof OrderCompleteRoute
+  '/privacy': typeof PrivacyRoute
   '/secret-room': typeof SecretRoomRoute
   '/shipping': typeof ShippingRoute
   '/terms': typeof TermsRoute
@@ -148,12 +175,15 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/accessibility'
     | '/admin-kymrun-37'
+    | '/cancellation'
     | '/cart'
     | '/contact'
     | '/events'
     | '/gold'
     | '/order-complete'
+    | '/privacy'
     | '/secret-room'
     | '/shipping'
     | '/terms'
@@ -164,12 +194,15 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/accessibility'
     | '/admin-kymrun-37'
+    | '/cancellation'
     | '/cart'
     | '/contact'
     | '/events'
     | '/gold'
     | '/order-complete'
+    | '/privacy'
     | '/secret-room'
     | '/shipping'
     | '/terms'
@@ -180,12 +213,15 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/accessibility'
     | '/admin-kymrun-37'
+    | '/cancellation'
     | '/cart'
     | '/contact'
     | '/events'
     | '/gold'
     | '/order-complete'
+    | '/privacy'
     | '/secret-room'
     | '/shipping'
     | '/terms'
@@ -197,12 +233,15 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccessibilityRoute: typeof AccessibilityRoute
   AdminKymrun37Route: typeof AdminKymrun37Route
+  CancellationRoute: typeof CancellationRoute
   CartRoute: typeof CartRoute
   ContactRoute: typeof ContactRoute
   EventsRoute: typeof EventsRoute
   GoldRoute: typeof GoldRoute
   OrderCompleteRoute: typeof OrderCompleteRoute
+  PrivacyRoute: typeof PrivacyRoute
   SecretRoomRoute: typeof SecretRoomRoute
   ShippingRoute: typeof ShippingRoute
   TermsRoute: typeof TermsRoute
@@ -221,11 +260,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/accessibility': {
+      id: '/accessibility'
+      path: '/accessibility'
+      fullPath: '/accessibility'
+      preLoaderRoute: typeof AccessibilityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin-kymrun-37': {
       id: '/admin-kymrun-37'
       path: '/admin-kymrun-37'
       fullPath: '/admin-kymrun-37'
       preLoaderRoute: typeof AdminKymrun37RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cancellation': {
+      id: '/cancellation'
+      path: '/cancellation'
+      fullPath: '/cancellation'
+      preLoaderRoute: typeof CancellationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cart': {
@@ -261,6 +314,13 @@ declare module '@tanstack/react-router' {
       path: '/order-complete'
       fullPath: '/order-complete'
       preLoaderRoute: typeof OrderCompleteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/secret-room': {
@@ -317,12 +377,15 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccessibilityRoute: AccessibilityRoute,
   AdminKymrun37Route: AdminKymrun37Route,
+  CancellationRoute: CancellationRoute,
   CartRoute: CartRoute,
   ContactRoute: ContactRoute,
   EventsRoute: EventsRoute,
   GoldRoute: GoldRoute,
   OrderCompleteRoute: OrderCompleteRoute,
+  PrivacyRoute: PrivacyRoute,
   SecretRoomRoute: SecretRoomRoute,
   ShippingRoute: ShippingRoute,
   TermsRoute: TermsRoute,

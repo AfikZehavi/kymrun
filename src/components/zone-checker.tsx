@@ -59,7 +59,7 @@ export function ZoneChecker() {
           </div>
         ) : (
           <div className="mt-4 rounded-md border border-border bg-background/60 p-4 text-sm text-muted-foreground">
-            לא מצאנו את היישוב ברשימה — עדיין אפשר לשלוח, נחזור אליכם עם זמן אספקה ומחיר מדויק דרך{" "}
+            לא מצאנו את היישוב ברשימה, אבל עדיין אפשר לשלוח, נחזור אליכם עם זמן אספקה ומחיר מדויק דרך{" "}
             <span className="font-semibold text-foreground">יצירת קשר</span>.
           </div>
         ))}
